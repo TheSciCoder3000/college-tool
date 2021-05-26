@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './assets/css/app.css'
 import './components/fontAwesome/index'
 import AppBar from './components/AppBar'
