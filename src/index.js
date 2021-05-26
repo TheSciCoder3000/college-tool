@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './index.css';
+import 'typeface-roboto/index.css'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

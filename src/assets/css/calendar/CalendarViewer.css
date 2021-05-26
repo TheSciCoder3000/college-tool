@@ -1,0 +1,60 @@
+.calendar-viewer {
+    padding: 0 1.7rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(209, 209, 209, 0.281);
+}
+
+
+.calendar-viewer-header {
+    display: flex;
+    flex-basis: 8rem;
+}
+.calendar-viewer-header #calendar-month-header {
+    flex: 1;
+}
+
+
+.calendar-viewer-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.7rem;
+}
+.calendar-viewer-body > div:not(:last-child) {
+    border-bottom: 1px solid black;
+}
+.calendar-viewer-body > .cal-days {
+    display: flex;
+    flex-basis: 2rem;
+}
+.calendar-viewer-body > .week {
+    display: flex;
+    flex: 1;
+}
+.cal-viewer-row > .cal-day {
+    flex: 1;
+    text-align: center;
+    padding: 0.2rem 0;
+    font-weight: 900;
+}
+.calendar-viewer .date,
+.calendar-viewer .empty-date-viewer {
+    padding-left: 0.8rem;
+    padding-top: 0.8rem;
+}
+.cal-viewer-row > div:not(:last-child){
+    border-right: 1px solid black;
+}
+.calendar-viewer-body .date,
+.calendar-viewer-body .empty-date-viewer{
+    flex: 1;
+    min-height: 2rem;
+}
+
+.calendar-viewer .current::before {
+    background-color: blueviolet;
+    top: 0.4rem;
+    left: 0.48rem;
+}

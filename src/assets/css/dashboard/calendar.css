@@ -1,0 +1,59 @@
+.calendar-widget .calendar-header {
+    display: flex;
+    justify-content: center;
+    padding: 0 1.2rem;
+}
+#month-header {
+    flex: 1;
+    text-align: center;
+    margin: 1rem 0;
+}
+.calendar-btn {
+    flex-basis: 1rem;
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    color: rgb(95, 95, 95);
+}
+.calendar-btn:hover {
+    color:rgb(0, 0, 0);
+    cursor: pointer;
+}
+
+.calendar-widget .calendar-body {
+    padding: 0 1.2rem;
+}
+
+.calendar-widget .cal-row {
+    display: flex;
+    margin: 1.5rem 0;
+}
+.calendar-widget .day,
+.calendar-widget .date {
+    flex: 1;
+    text-align: center;
+    cursor: context-menu;
+    user-select: none;
+}
+.calendar-widget .day {
+    font-weight: bold;
+}
+
+.current {
+    position: relative;
+}
+.current > span {
+    position: relative;
+    color: white;
+    font-weight: 900;
+}
+.current::before {
+    position: absolute;
+    border-radius: 50%;
+    background-color: #088F8F;
+    height: 1.8rem;
+    width: 1.8rem;
+    left: 0.40rem;
+    top: -0.35rem;
+    content: '';
+}

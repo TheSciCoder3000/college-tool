@@ -1,0 +1,45 @@
+.viewer {
+    flex: 1;
+}
+
+.greeting {
+    display: flex;
+}
+.greeting > div {
+    flex: 1;
+}
+.greeting-time {
+    text-align: center;
+    font-size: 7rem;
+    font-weight: 400;
+    padding-top: 2rem;
+    color: white;
+}
+.greeting-date {
+    font-size: 2rem;
+    color: #D8D8D8;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+.schedule {
+    display: flex;
+    flex-direction: column;
+}
+.schedule > .row {
+    display: flex;
+    flex-basis: 5rem;
+}
+.sched-name {
+    flex: 1;
+    text-align: center;
+    padding: 1.5rem 0;
+    font-size: 1.5rem;
+}
+.sched-next, .sched-prev {
+    flex-basis: 4rem;
+}
+.sched-time {
+    flex: 1;
+    text-align: center;
+}
