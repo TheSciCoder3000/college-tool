@@ -11,21 +11,27 @@ const CalendarViewer = () => {
     function renderCalenderViewer(calendarDate) {
         let calendarView = []
         let emptyIndx = 0
-        let cDate = new Date()
-        let cMonth = calendarDate.getMonth()
-        let cYear = calendarDate.getFullYear()
-        let cachedDate = new Date(cYear, cMonth, 1)
+        let cDate = new Date()                                         // Get current date
+        let cMonth = calendarDate.getMonth()                           // Get month from date argument
+        let cYear = calendarDate.getFullYear()                         // Get year from date argument
+        let cachedDate = new Date(cYear, cMonth, 1)                    // Create date cache for iteration
+
         for (let w = 0; w < 6; w++) {
+            // Generate week element
             let week = []
             for (let d = 0; d < 7; d++) {
-                if (d == cachedDate.getDay() && cachedDate.getMonth() == cMonth) {
+                if (d == cachedDate.getDay() && cachedDate.getMonth() == cMonth) {                  // If day and month corresponds to cache
+                    // Append to day to week list
                     week.push(
-                        <div key={`viewer-${cachedDate.getDate()}`} className={`date ${cDate.getDate() == cachedDate.getDate() && cDate.getMonth() == cachedDate.getMonth() ? 'current' : ''}`}>
+                        <div key={`viewer-${cachedDate.getDate()}`} 
+                             className={`date ${cDate.getDate() == cachedDate.getDate() 
+                             && cDate.getMonth() == cachedDate.getMonth() ? 'current' : ''}`}>
                             <span>{cachedDate.getDate()}</span>
                         </div>
                     )
-                    cachedDate.setDate(cachedDate.getDate() + 1)
-                } else {
+                    cachedDate.setDate(cachedDate.getDate() + 1)                                   // Increment date cache for iteration
+
+                } else {                                                                           // Else append to week list as empty date
                     week.push(
                         <div key={`empty-${emptyIndx}`} className="empty-date-viewer">
                         </div>
@@ -33,6 +39,8 @@ const CalendarViewer = () => {
                     emptyIndx++
                 }
             }
+
+            // Append week to calendar list
             calendarView.push(
                 <div className="cal-viewer-row week"
                     key={`week-${calendarView.length}`}>
@@ -48,8 +56,8 @@ const CalendarViewer = () => {
     const switchCalendar = (value) => {
         let updatedDate = ViewDate
         updatedDate.setMonth(ViewDate.getMonth() + value)
-        setViewDate(updatedDate)
-        setMonthState(updatedDate.getMonth())
+        setViewDate(updatedDate)                                            // Update View Date
+        setMonthState(updatedDate.getMonth())                               // Change calendar viewer
     }
 
 

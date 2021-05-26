@@ -1,6 +1,5 @@
 import '../../assets/css/viewer.css'
 import Schedule from './Schedule'
-import { useState } from 'react'
 import LiveClock from "react-live-clock";
 
 const Viewer = () => {
