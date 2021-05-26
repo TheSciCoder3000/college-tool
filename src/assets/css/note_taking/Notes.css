@@ -1,0 +1,130 @@
+.notes-body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.notes-body .doc-window {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.notes-body .doc-window .tabs {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #dfdfdf;
+  height: 2.3rem;
+}
+
+.notes-body .doc-window .tabs .tab {
+  padding: 0 1rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: #e8e8e8;
+  min-width: 5rem;
+  text-align: center;
+}
+
+.notes-body .doc-window .tabs .active {
+  background-color: #f0f0f0;
+}
+
+.notes-body .doc-window .doc-body {
+  height: 100%;
+  background-color: #f0f0f0;
+  padding: 3rem;
+}
+
+.notes-body .doc-window .doc-body .doc-page {
+  background-color: #f9f9f9;
+  height: 100%;
+  padding: 3rem 0;
+}
+
+.notes-body .folder-sidepanel {
+  width: 20rem;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.notes-body .folder-sidepanel .folder-header {
+  text-align: center;
+}
+
+.note-row {
+  padding: 0.1rem 1.5rem;
+}
+
+.note-row .note-cont {
+  position: relative;
+}
+
+.note-row .note-cont .controls {
+  position: absolute;
+  margin-right: 0.5rem;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: none;
+  left: -0.8rem;
+}
+
+.note-row .note-cont .controls .control {
+  padding: 0.2rem 0.4rem;
+  color: #c5c5c5;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.note-row .note-cont .controls .control:hover {
+  cursor: pointer;
+  background-color: #f1f1f1;
+}
+
+.note-row .note-cont .controls .control .handles-icon {
+  height: 1.3rem;
+}
+
+.note-row .note-cont .controls .control .handles-icon:hover {
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.note-row .note-cont .note-content {
+  padding: 0.2rem 0.5rem;
+  margin-left: 3rem;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.indicator-container {
+  position: relative;
+}
+
+.indicator {
+  position: absolute;
+  height: 2px;
+  top: -4px;
+  left: 0;
+  right: 0;
+  background-color: red;
+  margin: 0 5px;
+}
+/*# sourceMappingURL=Notes.css.map */

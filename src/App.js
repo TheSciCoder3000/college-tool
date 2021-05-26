@@ -5,6 +5,8 @@ import AppBar from './components/AppBar'
 import Viewer from './components/dashboard/viewer'
 import SidePanel from './components/dashboard/SidePanel'
 
+import Notes from './components/note_taking/Notes'
+
 import CalendarViewer from './components/calendar/CalendarViewer'
 import TaskPanel from './components/calendar/TaskPanel'
 import background from './assets/img/dashBackground.jpg'
@@ -37,7 +39,7 @@ function CalendarRoute() {
 function NotesRoute() {
   return(
     <>
-      <h1>Notes Page</h1>
+      <Notes />
     </>
   )
 }

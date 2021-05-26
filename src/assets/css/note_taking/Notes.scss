@@ -1,0 +1,104 @@
+.notes-body {
+    display: flex;
+    flex: 1;
+
+    .doc-window {
+        flex: 1;
+
+        .tabs {
+            display: flex;
+            background-color: #dfdfdf;
+            height: 2.3rem;
+
+            .tab {
+                padding: 0 1rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background-color: #e8e8e8;
+                min-width: 5rem;
+                text-align: center;
+            }
+            .active {
+                background-color: #f0f0f0;
+            }
+        }
+        .doc-body {
+            height: 100%;
+            background-color: #f0f0f0;
+            padding: 3rem;
+
+            .doc-page {
+                background-color: #f9f9f9;
+                height: 100%;
+                padding: 3rem 0;
+            }
+        }
+    }
+
+    .folder-sidepanel {
+        width: 20rem;
+        background-color: rgba(255, 255, 255, 0.8);
+
+        .folder-header {
+            text-align: center;
+        }
+    }
+}
+
+
+.note-row {
+    padding: 0.1rem 1.5rem;
+
+    .note-cont {
+        position: relative;
+
+        .controls {
+            position: absolute;
+            margin-right: 0.5rem;
+            align-items: center;
+            display: none;
+            left: -0.8rem;
+
+            .control {
+                padding: 0.2rem 0.4rem;
+                color: #c5c5c5;
+                display: flex;
+                align-items: center;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: #f1f1f1;
+                }
+                .handles-icon {
+                    height: 1.3rem;
+
+                    &:hover {
+                        cursor: grab;
+                    }
+                }
+            }
+        }
+        .note-content {
+            padding: 0.2rem 0.5rem;
+            margin-left: 3rem;
+            flex: 1;
+        }
+    }
+}
+
+
+.indicator-container {
+    position: relative;
+}
+
+.indicator {
+    position: absolute;
+    height: 2px;
+    top: -4px;
+    left: 0;
+    right: 0;
+    background-color: red;
+    margin: 0 5px
+}
+  
