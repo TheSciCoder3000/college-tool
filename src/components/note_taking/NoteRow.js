@@ -134,7 +134,9 @@ const NoteRow = ({ note, onDelete, onArrange, onAdd }) => {
                     contentEditable="true"
                     suppressContentEditableWarning={true}
                     spellCheck="true"
-                    placeholder="Type '/' for commands">{note.content}</div>
+                    placeholder="Type '/' for commands">{
+                        (!note.content || note.content == '') ? "Type '/' for commands" : note.content
+                    }</div>
             </div>
 
         </div>

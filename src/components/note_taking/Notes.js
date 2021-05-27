@@ -1,10 +1,11 @@
 import '../../assets/css/note_taking/Notes.css'
 import { findParentBySelector } from '../../assets/js/draggable.js'
+import { useState } from 'react'
 
 import NoteRow from './NoteRow'
 
 const Notes = () => {
-    const notes = [
+    const docNotes = [
         {
             id: 1,
             content: "test",
@@ -21,6 +22,7 @@ const Notes = () => {
             noteBefore: 2
         }
     ]
+    const [notes, setNotes] = useState(docNotes)
 
     const onArrange = (id, prevNextSibling) => {
         console.log('arranging')
@@ -28,7 +30,18 @@ const Notes = () => {
 
     const onAdd = (e) => {
         const noteElement = findParentBySelector(e.target, '.note-row')
-        console.log(noteElement)
+        const container = document.querySelector('.doc-page')
+        const indexOfNote = Array.from(container.children).indexOf(noteElement)
+
+        const noteCopy = [...notes]
+        noteCopy.splice(indexOfNote+1, 0, {
+            id: Array.from(container.children).length + 1,
+            content: "",
+            noteBefore: parseInt(noteElement.getAttribute('task'))
+        })
+
+        setNotes(noteCopy)
+        console.log(noteCopy)
     }
 
     return (
