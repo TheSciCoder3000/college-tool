@@ -2,7 +2,7 @@ import { FaPlus } from 'react-icons/fa'
 import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector } from '../../assets/js/draggable.js'
 import handles from '../../assets/img/handles.svg'
 
-const NoteRow = ({ note, onDelete, onArrange, onAdd }) => {
+const NoteRow = ({ note, onDelete, onArrange, onAdd, keyDown }) => {
     // Initialize ghost pos dictionary
     var pos = {
         pos1: 0,
@@ -33,7 +33,6 @@ const NoteRow = ({ note, onDelete, onArrange, onAdd }) => {
         }
         row.querySelector('.controls').style.display = "none"
     } 
-
 
     // Event handlers
     const mouseDown = (e) => {
@@ -134,8 +133,9 @@ const NoteRow = ({ note, onDelete, onArrange, onAdd }) => {
                     contentEditable="true"
                     suppressContentEditableWarning={true}
                     spellCheck="true"
-                    placeholder="Type '/' for commands">{
-                        (!note.content || note.content == '') ? "Type '/' for commands" : note.content
+                    onKeyDown={keyDown}
+                    data-placeholder="type '/' for commands">{
+                        note.content
                     }</div>
             </div>
 

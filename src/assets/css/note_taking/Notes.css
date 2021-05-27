@@ -114,6 +114,11 @@
           flex: 1;
 }
 
+.note-row .note-cont .note-content:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(0, 0, 0, 0.5);
+}
+
 .indicator-container {
   position: relative;
 }
