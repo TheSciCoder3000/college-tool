@@ -1,8 +1,9 @@
 import { FaPlus } from 'react-icons/fa'
 import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector } from '../../assets/js/draggable.js'
+import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
 
-const NoteRow = ({ note, onDelete, onArrange, onAdd, keyDown }) => {
+const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
     // Initialize ghost pos dictionary
     var pos = {
         pos1: 0,
@@ -32,7 +33,25 @@ const NoteRow = ({ note, onDelete, onArrange, onAdd, keyDown }) => {
             row = findParentBySelector(e.target, '.note-row')
         }
         row.querySelector('.controls').style.display = "none"
-    } 
+    }
+
+    const keyDown = (e) => {
+        // console.log(e.keyCode)
+        if (e.keyCode == 13) {
+            e.preventDefault()
+            onAdd(e)
+            setTimeout(() => {
+                findParentBySelector(e.target, '.note-row').nextSibling.querySelector('.note-content').focus()
+            }, 0);
+        }
+        if (e.keyCode == 8 && e.target.innerHTML == '') {
+            e.preventDefault()
+            let prevNote = findParentBySelector(e.target, '.note-row').previousSibling.querySelector('.note-content')
+            prevNote.focus()
+            placeCaretAtEnd(prevNote)
+            onDelete(e)
+        }
+    }
 
     // Event handlers
     const mouseDown = (e) => {

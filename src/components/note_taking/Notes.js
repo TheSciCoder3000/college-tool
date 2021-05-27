@@ -41,12 +41,9 @@ const Notes = () => {
         })
 
         setNotes(noteCopy)
-        console.log(noteCopy)
     }
 
     const onDelete = (e) => {
-        if (!(e.keyCode == 8 && e.target.innerHTML == '')) return
-        console.log('deleting')
         const noteElement = findParentBySelector(e.target, '.note-row')
         setNotes(notes.filter(note => note.id !== parseInt(noteElement.getAttribute('note'))))
     }
@@ -69,7 +66,7 @@ const Notes = () => {
                                      note={note} 
                                      onArrange={onArrange}
                                      onAdd={onAdd}
-                                     keyDown={onDelete} />
+                                     onDelete={onDelete} />
                         ))}
                     </div>
                 </div>
