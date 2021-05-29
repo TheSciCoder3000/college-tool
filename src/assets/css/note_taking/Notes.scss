@@ -84,9 +84,12 @@
             margin-left: 3rem;
             flex: 1;
 
-            &:empty::before {
+            &:focus:empty::before {
                 content: attr(data-placeholder);
                 color: rgba(0, 0, 0, 0.5);
+            }
+            &:focus {
+                outline: 0px solid transparent;
             }
         }
     }

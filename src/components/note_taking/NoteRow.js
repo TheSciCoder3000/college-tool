@@ -36,21 +36,42 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
     }
 
     const keyDown = (e) => {
-        // console.log(e.keyCode)
+        let parentNote = findParentBySelector(e.target, '.note-row')
+
+        
+        // Enter key
         if (e.keyCode == 13) {
-            e.preventDefault()
-            onAdd(e)
-            setTimeout(() => {
-                findParentBySelector(e.target, '.note-row').nextSibling.querySelector('.note-content').focus()
-            }, 0);
+            e.preventDefault()              // prevent creating new line
+            onAdd(e)                        // Add new note row
+            // setTimeout(() => {
+            //     findParentBySelector(e.target, '.note-row').nextSibling.querySelector('.note-content').focus()
+            // }, 0);
         }
-        if (e.keyCode == 8 && e.target.innerHTML == '') {
-            e.preventDefault()
-            let prevNote = findParentBySelector(e.target, '.note-row').previousSibling.querySelector('.note-content')
-            prevNote.focus()
-            placeCaretAtEnd(prevNote)
-            onDelete(e)
+        // Backspace key
+        if (e.keyCode == 8 && e.target.innerHTML == '' && findParentBySelector(e.target, '.note-row').previousSibling) {
+            e.preventDefault()                                                           // prevent removing the char in previous note row
+            parentNote.previousSibling.querySelector('.note-content').focus()            // focus on previous note row
+            placeCaretAtEnd(parentNote.previousSibling.querySelector('.note-content'))   // place the charet on the end of the text
+            onDelete(e)                                                                  // remove the current note row
         }
+
+
+        // Tab key
+        if (e.keyCode == 9) {
+            e.preventDefault()                      // prevent focusing on other inputs
+
+            let childCont = document.createElement('DIV')
+            childCont.classList.add('note-children')
+            parentNote.previousSibling.append(childCont)
+            parentNote.previousSibling.querySelector('.note-children').appendChild(parentNote)
+            console.log(parentNote)
+        }
+
+
+        // Up arrow key
+        if (e.keyCode == 38 && parentNote.previousSibling) parentNote.previousSibling.querySelector('.note-content').focus()
+        // Down arrow key
+        if (e.keyCode == 40 && parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus() 
     }
 
     // Event handlers

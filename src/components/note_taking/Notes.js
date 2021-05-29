@@ -24,23 +24,25 @@ const Notes = () => {
     ]
     const [notes, setNotes] = useState(docNotes)
 
+
     const onArrange = (id, prevNextSibling) => {
         console.log('arranging')
     }
 
     const onAdd = (e) => {
         const noteElement = findParentBySelector(e.target, '.note-row')
+        console.log(noteElement)
         const container = document.querySelector('.doc-page')
         const indexOfNote = Array.from(container.children).indexOf(noteElement)
 
-        const noteCopy = [...notes]
-        noteCopy.splice(indexOfNote+1, 0, {
-            id: Array.from(container.children).length + 1,
+        const noteCopy = [...notes]                             // copy notes data on separate variable
+        noteCopy.splice(parseInt(indexOfNote)+1, 0, {           // insert another note row after the note row
+            id: container.querySelectorAll('.note-row').length + 1,
             content: "",
             noteBefore: parseInt(noteElement.getAttribute('task'))
         })
 
-        setNotes(noteCopy)
+        setNotes(noteCopy)                                      // update note rows html
     }
 
     const onDelete = (e) => {

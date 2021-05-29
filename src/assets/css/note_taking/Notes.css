@@ -114,9 +114,13 @@
           flex: 1;
 }
 
-.note-row .note-cont .note-content:empty::before {
+.note-row .note-cont .note-content:focus:empty::before {
   content: attr(data-placeholder);
   color: rgba(0, 0, 0, 0.5);
+}
+
+.note-row .note-cont .note-content:focus {
+  outline: 0px solid transparent;
 }
 
 .indicator-container {
