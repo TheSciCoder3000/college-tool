@@ -7,47 +7,69 @@ import NoteRow from './NoteRow'
 const Notes = () => {
     const docNotes = [
         {
-            id: 1,
+            id: 'a594726d',
             content: "test",
-            noteBefore: null
+            noteBefore: null,
+            insideNote: null
         },
         {
-            id: 2,
-            content: "this is another note",
-            noteBefore: 1
+            id: 'd528a56b',
+            content: "this is another note with sub text pls ",
+            noteBefore: 'a594726d',
+            insideNote: [
+                {
+                    id: 'gh4822g5',
+                    content: "this is a sub text",
+                    noteBefore: null,
+                    insideNote: null
+                },
+                {
+                    id: '56472vh5',
+                    content: "does this sub text update",
+                    noteBefore: 'gh4822g5',
+                    insideNote: null
+                }
+            ]
         },
         {
-            id: 3,
+            id: '54g8v621',
             content: "Hope this works",
-            noteBefore: 2
+            noteBefore: 'd528a56b',
+            insideNote: null
         }
     ]
     const [notes, setNotes] = useState(docNotes)
 
 
-    const onArrange = (id, prevNextSibling) => {
+    const onArrange = (id, prevNextSibling, NoteData) => {
         console.log('arranging')
+
+        // Update dragged note data
+        let draggedData = {}             // fetch dragged note data from database
+        let draggedNote = {...draggedData, noteBefore: NoteData.note.el.previosSibling ? NoteData.note.el.previosSibling.getAttribute('note') : null}
+
+        // Update next sibling
+        let nextSiblingData = {}        // fetch previous sibling note data from database
+        let nextSiblingNote = {...nextSiblingData, noteBefore: NoteData.note.id}
     }
 
-    const onAdd = (e) => {
-        const noteElement = findParentBySelector(e.target, '.note-row')
-        console.log(noteElement)
+    const onAdd = (id, indx) => {
+        console.log('adding')
         const container = document.querySelector('.doc-page')
-        const indexOfNote = Array.from(container.children).indexOf(noteElement)
 
         const noteCopy = [...notes]                             // copy notes data on separate variable
-        noteCopy.splice(parseInt(indexOfNote)+1, 0, {           // insert another note row after the note row
-            id: container.querySelectorAll('.note-row').length + 1,
+        noteCopy.splice(indx+1, 0, {           // insert another note row after the note row
+            id: Math.random().toString(16).slice(-8),
             content: "",
-            noteBefore: parseInt(noteElement.getAttribute('task'))
+            noteBefore: id
         })
 
         setNotes(noteCopy)                                      // update note rows html
     }
 
-    const onDelete = (e) => {
-        const noteElement = findParentBySelector(e.target, '.note-row')
-        setNotes(notes.filter(note => note.id !== parseInt(noteElement.getAttribute('note'))))
+    const onDelete = (id) => {
+        // const noteElement = findParentBySelector(e.target, '.note-row')
+        setNotes(notes.filter(note => note.id !== id))
     }
 
     return (
@@ -63,9 +85,14 @@ const Notes = () => {
                 </div>
                 <div className="doc-body">
                     <div className="doc-page">
-                        {notes.map((note) => (
+                        {notes.map((note, indx) => (
                             <NoteRow key={note.id}
-                                     note={note} 
+                                     indx={indx}
+                                     note={note}
+                                     siblings={{
+                                         prev: notes[indx-1],
+                                         next: notes[indx+1]
+                                     }} 
                                      onArrange={onArrange}
                                      onAdd={onAdd}
                                      onDelete={onDelete} />

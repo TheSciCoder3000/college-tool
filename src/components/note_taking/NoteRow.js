@@ -2,8 +2,28 @@ import { FaPlus } from 'react-icons/fa'
 import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector } from '../../assets/js/draggable.js'
 import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
+import { useEffect } from 'react'
 
-const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
+const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
+    console.log(note.insideNote)
+    var NoteData = {}
+    useEffect(() => {
+        console.log('updating')
+        NoteData = {
+            prevNote: siblings.prev ? {
+                el: document.getElementById(`note-${siblings.prev.id}`),
+                id: siblings.prev.id
+            } : null,
+            note: {
+                el: document.getElementById(`note-${note.id}`),
+                id: note.id
+            },
+            nextNote: siblings.next ? {
+                el: document.getElementById(`note-${siblings.next.id}`),
+                id: siblings.next.id
+            } : null
+        }
+    })
     // Initialize ghost pos dictionary
     var pos = {
         pos1: 0,
@@ -36,13 +56,14 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
     }
 
     const keyDown = (e) => {
+        console.log(NoteData)
         let parentNote = findParentBySelector(e.target, '.note-row')
 
         
         // Enter key
         if (e.keyCode == 13) {
             e.preventDefault()              // prevent creating new line
-            onAdd(e)                        // Add new note row
+            onAdd(note.id, indx)                        // Add new note row
             // setTimeout(() => {
             //     findParentBySelector(e.target, '.note-row').nextSibling.querySelector('.note-content').focus()
             // }, 0);
@@ -52,7 +73,7 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
             e.preventDefault()                                                           // prevent removing the char in previous note row
             parentNote.previousSibling.querySelector('.note-content').focus()            // focus on previous note row
             placeCaretAtEnd(parentNote.previousSibling.querySelector('.note-content'))   // place the charet on the end of the text
-            onDelete(e)                                                                  // remove the current note row
+            onDelete(note.id)                                                                  // remove the current note row
         }
 
 
@@ -76,7 +97,7 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
 
     // Event handlers
     const mouseDown = (e) => {
-        draggableGhostClone(e, document.getElementById(`note-${note.id}`), pos)
+        draggableGhostClone(e, NoteData.note.el, pos)
         document.onmousemove = dragMouse
         document.onmouseup = mouseUp
     }
@@ -93,7 +114,8 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
         var afterElement = getDragAfterElement(taskContainer, e.clientY)
 
         // Display insert indicator
-        displayIndicator(taskContainer, afterElement)
+        console.log(afterElement)
+        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement)
     }
 
     const getDragAfterElement = (container, y) => {
@@ -109,7 +131,7 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
             } else {
                 return closest
             }
-        }, { offset: Number.NEGATIVE_INFINITY })
+        }, { offset: Number.NEGATIVE_INFINITY, element: null })
     }
 
     const mouseUp = (e) => {
@@ -123,31 +145,23 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
         elmnt.parentNode.removeChild(elmnt)
 
         // Reset class list of the dragged component
-        var mainElmnt = document.getElementById(`note-${note.id}`)
+        var mainElmnt = NoteData.note.el
         mainElmnt.classList.remove('dragging')
 
-        // Get sibling data
-        var nextSibling = {
-            task: {
-                element: mainElmnt.nextSibling,
-                id: mainElmnt.nextSibling ? parseInt(mainElmnt.nextSibling.getAttribute('note')) : null
-            },
-            prev: {
-                element: mainElmnt.previousSibling,
-                id: mainElmnt.previousSibling ? parseInt(mainElmnt.previousSibling.getAttribute('note')) : null
-            }
-        }
+        // initialize the updated data of the next sibling note
+        var nextSibling = siblings.next ? {...siblings.next, noteBefore: siblings.prev ? siblings.prev.id : null} : null
 
         // Insert the dragged element 
         if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').replaceWith(mainElmnt)
 
         // Arrange json server task
-        onArrange(note.id, nextSibling)
-
+        onArrange(note.id, nextSibling, NoteData)
     }
 
 
-
+    const renderNote = () => {
+        
+    }
     
     return (
         <div id={`note-${note.id}`}
@@ -160,7 +174,7 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
                 <div className="controls">
                     <div className="control">
                         <FaPlus className="add-icon" 
-                                onClick={onAdd} />
+                                onClick={(e) => onAdd(note.id, indx)} />
                     </div>
                     <div className="control">
                         <img className="handles-icon" src={handles}
@@ -176,7 +190,25 @@ const NoteRow = ({ note, onArrange, onAdd, onDelete }) => {
                     onKeyDown={keyDown}
                     data-placeholder="type '/' for commands">{
                         note.content
-                    }</div>
+                    }
+                </div>
+
+                {note.insideNote && (
+                    <div className="child-note-cont">
+                        {note.insideNote.map((note, indx) => (
+                            <NoteRow key={note.id}
+                                     indx={indx}
+                                     note={note}
+                                     siblings={{
+                                         prev: note.insideNote ? note.insideNote[indx-1] : null,
+                                         next: note.insideNote ? note.insideNote[indx+1] : null
+                                     }} 
+                                     onArrange={onArrange}
+                                     onAdd={onAdd}
+                                     onDelete={onDelete} />
+                        ))}
+                    </div>
+                )}
             </div>
 
         </div>

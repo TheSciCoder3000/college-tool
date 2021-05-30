@@ -46,7 +46,7 @@ const displayIndicator = (container, afterElement) => {
     indicator.classList.add('indicator')
     indiContainer.appendChild(indicator)
 
-    if (afterElement) {
+    if (afterElement.element) {
         let indiExist = document.querySelector('.indicator-container')
         if (indiExist) indiExist.remove()
         container.insertBefore(indiContainer, afterElement.element)
