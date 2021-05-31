@@ -102,13 +102,24 @@
     position: relative;
 }
 
-.indicator {
+.abs-indicator {
     position: absolute;
-    height: 2px;
+    display: flex;
     top: -4px;
-    left: 0;
+    left: 0.5rem;
     right: 0;
-    background-color: red;
-    margin: 0 5px
-}
-  
+
+    .extra-child-indicator {
+        height: 0.2rem;
+        width: 1.6rem;
+        background-color: #fd00004d;
+        margin-right: 0.35rem;
+    }
+    
+    .indicator {
+        flex: 1;
+        height: 0.15rem;
+        background-color: red;
+    }
+    
+}  

@@ -1,5 +1,7 @@
 import { FaPlus } from 'react-icons/fa'
-import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount } from '../../assets/js/draggable.js'
+import { draggableGhostClone, followCursor, 
+         displayIndicator, findParentBySelector, 
+         getChildContCount, noteChildAnalysis } from '../../assets/js/draggable.js'
 import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
 import { useEffect, useState } from 'react'
@@ -79,9 +81,9 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
             e.preventDefault()                      // prevent focusing on other inputs
 
             let childCont = document.createElement('DIV')
-            childCont.classList.add('note-children')
+            childCont.classList.add('child-note-cont')
             parentNote.previousSibling.append(childCont)
-            parentNote.previousSibling.querySelector('.note-children').appendChild(parentNote)
+            parentNote.previousSibling.querySelector('.child-note-cont').appendChild(parentNote)
         }
 
 
@@ -114,12 +116,14 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
         // Detect which component it's closest to
         const taskContainer = document.querySelector('.doc-page')
-        var afterElement = getDragAfterElement(taskContainer, e.clientX, e.clientY)
+        var [afterElement, indicatorStyle] = getDragAfterElement(taskContainer, e.clientX, e.clientY)
         // console.log(afterElement)
 
         // Display insert indicator
-        if (document.querySelector('.indicator-container') && afterElement.element == document.querySelector('.indicator-container').nextSibling) return
-        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, e.clientX)
+        if (document.querySelector('.indicator-container') 
+            && afterElement.element == document.querySelector('.indicator-container').nextSibling 
+            && document.querySelectorAll('.extra-child-indicator').length == indicatorStyle.childPos) return
+        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, indicatorStyle)
     }
 
     const getDragAfterElement = (container, x, y) => {
@@ -134,11 +138,11 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         console.log('start')
 
         // Compute closest component based on offset
-        return draggebleElements.reduce((closest, child) => {
+        let AfterElementData = draggebleElements.reduce((closest, child) => {
             var box = child.getBoundingClientRect()
             const offset = y - box.top
             const x_offset = ((box.left*(1.05)) - x)
-            console.log({element: child, offset: x_offset})
+            // console.log({element: child, offset: x_offset})
 
             // skip child if not within x range
             if (x_offset < 0) {
@@ -157,6 +161,17 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
             }
 
         }, { offset: Number.POSITIVE_INFINITY, element: null, type: 'horizontal' })
+
+        if (!AfterElementData.element) return [AfterElementData, {childPos: 0}]
+        if (!AfterElementData.element.previousSibling) return [AfterElementData, {childPos: 0}]
+
+        let prevAfterElement = AfterElementData.element.previousSibling.classList.contains('indicator-container') 
+                               ? AfterElementData.element.previousSibling.previousSibling
+                               : AfterElementData.element.previousSibling
+        let indicatorStyle = noteChildAnalysis(prevAfterElement, x)
+        console.log(indicatorStyle)
+        
+        return [AfterElementData, indicatorStyle]
     }
 
     const mouseUp = (e) => {
@@ -176,8 +191,16 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         // initialize the updated data of the next sibling note
         var nextSibling = siblings.next ? {...siblings.next, noteBefore: siblings.prev ? siblings.prev.id : null} : null
 
-        // Insert the dragged element
-        if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').replaceWith(mainElmnt)
+        if (document.querySelectorAll('.extra-child-indicator').length > 0) {
+            let parentIndicator = findParentBySelector(document.querySelector('.extra-child-indicator'), '.indicator-container')
+            let childPos = document.querySelectorAll('.extra-child-indicator').length - 1
+            console.log(parentIndicator)
+            let NoteContainer = parentIndicator.previousSibling.querySelectorAll('.child-note-cont')[childPos]
+
+
+            NoteContainer.appendChild(mainElmnt)
+            document.querySelector('.indicator-container').remove()
+        } else if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').replaceWith(mainElmnt)
 
         // Arrange json server task
         onArrange(note.id, nextSibling, NoteData)

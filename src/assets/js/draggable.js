@@ -37,22 +37,35 @@ const followCursor = (e, pos, taskCloneElmnt) => {
     elmnt.style.left = `${elmnt.offsetLeft - pos.pos1}px`
 }
 
-const displayIndicator = (container, afterElement, x) => {
+const displayIndicator = (container, afterElement, indicatorStyle) => {
     // Display insert indicator
     console.log(afterElement)
     const indiContainer = document.createElement('DIV')
     indiContainer.classList.add('indicator-container')
 
+    const absIndiContainer = document.createElement('DIV')
+    absIndiContainer.classList.add('abs-indicator')
+
+    for (let i = 0; i < indicatorStyle.childPos; i++) {
+        console.log('adding child indicator')
+        const childIndicator = document.createElement('DIV')
+        childIndicator.classList.add('extra-child-indicator')
+        absIndiContainer.appendChild(childIndicator)
+    }
+
     const indicator = document.createElement('DIV')
     indicator.classList.add('indicator')
-    indiContainer.appendChild(indicator)
+    absIndiContainer.appendChild(indicator)
+
+    indiContainer.appendChild(absIndiContainer)
 
     let indiExist = document.querySelector('.indicator-container')
     if (indiExist) indiExist.remove()
 
-    if (afterElement.element) {
+    // display indicator
+    if (afterElement.element) {     // If element exists insert before element
         container.insertBefore(indiContainer, afterElement.element)
-    } else {
+    } else {                        // Else append to the end
         // container.appendChild(indiContainer)
         let mainContainer = document.querySelector('.doc-page')
         mainContainer.appendChild(indiContainer)
@@ -85,13 +98,18 @@ function getChildContCount(noteElement) {
     return childContCount
 }
 
-function noteChildAnalysis(parentNote) {
-    return [...document.querySelectorAll('.child-note-cont')].reduce((test, child) => {
-        return [...test, {
-            element: child.lastChild, 
-            offset: child.getBoundingClientRect().left
-        }]
-    }, [])
+function noteChildAnalysis(parentNote, x) {
+    if (!parentNote) return {childPos: 0}
+    return [...parentNote.querySelectorAll('.child-note-cont')].reduce((result, child, childIndx) => {
+        let box = child.lastChild.getBoundingClientRect()
+        let offset = x - (box.left*1.05)
+
+        console.log({element: child.lastChild, childPos: childIndx+1, offset: offset})
+
+        if (offset > 0 && offset < result.offset) return {element: child.lastChild, childPos: childIndx+1, offset: offset}
+        return result
+
+    }, {element: parentNote, childPos: 0, offset: Number.POSITIVE_INFINITY})
 }
 
 export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount, noteChildAnalysis }
