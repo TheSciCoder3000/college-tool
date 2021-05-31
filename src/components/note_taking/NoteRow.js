@@ -2,7 +2,7 @@ import { FaPlus } from 'react-icons/fa'
 import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount } from '../../assets/js/draggable.js'
 import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
     var NoteData = {}
@@ -116,15 +116,18 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         const taskContainer = document.querySelector('.doc-page')
         var afterElement = getDragAfterElement(taskContainer, e.clientX, e.clientY)
         // console.log(afterElement.offset)
-        // console.log(afterElement.element)
 
         // Display insert indicator
+        console.log(afterElement)
+        if (document.querySelector('.indicator-container') && afterElement.element == document.querySelector('.indicator-container').nextSibling) return
         displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, e.clientX)
     }
 
     const getDragAfterElement = (container, x, y) => {
         // select all task components inside the container except the component that is currently being dragged
         var draggebleElements = [...container.querySelectorAll('.note-row:not(.dragging)')]
+
+        // Filter child notes of dragg
         draggebleElements = draggebleElements.filter((el) => {
             let parent = findParentBySelector(el, '.note-row')
             return parent ? !(parent.classList.contains('dragging')) : true
@@ -133,22 +136,27 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
         // Compute closest component based on offset
         return draggebleElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect()
+            var box = child.querySelector('.note-content').getBoundingClientRect()
             const offset = y - box.top - box.height/2
+            const x_offset = ((box.left*(1.05)) - x)
 
             // skip child if not within x range
-            if (((box.left*(1.05)) - x) > 0) return closest
-
-            // console.log(child)
-            // console.log(console.log(Math.abs(offset)))
-            // console.log({x: x, left: box.left*(1.05)})
-            console.log({child: child, offset: Math.abs(offset), closest: closest.offset})
-            if (Math.abs(offset) < Math.abs(closest.offset)) {
-                return { offset: offset, element: child, prev: child.nextSibling }
+            if (x_offset < 0) {
+                let indiType = 'horizontal'
+                console.log({child: child, offset: offset, closest: closest.offset})
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child, type: indiType }
+                } else {
+                    return {...closest, type: indiType}
+                }    
             } else {
-                return closest
+                let indiType = 'vertical'
+                box = child.getBoundingClientRect()
+                if(y > box.top && y < box.bottom && !findParentBySelector(child, '.note-row')) return {offset: x_offset, element: child, type: indiType}
+                return {...closest, type: indiType}
             }
-        }, { offset: Number.POSITIVE_INFINITY, element: null, prev: null })
+
+        }, { offset: Number.NEGATIVE_INFINITY, element: null, type: 'horizontal' })
     }
 
     const mouseUp = (e) => {
@@ -176,9 +184,6 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
     }
 
 
-    const renderNote = () => {
-
-    }
 
     return (
         <div id={`note-${note.id}`}

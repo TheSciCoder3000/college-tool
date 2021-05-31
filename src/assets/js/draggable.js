@@ -46,14 +46,15 @@ const displayIndicator = (container, afterElement, x) => {
     indicator.classList.add('indicator')
     indiContainer.appendChild(indicator)
 
+    let indiExist = document.querySelector('.indicator-container')
+    if (indiExist) indiExist.remove()
+
     if (afterElement.element) {
-        let indiExist = document.querySelector('.indicator-container')
-        if (indiExist) indiExist.remove()
         container.insertBefore(indiContainer, afterElement.element)
     } else {
         // container.appendChild(indiContainer)
         let mainContainer = document.querySelector('.doc-page')
-        let lastMainChild = mainContainer.lastChild
+        mainContainer.appendChild(indiContainer)
     }
 }
 
@@ -81,6 +82,12 @@ function getChildContCount(noteElement) {
         container = container.querySelector('.child-note-cont')
     }
     return childContCount
+}
+
+function getPrevNoteSibling(noteEl) {
+    if (noteEl.previousSibling) {
+
+    }
 }
 
 export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount }
