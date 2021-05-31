@@ -27,7 +27,14 @@ const Notes = () => {
                     id: '56472vh5',
                     content: "does this sub text update",
                     noteBefore: 'gh4822g5',
-                    insideNote: null
+                    insideNote: [
+                        {
+                            id: '78vh79ab',
+                            content: "sub text inside subtext",
+                            noteBefore: null,
+                            insideNote: null
+                        }
+                    ]
                 }
             ]
         },

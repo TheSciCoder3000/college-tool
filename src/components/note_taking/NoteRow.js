@@ -115,10 +115,9 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         // Detect which component it's closest to
         const taskContainer = document.querySelector('.doc-page')
         var afterElement = getDragAfterElement(taskContainer, e.clientX, e.clientY)
-        // console.log(afterElement.offset)
+        // console.log(afterElement)
 
         // Display insert indicator
-        console.log(afterElement)
         if (document.querySelector('.indicator-container') && afterElement.element == document.querySelector('.indicator-container').nextSibling) return
         displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, e.clientX)
     }
@@ -136,15 +135,16 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
         // Compute closest component based on offset
         return draggebleElements.reduce((closest, child) => {
-            var box = child.querySelector('.note-content').getBoundingClientRect()
-            const offset = y - box.top - box.height/2
+            var box = child.getBoundingClientRect()
+            const offset = y - box.top
             const x_offset = ((box.left*(1.05)) - x)
+            console.log({element: child, offset: x_offset})
 
             // skip child if not within x range
             if (x_offset < 0) {
                 let indiType = 'horizontal'
-                console.log({child: child, offset: offset, closest: closest.offset})
-                if (offset < 0 && offset > closest.offset) {
+                // console.log({child: child, offset: offset, closest: closest.offset})
+                if (Math.abs(offset) < closest.offset && y < box.bottom) {
                     return { offset: offset, element: child, type: indiType }
                 } else {
                     return {...closest, type: indiType}
@@ -156,7 +156,7 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
                 return {...closest, type: indiType}
             }
 
-        }, { offset: Number.NEGATIVE_INFINITY, element: null, type: 'horizontal' })
+        }, { offset: Number.POSITIVE_INFINITY, element: null, type: 'horizontal' })
     }
 
     const mouseUp = (e) => {

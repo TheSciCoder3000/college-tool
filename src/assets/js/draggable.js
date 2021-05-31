@@ -39,6 +39,7 @@ const followCursor = (e, pos, taskCloneElmnt) => {
 
 const displayIndicator = (container, afterElement, x) => {
     // Display insert indicator
+    console.log(afterElement)
     const indiContainer = document.createElement('DIV')
     indiContainer.classList.add('indicator-container')
 
@@ -84,10 +85,13 @@ function getChildContCount(noteElement) {
     return childContCount
 }
 
-function getPrevNoteSibling(noteEl) {
-    if (noteEl.previousSibling) {
-
-    }
+function noteChildAnalysis(parentNote) {
+    return [...document.querySelectorAll('.child-note-cont')].reduce((test, child) => {
+        return [...test, {
+            element: child.lastChild, 
+            offset: child.getBoundingClientRect().left
+        }]
+    }, [])
 }
 
-export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount }
+export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount, noteChildAnalysis }
