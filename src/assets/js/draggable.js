@@ -3,14 +3,14 @@ const draggableGhostClone = (e, taskElmnt, pos) => {
     e.preventDefault()
 
     // create clone
-    var element = taskElmnt // document.getElementById(`task-${task.id}`)
-    element.classList.add('dragging')
+    var elBBx = taskElmnt.getBoundingClientRect() // document.getElementById(`task-${task.id}`)
+    taskElmnt.classList.add('dragging')
 
-    var ghost = element.cloneNode(true)
+    var ghost = taskElmnt.cloneNode(true)
     ghost.style.position = 'absolute'                   // Set position absolute to overlay
-    ghost.style.width = `${element.offsetWidth}px`      // Set fixed width
-    ghost.style.top = `${element.offsetTop}px`                      // set X and Y to overlay directly above the task component
-    ghost.style.left = `${element.offsetLeft}px`
+    ghost.style.width = `${elBBx.width}px`      // Set fixed width
+    ghost.style.top = `${elBBx.y}px`                      // set X and Y to overlay directly above the task component
+    ghost.style.left = `${elBBx.x}px`
     ghost.style.margin = '0'                            // Set margin 0 to prevent offset bugs
     ghost.querySelector('.handles-icon').style.cursor = 'grabbing'
     ghost.id = `note-${taskElmnt.getAttribute('note')}-clone`                  // Set unique id from the original task component
@@ -37,7 +37,7 @@ const followCursor = (e, pos, taskCloneElmnt) => {
     elmnt.style.left = `${elmnt.offsetLeft - pos.pos1}px`
 }
 
-const displayIndicator = (container, afterElement) => {
+const displayIndicator = (container, afterElement, x) => {
     // Display insert indicator
     const indiContainer = document.createElement('DIV')
     indiContainer.classList.add('indicator-container')
@@ -51,7 +51,9 @@ const displayIndicator = (container, afterElement) => {
         if (indiExist) indiExist.remove()
         container.insertBefore(indiContainer, afterElement.element)
     } else {
-        container.appendChild(indiContainer)
+        // container.appendChild(indiContainer)
+        let mainContainer = document.querySelector('.doc-page')
+        let lastMainChild = mainContainer.lastChild
     }
 }
 
@@ -71,4 +73,14 @@ function findParentBySelector(elm, selector) {
     return cur; //will return null if not found
 }
 
-export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector }
+function getChildContCount(noteElement) {
+    let childContCount = 0
+    let container = noteElement.querySelector('.child-note-cont')
+    while (container) {
+        childContCount += 1
+        container = container.querySelector('.child-note-cont')
+    }
+    return childContCount
+}
+
+export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount }

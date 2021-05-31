@@ -31,7 +31,7 @@
             .doc-page {
                 background-color: #f9f9f9;
                 height: 100%;
-                padding: 3rem 0;
+                padding: 3rem 6rem;
             }
         }
     }
@@ -48,7 +48,7 @@
 
 
 .note-row {
-    padding: 0.1rem 1.5rem;
+    padding: 0.1rem 0;
 
     .note-cont {
         position: relative;
@@ -58,7 +58,7 @@
             margin-right: 0.5rem;
             align-items: center;
             display: none;
-            left: -0.8rem;
+            left: -3.5rem;
 
             .control {
                 padding: 0.2rem 0.4rem;
@@ -81,7 +81,6 @@
         }
         .note-content {
             padding: 0.2rem 0.5rem;
-            margin-left: 3rem;
             flex: 1;
 
             &:focus:empty::before {
@@ -91,6 +90,9 @@
             &:focus {
                 outline: 0px solid transparent;
             }
+        }
+        .child-note-cont {
+            padding-left: 2rem;
         }
     }
 }

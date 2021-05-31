@@ -1,14 +1,12 @@
 import { FaPlus } from 'react-icons/fa'
-import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector } from '../../assets/js/draggable.js'
+import { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount } from '../../assets/js/draggable.js'
 import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
 import { useEffect } from 'react'
 
 const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
-    console.log(note.insideNote)
     var NoteData = {}
     useEffect(() => {
-        console.log('updating')
         NoteData = {
             prevNote: siblings.prev ? {
                 el: document.getElementById(`note-${siblings.prev.id}`),
@@ -56,10 +54,9 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
     }
 
     const keyDown = (e) => {
-        console.log(NoteData)
         let parentNote = findParentBySelector(e.target, '.note-row')
 
-        
+
         // Enter key
         if (e.keyCode == 13) {
             e.preventDefault()              // prevent creating new line
@@ -85,14 +82,13 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
             childCont.classList.add('note-children')
             parentNote.previousSibling.append(childCont)
             parentNote.previousSibling.querySelector('.note-children').appendChild(parentNote)
-            console.log(parentNote)
         }
 
 
         // Up arrow key
         if (e.keyCode == 38 && parentNote.previousSibling) parentNote.previousSibling.querySelector('.note-content').focus()
         // Down arrow key
-        if (e.keyCode == 40 && parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus() 
+        if (e.keyCode == 40 && parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus()
     }
 
     // Event handlers
@@ -109,29 +105,50 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         // Move the ghost task component to follow cursor/mouse
         followCursor(e, pos, document.getElementById(`note-${note.id}-clone`))
 
+        // Cancel arrangement tracking if cursor inside task component
+        let bbx = NoteData.note.el.getBoundingClientRect()
+        if(e.clientY > bbx.top && e.clientY < bbx.bottom) {
+            if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').remove()
+            return
+        }
+
         // Detect which component it's closest to
         const taskContainer = document.querySelector('.doc-page')
-        var afterElement = getDragAfterElement(taskContainer, e.clientY)
+        var afterElement = getDragAfterElement(taskContainer, e.clientX, e.clientY)
+        // console.log(afterElement.offset)
+        // console.log(afterElement.element)
 
         // Display insert indicator
-        console.log(afterElement)
-        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement)
+        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, e.clientX)
     }
 
-    const getDragAfterElement = (container, y) => {
+    const getDragAfterElement = (container, x, y) => {
         // select all task components inside the container except the component that is currently being dragged
-        const draggebleElements = [...container.querySelectorAll('.note-row:not(.dragging)')]
+        var draggebleElements = [...container.querySelectorAll('.note-row:not(.dragging)')]
+        draggebleElements = draggebleElements.filter((el) => {
+            let parent = findParentBySelector(el, '.note-row')
+            return parent ? !(parent.classList.contains('dragging')) : true
+        })
+        console.log('start')
 
         // Compute closest component based on offset
         return draggebleElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect()
             const offset = y - box.top - box.height/2
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child }
+
+            // skip child if not within x range
+            if (((box.left*(1.05)) - x) > 0) return closest
+
+            // console.log(child)
+            // console.log(console.log(Math.abs(offset)))
+            // console.log({x: x, left: box.left*(1.05)})
+            console.log({child: child, offset: Math.abs(offset), closest: closest.offset})
+            if (Math.abs(offset) < Math.abs(closest.offset)) {
+                return { offset: offset, element: child, prev: child.nextSibling }
             } else {
                 return closest
             }
-        }, { offset: Number.NEGATIVE_INFINITY, element: null })
+        }, { offset: Number.POSITIVE_INFINITY, element: null, prev: null })
     }
 
     const mouseUp = (e) => {
@@ -151,7 +168,7 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         // initialize the updated data of the next sibling note
         var nextSibling = siblings.next ? {...siblings.next, noteBefore: siblings.prev ? siblings.prev.id : null} : null
 
-        // Insert the dragged element 
+        // Insert the dragged element
         if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').replaceWith(mainElmnt)
 
         // Arrange json server task
@@ -160,9 +177,9 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
 
     const renderNote = () => {
-        
+
     }
-    
+
     return (
         <div id={`note-${note.id}`}
              note={note.id}
@@ -173,7 +190,7 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
             <div className="note-cont">
                 <div className="controls">
                     <div className="control">
-                        <FaPlus className="add-icon" 
+                        <FaPlus className="add-icon"
                                 onClick={(e) => onAdd(note.id, indx)} />
                     </div>
                     <div className="control">
@@ -202,7 +219,7 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
                                      siblings={{
                                          prev: note.insideNote ? note.insideNote[indx-1] : null,
                                          next: note.insideNote ? note.insideNote[indx+1] : null
-                                     }} 
+                                     }}
                                      onArrange={onArrange}
                                      onAdd={onAdd}
                                      onDelete={onDelete} />
