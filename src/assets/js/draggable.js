@@ -100,7 +100,14 @@ function getChildContCount(noteElement) {
 
 function noteChildAnalysis(parentNote, x) {
     if (!parentNote) return {childPos: 0}
-    return [...parentNote.querySelectorAll('.child-note-cont')].reduce((result, child, childIndx) => {
+    let filteredLastChilds = parentNote.querySelector('.child-note-cont') ? [parentNote.querySelector('.child-note-cont').lastChild] : null
+    if (!filteredLastChilds) return {chilldPos: 0} 
+    while (filteredLastChilds[filteredLastChilds.length - 1].querySelector('.child-note-cont')) {
+        filteredLastChilds.push(filteredLastChilds[filteredLastChilds.length - 1].querySelector('.child-note-cont').lastChild)
+    }    
+    console.log(filteredLastChilds)
+
+    return filteredLastChilds.reduce((result, child, childIndx) => {
         let box = child.lastChild.getBoundingClientRect()
         let offset = x - (box.left*1.05)
 
