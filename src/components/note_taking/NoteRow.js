@@ -162,14 +162,25 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
         }, { offset: Number.POSITIVE_INFINITY, element: null, type: 'horizontal' })
 
-        if (!AfterElementData.element) return [AfterElementData, {childPos: 0}]
-        if (!AfterElementData.element.previousSibling) return [AfterElementData, {childPos: 0}]
+        let indicatorStyle = {childPos: 0}
+        if (AfterElementData.element) {
+            if (!AfterElementData.element.previousSibling) return [AfterElementData, {childPos: 0}]
 
-        let prevAfterElement = AfterElementData.element.previousSibling.classList.contains('indicator-container') 
-                               ? AfterElementData.element.previousSibling.previousSibling
-                               : AfterElementData.element.previousSibling
-        let indicatorStyle = noteChildAnalysis(prevAfterElement, x)
-        console.log(indicatorStyle)
+            let prevAfterElement = AfterElementData.element.previousSibling.classList.contains('indicator-container') 
+                                ? AfterElementData.element.previousSibling.previousSibling
+                                : AfterElementData.element.previousSibling
+            indicatorStyle = noteChildAnalysis(prevAfterElement, x)
+        } else {
+            console.log('last child')
+            let lastNoteElement = container.lastChild
+            if (lastNoteElement == document.querySelector('.indicator-container')) {
+                lastNoteElement = lastNoteElement.previousSibling
+            } else if (lastNoteElement == NoteData.note.el) {
+                lastNoteElement = lastNoteElement.previousSibling.previousSibling
+            }
+            indicatorStyle = noteChildAnalysis(lastNoteElement, x)
+            console.log(lastNoteElement)
+        }
         
         return [AfterElementData, indicatorStyle]
     }
@@ -194,7 +205,6 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
         if (document.querySelectorAll('.extra-child-indicator').length > 0) {
             let parentIndicator = findParentBySelector(document.querySelector('.extra-child-indicator'), '.indicator-container')
             let childPos = document.querySelectorAll('.extra-child-indicator').length - 1
-            console.log(parentIndicator)
             let NoteContainer = parentIndicator.previousSibling.querySelectorAll('.child-note-cont')[childPos]
 
 

@@ -39,7 +39,6 @@ const followCursor = (e, pos, taskCloneElmnt) => {
 
 const displayIndicator = (container, afterElement, indicatorStyle) => {
     // Display insert indicator
-    console.log(afterElement)
     const indiContainer = document.createElement('DIV')
     indiContainer.classList.add('indicator-container')
 
@@ -65,6 +64,9 @@ const displayIndicator = (container, afterElement, indicatorStyle) => {
     // display indicator
     if (afterElement.element) {     // If element exists insert before element
         container.insertBefore(indiContainer, afterElement.element)
+    } else if(document.querySelector('.doc-page').lastChild.classList.contains('dragging')) {
+        let mainContainer = document.querySelector('.doc-page')
+        mainContainer.insertBefore(indiContainer, mainContainer.lastChild)
     } else {                        // Else append to the end
         // container.appendChild(indiContainer)
         let mainContainer = document.querySelector('.doc-page')
@@ -104,9 +106,9 @@ function noteChildAnalysis(parentNote, x) {
     if (!filteredLastChilds) return {chilldPos: 0} 
     while (filteredLastChilds[filteredLastChilds.length - 1].querySelector('.child-note-cont')) {
         filteredLastChilds.push(filteredLastChilds[filteredLastChilds.length - 1].querySelector('.child-note-cont').lastChild)
-    }    
-    console.log(filteredLastChilds)
+    }
 
+    // Return last child data with the min offset
     return filteredLastChilds.reduce((result, child, childIndx) => {
         let box = child.lastChild.getBoundingClientRect()
         let offset = x - (box.left*1.05)
