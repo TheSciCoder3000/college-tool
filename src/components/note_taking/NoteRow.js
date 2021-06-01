@@ -72,7 +72,23 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
             e.preventDefault()                                                           // prevent removing the char in previous note row
             parentNote.previousSibling.querySelector('.note-content').focus()            // focus on previous note row
             placeCaretAtEnd(parentNote.previousSibling.querySelector('.note-content'))   // place the charet on the end of the text
-            onDelete(note.id)                                                                  // remove the current note row
+            onDelete(note.id)                                                            // remove the current note row
+
+            // if note is a child note and the last child of child note cont
+                // then move child pos back by 1
+
+            // else 
+                // if note contains text and previous note exists
+                    // copy text
+                    // remove note
+                    // focus on previous note
+                    // set caret on the end of previous note text
+                    // paste text
+                
+                // else if note text is null and (previous note or next note exists)
+                    // focusElement = previous note else next Note
+                    // focusElement.focus()
+                    // remove note
         }
 
 

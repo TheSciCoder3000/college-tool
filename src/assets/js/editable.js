@@ -1,4 +1,4 @@
-const placeCaretAtEnd = (el) => {
+function placeCaretAtEnd(el) {
     if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
         var range = document.createRange()
         range.selectNodeContents(el)
@@ -12,6 +12,10 @@ const placeCaretAtEnd = (el) => {
         textRange.collapse(false)
         textRange.select()
     }
+}
+
+function setNoteDictionaryItem(NoteDict, ItemKey, ItemValue, NewItemValue) {
+
 }
 
 export { placeCaretAtEnd }
