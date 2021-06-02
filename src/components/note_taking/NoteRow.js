@@ -6,7 +6,9 @@ import { placeCaretAtEnd } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
 import { useEffect, useState } from 'react'
 
-const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
+const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) => {
+    console.log(note.id)
+    console.log(parents)
     var NoteData = {}
     useEffect(() => {
         NoteData = {
@@ -266,14 +268,15 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
                 {note.insideNote && (
                     <div className="child-note-cont">
-                        {note.insideNote.map((note, indx) => (
-                            <NoteRow key={note.id}
+                        {note.insideNote.map((childNote, indx) => (
+                            <NoteRow key={childNote.id}
                                      indx={indx}
-                                     note={note}
+                                     note={childNote}
                                      siblings={{
-                                         prev: note.insideNote ? note.insideNote[indx-1] : null,
-                                         next: note.insideNote ? note.insideNote[indx+1] : null
+                                         prev: childNote.insideNote ? childNote.insideNote[indx-1] : null,
+                                         next: childNote.insideNote ? childNote.insideNote[indx+1] : null
                                      }}
+                                     parents={parents ? [...parents, note.id] : [note.id]}
                                      onArrange={onArrange}
                                      onAdd={onAdd}
                                      onDelete={onDelete} />
@@ -284,6 +287,10 @@ const NoteRow = ({ note, indx, siblings, onArrange, onAdd, onDelete }) => {
 
         </div>
     )
+}
+
+NoteRow.defaultProps = {
+    parents: null
 }
 
 export default NoteRow

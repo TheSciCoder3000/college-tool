@@ -32,7 +32,20 @@ const Notes = () => {
                             id: '78vh79ab',
                             content: "sub text inside subtext",
                             noteBefore: null,
-                            insideNote: null
+                            insideNote: [
+                                {
+                                    id: '725chb46',
+                                    content: "this is some high level branching you got here",
+                                    noteBefore: null,
+                                    insideNote: null
+                                },
+                                {
+                                    id: 'b46ag83a',
+                                    content: "look what we have here",
+                                    noteBefore: '725chb46',
+                                    insideNote: null
+                                }
+                            ]
                         }
                     ]
                 }
