@@ -18,4 +18,12 @@ function setNoteDictionaryItem(NoteDict, ItemKey, ItemValue, NewItemValue) {
 
 }
 
-export { placeCaretAtEnd }
+function getLastOfLastNoteChild(note) {
+    let childCont = note.querySelector('.child-note-cont')
+    if (!childCont) return note
+    
+    while (childCont.querySelector('.child-note-cont')) childCont = childCont.querySelector('.child-note-cont').lastChild
+    return childCont
+}
+
+export { placeCaretAtEnd, getLastOfLastNoteChild }
