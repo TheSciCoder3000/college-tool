@@ -72,9 +72,9 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
                 noteBefore: null,
                 insideNote: null
             }
-            let newInsideNote = note.insideNote
-            if (newInsideNote) newInsideNote.splice(0, 0, newNoteData)
             if (note.insideNote) {                                                  // if note contains child notes
+                let newInsideNote = [...note.insideNote]                                 // Create copy of insideNote data 
+                newInsideNote.splice(0, 0, newNoteData)                                  // Insert new note as first child
                 newInsideNote[1].noteBefore = newNoteData.id                             // Change noteBefore property of previous first child
                 onTaskUpdate(indx, {...note, insideNote: newInsideNote})                 // Upsend the edited note data to the root container
             } else {                                                                // else
