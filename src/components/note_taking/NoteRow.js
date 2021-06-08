@@ -6,7 +6,7 @@ import { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition } from '../..
 import handles from '../../assets/img/handles.svg'
 import { useEffect, useState } from 'react'
 
-const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd, onDelete }) => {
+const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd, onDelete, onMoveBack }) => {
     var NoteData = {}
     useEffect(() => {
         NoteData = {
@@ -98,6 +98,7 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
             
             if (parents && !NoteData.nextNote) {
                 console.log('move child back')
+                onMoveBack(note)
                 // Moves child note once to the left
             } else {
                 let noteText = note.content        // copy text
@@ -261,7 +262,7 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
     const insideNoteAdd = (noteIndx, newNoteData) => {
         let newInsideNote = [...note.insideNote]
         newInsideNote.splice(noteIndx+1, 0, newNoteData)
-        newInsideNote[noteIndx+2].noteBefore = newNoteData.id
+        if (newInsideNote[noteIndx+2]) newInsideNote[noteIndx+2].noteBefore = newNoteData.id
         onTaskUpdate(indx, {...note, insideNote: newInsideNote})
     }
 
@@ -269,6 +270,13 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
         let newInsideNote = [...note.insideNote]
         newInsideNote[childTaskIndx] = taskDict
         onTaskUpdate(indx, {...note, insideNote: newInsideNote})
+    }
+
+    const moveBackNote = (noteData) => {
+        let newInsideNote = [...note.insideNote]
+        newInsideNote.pop()
+        onTaskUpdate(indx, {...note, insideNote: newInsideNote})
+        onAdd(indx, noteData) // request note container to push noteData
     }
 
     
@@ -319,7 +327,8 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
                                      onTaskUpdate={taskUpdate}
                                      onArrange={onArrange}
                                      onAdd={insideNoteAdd}
-                                     onDelete={onDelete} />
+                                     onDelete={onDelete}
+                                     onMoveBack={moveBackNote} />
                         ))}
                     </div>
                 )}

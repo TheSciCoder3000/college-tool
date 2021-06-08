@@ -21,7 +21,14 @@ const Notes = () => {
                     id: 'gh4822g5',
                     content: "this is a sub text",
                     noteBefore: null,
-                    insideNote: null
+                    insideNote: [
+                        {
+                            id: '813gh689',
+                            content: "only one child note",
+                            noteBefore: null,
+                            insideNote: null
+                        }
+                    ]
                 },
                 {
                     id: '56472vh5',
@@ -92,6 +99,10 @@ const Notes = () => {
         setNotes(noteCopy)                                 // Update note rows html
     }
 
+    const rootMoveBack = () => {
+        
+    }
+
     return (
         <div className="notes-body">
             <div className="doc-window">
@@ -116,7 +127,8 @@ const Notes = () => {
                                      onTaskUpdate={mainTaskUpdate} 
                                      onArrange={onArrange}
                                      onAdd={onAdd}
-                                     onDelete={onDelete} />
+                                     onDelete={onDelete}
+                                     onMoveBack={rootMoveBack} />
                         ))}
                     </div>
                 </div>
