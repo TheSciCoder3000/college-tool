@@ -73,23 +73,23 @@ const Notes = () => {
         let nextSiblingNote = {...nextSiblingData, noteBefore: NoteData.note.id}
     }
 
-    const onAdd = (id, indx) => {
-        console.log('adding')
-        const container = document.querySelector('.doc-page')
-
-        const noteCopy = [...notes]                             // copy notes data on separate variable
-        noteCopy.splice(indx+1, 0, {           // insert another note row after the note row
-            id: Math.random().toString(16).slice(-8),
-            content: "",
-            noteBefore: id
-        })
-
-        setNotes(noteCopy)                                      // update note rows html
+    // Used for responding to requests made by root notes to insert a new root note
+    const onAdd = (noteIndx, newNoteData) => {
+        let noteCopy = [...notes]                          // Create copy of notes data
+        noteCopy.splice(noteIndx+1, 0, newNoteData)        // insert newNoteData to the copy of note
+        setNotes(noteCopy)                                 // update note rows html
     }
 
     const onDelete = (id) => {
         // const noteElement = findParentBySelector(e.target, '.note-row')
         setNotes(notes.filter(note => note.id !== id))
+    }
+
+    // Used for responding to requests made by the children notes when changes to the children notes are made
+    const mainTaskUpdate = (childTaskIndx, editedChildNote) => {
+        let noteCopy = [...notes]                          // Create copy of notes data
+        noteCopy[childTaskIndx] = editedChildNote          // Replace the item of the childTaskIndx with the newly created ChildNote
+        setNotes(noteCopy)                                 // Update note rows html
     }
 
     return (
@@ -112,7 +112,8 @@ const Notes = () => {
                                      siblings={{
                                          prev: notes[indx-1],
                                          next: notes[indx+1]
-                                     }} 
+                                     }}
+                                     onTaskUpdate={mainTaskUpdate} 
                                      onArrange={onArrange}
                                      onAdd={onAdd}
                                      onDelete={onDelete} />

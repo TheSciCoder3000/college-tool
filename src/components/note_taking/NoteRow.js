@@ -2,13 +2,11 @@ import { FaPlus } from 'react-icons/fa'
 import { draggableGhostClone, followCursor, 
          displayIndicator, findParentBySelector, 
          getChildContCount, noteChildAnalysis } from '../../assets/js/draggable.js'
-import { placeCaretAtEnd } from '../../assets/js/editable.js'
+import { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
 import { useEffect, useState } from 'react'
 
-const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) => {
-    console.log(note.id)
-    console.log(parents)
+const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd, onDelete }) => {
     var NoteData = {}
     useEffect(() => {
         NoteData = {
@@ -25,6 +23,7 @@ const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) 
                 id: siblings.next.id
             } : null
         }
+        
     })
     // Initialize ghost pos dictionary
     var pos = {
@@ -64,33 +63,52 @@ const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) 
         // Enter key
         if (e.keyCode == 13) {
             e.preventDefault()              // prevent creating new line
-            onAdd(note.id, indx)                        // Add new note row
-            // setTimeout(() => {
-            //     findParentBySelector(e.target, '.note-row').nextSibling.querySelector('.note-content').focus()
-            // }, 0);
+            //onAdd(note.id, indx)                        // Add new note row
+
+            // Initialize new note data
+            let newNoteData = {
+                id: Math.random().toString(16).slice(-8),
+                content: '',
+                noteBefore: null,
+                insideNote: null
+            }
+            let newInsideNote = note.insideNote
+            if (newInsideNote) newInsideNote.splice(0, 0, newNoteData)
+            if (note.insideNote) {                                                  // if note contains child notes
+                newInsideNote[1].noteBefore = newNoteData.id                             // Change noteBefore property of previous first child
+                onTaskUpdate(indx, {...note, insideNote: newInsideNote})                 // Upsend the edited note data to the root container
+            } else {                                                                // else
+                newNoteData.noteBefore = note.id                                        // Re-assign newNoteData.noteBefore to note.id
+                onAdd(indx, newNoteData)                                                // Send signal to notecontainer to insert new note
+            }
+
+
+            // focus on newly created note
+            setTimeout(() => {
+                document.getElementById(`note-${newNoteData.id}`).querySelector('.note-content').focus()
+            }, 0);
         }
         // Backspace key
-        if (e.keyCode == 8 && e.target.innerHTML == '' && findParentBySelector(e.target, '.note-row').previousSibling) {
+        if (e.keyCode == 8) {
+            if (getCaretPosition(NoteData.note.el.querySelector('.note-content')) !== 0) return 
             e.preventDefault()                                                           // prevent removing the char in previous note row
-            parentNote.previousSibling.querySelector('.note-content').focus()            // focus on previous note row
-            placeCaretAtEnd(parentNote.previousSibling.querySelector('.note-content'))   // place the charet on the end of the text
-            onDelete(note.id)                                                            // remove the current note row
-
-            // if note is a child note and the last child of child note cont
-                // then move child pos back by 1
-
-            // else 
-                // if note contains text and previous note exists
-                    // copy text
-                    // remove note
-                    // focus on previous note
-                    // set caret on the end of previous note text
-                    // paste text
+            // parentNote.previousSibling.querySelector('.note-content').focus()            // focus on previous note row
+            // placeCaretAtEnd(parentNote.previousSibling.querySelector('.note-content'))   // place the charet on the end of the text
+            // onDelete(note.id)                                                            // remove the current note row
+            
+            if (parents && !NoteData.nextNote) {
+                console.log('move child back')
+                // Moves child note once to the left
+            } else {
+                let noteText = note.content        // copy text
+                if (note.insideNote) {
+                    console.log('move child back')
+                    console.log(NoteData.note.el.querySelectorAll('.note-row'))
+                }
                 
-                // else if note text is null and (previous note or next note exists)
-                    // focusElement = previous note else next Note
-                    // focusElement.focus()
-                    // remove note
+
+                // Removes note row
+            }
         }
 
 
@@ -111,7 +129,7 @@ const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) 
         if (e.keyCode == 40 && parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus()
     }
 
-    // Event handlers
+    // Drag Event handlers
     const mouseDown = (e) => {
         draggableGhostClone(e, NoteData.note.el, pos)
         document.onmousemove = dragMouse
@@ -220,19 +238,40 @@ const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) 
         // initialize the updated data of the next sibling note
         var nextSibling = siblings.next ? {...siblings.next, noteBefore: siblings.prev ? siblings.prev.id : null} : null
 
-        if (document.querySelectorAll('.extra-child-indicator').length > 0) {
+        if (document.querySelectorAll('.extra-child-indicator').length > 0) {           // if extra indicator > 0
             let parentIndicator = findParentBySelector(document.querySelector('.extra-child-indicator'), '.indicator-container')
             let childPos = document.querySelectorAll('.extra-child-indicator').length - 1
-            let NoteContainer = parentIndicator.previousSibling.querySelectorAll('.child-note-cont')[childPos]
+            let NoteContainer = parentIndicator.previousSibling.querySelector('.child-note-cont')
 
-
+            // select child-note-cont of last child [childPos] number of times
+            for (let i = 0; i < childPos; i++) NoteContainer = NoteContainer.lastChild.querySelector('.child-note-cont')
+            
+            // Append the note the current child-note-cont
             NoteContainer.appendChild(mainElmnt)
-            document.querySelector('.indicator-container').remove()
+            document.querySelector('.indicator-container').remove()                     // Remove the indicator
         } else if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').replaceWith(mainElmnt)
 
-        // Arrange json server task
-        onArrange(note.id, nextSibling, NoteData)
+        
+        // Update server
+        // If main note
+        // else
     }
+
+    // Note Event Handlers
+    const insideNoteAdd = (noteIndx, newNoteData) => {
+        let newInsideNote = [...note.insideNote]
+        newInsideNote.splice(noteIndx+1, 0, newNoteData)
+        newInsideNote[noteIndx+2].noteBefore = newNoteData.id
+        onTaskUpdate(indx, {...note, insideNote: newInsideNote})
+    }
+
+    const taskUpdate = (childTaskIndx, taskDict) => {
+        let newInsideNote = [...note.insideNote]
+        newInsideNote[childTaskIndx] = taskDict
+        onTaskUpdate(indx, {...note, insideNote: newInsideNote})
+    }
+
+    
 
 
 
@@ -277,8 +316,9 @@ const NoteRow = ({ note, indx, siblings, parents, onArrange, onAdd, onDelete }) 
                                          next: childNote.insideNote ? childNote.insideNote[indx+1] : null
                                      }}
                                      parents={parents ? [...parents, note.id] : [note.id]}
+                                     onTaskUpdate={taskUpdate}
                                      onArrange={onArrange}
-                                     onAdd={onAdd}
+                                     onAdd={insideNoteAdd}
                                      onDelete={onDelete} />
                         ))}
                     </div>
