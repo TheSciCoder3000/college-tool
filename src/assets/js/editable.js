@@ -21,13 +21,13 @@ function getCaretPosition(editableDiv) {
       sel = window.getSelection();
       if (sel.rangeCount) {
         range = sel.getRangeAt(0);
-        if (range.commonAncestorContainer.parentNode == editableDiv) {
+        if (range.commonAncestorContainer.parentNode === editableDiv) {
           caretPos = range.endOffset;
         }
       }
     } else if (document.selection && document.selection.createRange) {
       range = document.selection.createRange();
-      if (range.parentElement() == editableDiv) {
+      if (range.parentElement() === editableDiv) {
         var tempEl = document.createElement("span");
         editableDiv.insertBefore(tempEl, editableDiv.firstChild);
         var tempRange = range.duplicate();
@@ -39,10 +39,6 @@ function getCaretPosition(editableDiv) {
     return caretPos;
   }
 
-function setNoteDictionaryItem(NoteDict, ItemKey, ItemValue, NewItemValue) {
-
-}
-
 function getLastOfLastNoteChild(note) {
     let childCont = note.querySelector('.child-note-cont')
     if (!childCont) return note
@@ -51,4 +47,42 @@ function getLastOfLastNoteChild(note) {
     return childCont
 }
 
-export { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition }
+function setNestedDict(notes, parents, propName, newText) {
+  // Initialize variables
+  let noteCopy = [...notes]
+  let parentLen = parents.length
+  let schema = noteCopy
+
+  // Loop through parent notes until reaching curr note
+  for (let i = 0; i < parentLen; i++) {
+    let temp = schema.find(note => note.id === parents[i]) 
+    schema = i !== parentLen-1 ? temp.insideNote : temp
+  }
+
+  if (parentLen === 0) return newText
+
+  // set note property to new value
+  schema[propName] = newText
+
+  // return the the noteCopy
+  return noteCopy
+}
+
+function getNestedDict(notes, parents, propName) {
+  // Initialize variables
+  let noteCopy = [...notes]
+  let parentLen = parents.length
+  let schema = noteCopy
+
+  // Loop through parent notes until reaching curr note
+  for (let i = 0; i < parentLen; i++) {
+    let temp = schema.find(note => note.id === parents[i]) 
+    schema = i !== parentLen-1 ? temp.insideNote : temp
+  }
+  if (parentLen === 0) return schema
+
+  // return the the noteCopy
+  return schema[propName]
+}
+
+export { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition, setNestedDict, getNestedDict }

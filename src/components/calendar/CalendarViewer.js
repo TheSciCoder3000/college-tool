@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import createCalendar from '../public/CalendarLogic'
 import '../../assets/css/calendar/CalendarViewer.css'
 
 const CalendarViewer = () => {
@@ -20,12 +19,12 @@ const CalendarViewer = () => {
             // Generate week element
             let week = []
             for (let d = 0; d < 7; d++) {
-                if (d == cachedDate.getDay() && cachedDate.getMonth() == cMonth) {                  // If day and month corresponds to cache
+                if (d === cachedDate.getDay() && cachedDate.getMonth() === cMonth) {                  // If day and month corresponds to cache
                     // Append to day to week list
                     week.push(
                         <div key={`viewer-${cachedDate.getDate()}`} 
-                             className={`date ${cDate.getDate() == cachedDate.getDate() 
-                             && cDate.getMonth() == cachedDate.getMonth() ? 'current' : ''}`}>
+                             className={`date ${cDate.getDate() === cachedDate.getDate() 
+                             && cDate.getMonth() === cachedDate.getMonth() ? 'current' : ''}`}>
                             <span>{cachedDate.getDate()}</span>
                         </div>
                     )

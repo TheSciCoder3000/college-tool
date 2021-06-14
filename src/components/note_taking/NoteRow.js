@@ -4,12 +4,11 @@ import { draggableGhostClone, followCursor,
          getChildContCount, noteChildAnalysis } from '../../assets/js/draggable.js'
 import { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition } from '../../assets/js/editable.js'
 import handles from '../../assets/img/handles.svg'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, memo } from 'react'
 
 const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd, onDelete, onMoveBack }) => {
-    var NoteData = {}
-    useEffect(() => {
-        NoteData = {
+    const NoteData = useMemo(() => {
+        return {
             prevNote: siblings.prev ? {
                 el: document.getElementById(`note-${siblings.prev.id}`),
                 id: siblings.prev.id
@@ -23,8 +22,11 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
                 id: siblings.next.id
             } : null
         }
+    }, [siblings])
+    useEffect(() => {
+        console.log(`rendering ${note.id}`)
         
-    })
+    }, [NoteData])
     // Initialize ghost pos dictionary
     var pos = {
         pos1: 0,
@@ -275,7 +277,6 @@ const NoteRow = ({ note, indx, siblings, parents, onTaskUpdate, onArrange, onAdd
     const moveBackNote = (noteData) => {
         let newInsideNote = [...note.insideNote]
         newInsideNote.pop()
-        onTaskUpdate(indx, {...note, insideNote: newInsideNote})
         onAdd(indx, noteData) // request note container to push noteData
     }
 
@@ -342,4 +343,4 @@ NoteRow.defaultProps = {
     parents: null
 }
 
-export default NoteRow
+export default memo(NoteRow)

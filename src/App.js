@@ -2,14 +2,15 @@ import './assets/css/app.css'
 import './components/fontAwesome/index'
 import AppBar from './components/AppBar'
 
-import Viewer from './components/dashboard/viewer'
-import SidePanel from './components/dashboard/SidePanel'
+import Viewer from './components/dashboard/viewer';
+import SidePanel from './components/dashboard/SidePanel';
 
-import Notes from './components/note_taking/Notes'
+// import Notes from './components/note_taking/Notes';
+import RevNotes from './components/Notes/Note'
 
-import CalendarViewer from './components/calendar/CalendarViewer'
-import TaskPanel from './components/calendar/TaskPanel'
-import background from './assets/img/dashBackground.jpg'
+import CalendarViewer from './components/calendar/CalendarViewer';
+import TaskPanel from './components/calendar/TaskPanel';
+import background from './assets/img/dashBackground.jpg';
 import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 
 function DashboardRoute() {
@@ -39,7 +40,8 @@ function CalendarRoute() {
 function NotesRoute() {
   return(
     <>
-      <Notes />
+      {/* <Notes /> */}
+      <RevNotes />
     </>
   )
 }

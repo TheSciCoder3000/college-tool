@@ -1,6 +1,6 @@
 import '../../assets/css/note_taking/Notes.css'
 import { findParentBySelector } from '../../assets/js/draggable.js'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 import NoteRow from './NoteRow'
 
@@ -68,7 +68,7 @@ const Notes = () => {
     const [notes, setNotes] = useState(docNotes)
 
 
-    const onArrange = (id, prevNextSibling, NoteData) => {
+    const onArrange = useCallback((id, prevNextSibling, NoteData) => {
         console.log('arranging')
 
         // Update dragged note data
@@ -78,30 +78,38 @@ const Notes = () => {
         // Update next sibling
         let nextSiblingData = {}        // fetch previous sibling note data from database
         let nextSiblingNote = {...nextSiblingData, noteBefore: NoteData.note.id}
-    }
+    }, [])
 
     // Used for responding to requests made by root notes to insert a new root note
-    const onAdd = (noteIndx, newNoteData) => {
-        let noteCopy = [...notes]                          // Create copy of notes data
-        noteCopy.splice(noteIndx+1, 0, newNoteData)        // insert newNoteData to the copy of note
-        setNotes(noteCopy)                                 // update note rows html
-    }
+    const onAdd = useCallback((noteIndx, newNoteData) => {
+        setNotes(noteCopy => {
+            let copy = [...noteCopy]
+            copy.splice(noteIndx+1, 0, newNoteData)
+            return copy
+        })                                 // update note rows html
+    }, [])
 
-    const onDelete = (id) => {
+    const onDelete = useCallback((id) => {
         // const noteElement = findParentBySelector(e.target, '.note-row')
         setNotes(notes.filter(note => note.id !== id))
-    }
+    }, [])
 
     // Used for responding to requests made by the children notes when changes to the children notes are made
-    const mainTaskUpdate = (childTaskIndx, editedChildNote) => {
-        let noteCopy = [...notes]                          // Create copy of notes data
-        noteCopy[childTaskIndx] = editedChildNote          // Replace the item of the childTaskIndx with the newly created ChildNote
-        setNotes(noteCopy)                                 // Update note rows html
-    }
+    const mainTaskUpdate = useCallback((childTaskIndx, editedChildNote) => {
+        setNotes(noteCopy => {
+            console.log(editedChildNote)
+            console.log(noteCopy)    
 
-    const rootMoveBack = () => {
+            return noteCopy.map(noteData => {
+                if (noteCopy[childTaskIndx] == noteData) return editedChildNote          // Replace the item of the childTaskIndx with the newly created ChildNote
+                return noteData    
+            })
+        })
+    }, [])
+
+    const rootMoveBack = useCallback(() => {
         
-    }
+    }, [])
 
     return (
         <div className="notes-body">

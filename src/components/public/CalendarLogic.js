@@ -7,12 +7,12 @@ function createCalendar(propDate) {
 
     let emptyIndx = 0
     let calendarBody = []
-    while(currMonth == cacheDate.getMonth()) {
+    while(currMonth === cacheDate.getMonth()) {
         let week = []
         for(let j = 0; j < 7; j++) {
-            if(j == cacheDate.getDay() && currMonth == cacheDate.getMonth()) {
+            if(j === cacheDate.getDay() && currMonth === cacheDate.getMonth()) {
                 week.push(
-                    <div className={`date ${currDate == cacheDate.getDate() && new Date().getMonth() == cacheDate.getMonth() ? 'current' : ''}`}
+                    <div className={`date ${currDate === cacheDate.getDate() && new Date().getMonth() === cacheDate.getMonth() ? 'current' : ''}`}
                         key={`date-${cacheDate.getDate()}`}>
                         <span>{cacheDate.getDate()}</span>
                     </div>

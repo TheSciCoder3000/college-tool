@@ -46,7 +46,6 @@ const displayIndicator = (container, afterElement, indicatorStyle) => {
     absIndiContainer.classList.add('abs-indicator')
 
     for (let i = 0; i < indicatorStyle.childPos; i++) {
-        console.log('adding child indicator')
         const childIndicator = document.createElement('DIV')
         childIndicator.classList.add('extra-child-indicator')
         absIndiContainer.appendChild(childIndicator)
@@ -76,7 +75,7 @@ const displayIndicator = (container, afterElement, indicatorStyle) => {
 
 function collectionHas(a, b) { //helper function (see below)
     for(var i = 0, len = a.length; i < len; i ++) {
-        if(a[i] == b) return true;
+        if(a[i] === b) return true;
     }
     return false;
 }
@@ -113,12 +112,137 @@ function noteChildAnalysis(parentNote, x) {
         let box = child.lastChild.getBoundingClientRect()
         let offset = x - (box.left*1.05)
 
-        console.log({element: child.lastChild, childPos: childIndx+1, offset: offset})
-
         if (offset > 0 && offset < result.offset) return {element: child.lastChild, childPos: childIndx+1, offset: offset}
         return result
 
     }, {element: parentNote, childPos: 0, offset: Number.POSITIVE_INFINITY})
 }
 
-export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount, noteChildAnalysis }
+function useDraggableHook(id, arrangementHandler) {
+    var pos = {
+        pos1: 0,
+        pos2: 0,
+        pos3: 0,
+        pos4: 0,
+    }
+
+    function mouseDown(e) {
+        draggableGhostClone(e, document.getElementById(`note-${id}`), pos)
+        document.onmousemove = dragMouse
+        document.onmouseup = mouseUp
+    }
+
+    function dragMouse(e) {
+        e = e || window.event
+        e.preventDefault()
+
+        // Move the ghost task component to follow cursor/mouse
+        followCursor(e, pos, document.getElementById(`note-${id}-clone`))
+
+        // Cancel arrangement tracking if cursor inside task component
+        let bbx = document.getElementById(`note-${id}`).getBoundingClientRect()
+        if(e.clientY > bbx.top && e.clientY < bbx.bottom) {
+            if (document.querySelector('.indicator-container')) document.querySelector('.indicator-container').remove()
+            return
+        }
+
+        // Detect which component it's closest to
+        const taskContainer = document.querySelector('.doc-page')
+        var [afterElement, indicatorStyle] = getDragAfterElement(taskContainer, e.clientX, e.clientY)
+
+        // Display insert indicator
+        if (document.querySelector('.indicator-container') 
+            && afterElement.element === document.querySelector('.indicator-container').nextSibling 
+            && document.querySelectorAll('.extra-child-indicator').length === indicatorStyle.childPos) return
+        displayIndicator(afterElement.element ? afterElement.element.parentNode : null, afterElement, indicatorStyle)
+    }
+
+    function getDragAfterElement(container, x, y) {
+        // select all task components inside the container except the component that is currently being dragged
+        var draggebleElements = [...container.querySelectorAll('.note-row:not(.dragging)')]
+
+        // Filter child notes of dragg
+        draggebleElements = draggebleElements.filter((el) => {
+            let parent = findParentBySelector(el, '.note-row')
+            return parent ? !(parent.classList.contains('dragging')) : true
+        })
+
+        // Compute closest component based on offset
+        let AfterElementData = draggebleElements.reduce((closest, child) => {
+            var box = child.getBoundingClientRect()
+            const offset = y - box.top
+            const x_offset = ((box.left*(1.05)) - x)
+
+            // skip child if not within x range
+            if (x_offset < 0) {
+                let indiType = 'horizontal'
+                if (Math.abs(offset) < closest.offset && y < box.bottom) {
+                    return { offset: offset, element: child, type: indiType }
+                } else {
+                    return {...closest, type: indiType}
+                }    
+            } else {
+                let indiType = 'vertical'
+                box = child.getBoundingClientRect()
+                if(y > box.top && y < box.bottom && !findParentBySelector(child, '.note-row')) return {offset: x_offset, element: child, type: indiType}
+                return {...closest, type: indiType}
+            }
+
+        }, { offset: Number.POSITIVE_INFINITY, element: null, type: 'horizontal' })
+
+        let indicatorStyle = {childPos: 0}
+        if (AfterElementData.element) {
+            if (!AfterElementData.element.previousSibling) return [AfterElementData, {childPos: 0}]
+
+            let prevAfterElement = AfterElementData.element.previousSibling.classList.contains('indicator-container') 
+                                ? AfterElementData.element.previousSibling.previousSibling
+                                : AfterElementData.element.previousSibling
+            indicatorStyle = noteChildAnalysis(prevAfterElement, x)
+        } else {
+            let lastNoteElement = container.lastChild
+            if (lastNoteElement === document.querySelector('.indicator-container')) {
+                lastNoteElement = lastNoteElement.previousSibling
+            } else if (lastNoteElement === document.getElementById(`note-${id}`)) {
+                lastNoteElement = lastNoteElement.previousSibling.previousSibling
+            }
+            indicatorStyle = noteChildAnalysis(lastNoteElement, x)
+        }
+        
+        return [AfterElementData, indicatorStyle]
+    }
+
+    function mouseUp(e) {
+        var elmnt = document.getElementById(`note-${id}-clone`)
+
+        // Remove Event Handlers
+        document.onmousemove = null
+        document.onmouseup = null
+
+        // Remove the ghost task component
+        elmnt.parentNode.removeChild(elmnt)
+
+        // Reset class list of the dragged component
+        var mainElmnt = document.getElementById(`note-${id}`)
+        mainElmnt.classList.remove('dragging')
+
+        // The handler argument will be used to update changes to the root note
+        let indicatorCont = document.querySelector('.indicator-container')
+        let childPos = indicatorCont.querySelectorAll('.extra-child-indicator').length - 1
+        let indiContParent = indicatorCont.parentNode
+        let indicatorIndx = Array.prototype.indexOf.call(indiContParent.children, indicatorCont)
+
+        if (childPos !== -1) {
+            indiContParent = indicatorCont.previousSibling
+            for (let i = 0; i < childPos + 1; i++) indiContParent = indiContParent.lastChild.querySelector('.child-note-cont')
+            indicatorIndx = indiContParent.children.length
+        }
+
+        arrangementHandler(indiContParent, indicatorIndx)
+        indicatorCont.remove()
+    }
+
+    return mouseDown
+
+}
+
+export { draggableGhostClone, followCursor, displayIndicator, findParentBySelector, getChildContCount, noteChildAnalysis, useDraggableHook }
