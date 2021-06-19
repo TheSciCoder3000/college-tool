@@ -1,16 +1,16 @@
 import { FaPlus } from 'react-icons/fa'
 import handles from '../../assets/img/handles.svg'
 import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
+import { getCaretPosition } from '../../assets/js/editable.js'
 
-import { useEffect, useState, memo, useRef } from 'react'
+import { useEffect, memo, useRef } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'
 
 // import ContentEditable from 'react-contenteditable'
 import NoteContentEditable from './ContentEditable' 
 
-const NoteRow = (({ indx, noteData, parents, }) => {
-    console.log(`rendering note ${noteData.id}`)
-    //useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents })
+const NoteRow = memo(({ indx, noteData, parents, path }) => {
+    // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, path })
 
     const note = noteData
     const childIndx = useRef(indx)
@@ -43,27 +43,33 @@ const NoteRow = (({ indx, noteData, parents, }) => {
     }
 
 
-    const keyDown = (e) => {
-        console.log(`current indx is ${childIndx.current}`)
+    const keyDown = (e, noteIndx, currPath, noteContent) => {
         let parentNote = findParentBySelector(e.target, '.note-row')
+        let contentEditableEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
 
         switch (e.keyCode) {
             // Enter key
             case 13:
-                console.log('enter key pressed')
                 e.preventDefault()
-                let addNoteIndx = noteData.insideNote ? 0 : childIndx.current + 1
-                let addNotePath = noteData.insideNote 
-                                  ? (parents ? [...parents, note.id] : [note.id]) 
-                                  : (parents ? [...parents] : [])
+                let addNoteIndx = noteData.insideNote ? 0 : noteIndx + 1
                 updateRootNote({ type: NOTE_ACTION.ADD_NOTE, data:{
                     indx: addNoteIndx,
-                    path: addNotePath
+                    path: noteData.insideNote ? [...currPath, 'insideNote'] : currPath.slice(0, -1)
                 } })
                 break;
             // Backspace
             case 8:
+                if (getCaretPosition(contentEditableEl) !== 0) return
                 e.preventDefault();
+                updateRootNote({ type: NOTE_ACTION.REMOVE_NOTE, data:{
+                    indx: noteIndx,
+                    path: currPath.slice(0, -1),
+                    noteText: noteContent,
+                    hasChildren: noteData.insideNote ? true : false,
+                    isLastChild: (document.getElementById(`note-${noteData.id}`) 
+                                  === document.getElementById(`note-${parents[parents.length-1]}`)
+                                      .querySelector('.child-note-cont').lastChild)
+                } })
                 break;
             // Tab Key
             case 9:
@@ -79,16 +85,19 @@ const NoteRow = (({ indx, noteData, parents, }) => {
                 e.preventDefault();
                 if (parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus()
                 break;
+
+            case 80:
+                console.log(`${noteData.id} path`, currPath)
+                break;
             default:
                 
         }
     }
     // Handle Text changes inside the Note
-    const onTextChange = (newNoteText) => {
-        console.log('updating text')
+    const onTextChange = (newNoteText, notePath) => {
         updateRootNote({ type: NOTE_ACTION.UPDATE_NOTE, data: {
             id: note.id,
-            path: parents ? [...parents, note.id] : [note.id],
+            path: [...notePath], // parents ? [...parents, note.id] : [note.id],
             property: 'content',
             newValue: newNoteText 
         } })
@@ -104,10 +113,12 @@ const NoteRow = (({ indx, noteData, parents, }) => {
             insertNoteData: noteData 
         } })
     }
+    
     const mouseDown = useDraggableHook(noteData.id, onArrangementChange)
 
     return (
         <div id={`note-${note.id}`}
+             data-testid={`note-row-${note.id}`}
              note={note.id}
              className="note-row"
              onMouseOver={onOver}
@@ -117,7 +128,8 @@ const NoteRow = (({ indx, noteData, parents, }) => {
                 <div className="controls">
                     <div className="control">
                         <FaPlus className="add-icon"
-                                // onClick={(e) => onAdd(note.id, indx)} 
+                                data-testid={`note-add-${note.id}`}
+                                onClick={() => {console.log(`testing `)}} 
                                 />
                     </div>
                     <div className="control">
@@ -127,25 +139,22 @@ const NoteRow = (({ indx, noteData, parents, }) => {
                     </div>
                 </div>
 
-                {/* <ContentEditable
-                    className="note-content"
-                    data-placeholder="type '/' for commands"
-                    html={note.content} 
-                    onChange={e => onTextChange(e.target.value)}
-                    onKeyDown={(e) => keyDown(e, indx)}
-                    theIndx={childIndx.current} /> */}
                 <NoteContentEditable 
                     text={note.content}
+                    noteId={note.id}
                     onTextChange={onTextChange}
-                    keyDown={keyDown} />
+                    keyDown={keyDown}
+                    path={path}
+                    indx={indx} />
 
                 {note.insideNote && (
-                    <div className="child-note-cont">
+                    <div className="child-note-cont" data-testid={`note-child-cont-${note.id}`}>
                         {note.insideNote.map((childNote, childNoteIndx) => (
                             <NoteRow key={childNote.id}
                                     indx={childNoteIndx}
                                     noteData={childNote}
-                                    parents={parents ? [...parents, note.id] : [note.id]} />
+                                    parents={parents ? [...parents, note.id] : [note.id]}
+                                    path={[...path, 'insideNote', childNoteIndx]} />
                         ))}
                     </div>
                 )}
@@ -179,8 +188,13 @@ function useWhyDidYouUpdate(name, props) {
             });
   
             // If changesObj not empty then output to console
-            if (Object.keys(changesObj).length) console.log("[why-did-you-update]", name, changesObj);
+            if (Object.keys(changesObj).length) {
+                console.log(document.getElementById(`note-${props.noteData.id}`))
+                console.log("[why-did-you-update]", name, changesObj)
+            }
             
+        } else {
+            console.log(`Note ${props.noteData.id} initial render`)
         }
   
         // Finally update previousProps with current props for next hook call

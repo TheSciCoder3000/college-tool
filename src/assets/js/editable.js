@@ -15,29 +15,29 @@ function placeCaretAtEnd(el) {
 }
 
 function getCaretPosition(editableDiv) {
-    var caretPos = 0,
-      sel, range;
-    if (window.getSelection) {
-      sel = window.getSelection();
-      if (sel.rangeCount) {
-        range = sel.getRangeAt(0);
-        if (range.commonAncestorContainer.parentNode === editableDiv) {
-          caretPos = range.endOffset;
-        }
-      }
-    } else if (document.selection && document.selection.createRange) {
-      range = document.selection.createRange();
-      if (range.parentElement() === editableDiv) {
-        var tempEl = document.createElement("span");
-        editableDiv.insertBefore(tempEl, editableDiv.firstChild);
-        var tempRange = range.duplicate();
-        tempRange.moveToElementText(tempEl);
-        tempRange.setEndPoint("EndToEnd", range);
-        caretPos = tempRange.text.length;
+  var caretPos = 0,
+    sel, range;
+  if (window.getSelection) {
+    sel = window.getSelection();
+    if (sel.rangeCount) {
+      range = sel.getRangeAt(0);
+      if (range.commonAncestorContainer.parentNode === editableDiv) {
+        caretPos = range.endOffset;
       }
     }
-    return caretPos;
+  } else if (document.selection && document.selection.createRange) {
+    range = document.selection.createRange();
+    if (range.parentElement() === editableDiv) {
+      var tempEl = document.createElement("span");
+      editableDiv.insertBefore(tempEl, editableDiv.firstChild);
+      var tempRange = range.duplicate();
+      tempRange.moveToElementText(tempEl);
+      tempRange.setEndPoint("EndToEnd", range);
+      caretPos = tempRange.text.length;
+    }
   }
+  return caretPos;
+}
 
 function getLastOfLastNoteChild(note) {
     let childCont = note.querySelector('.child-note-cont')
@@ -85,4 +85,27 @@ function getNestedDict(notes, parents, propName) {
   return schema[propName]
 }
 
-export { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition, setNestedDict, getNestedDict }
+function getAndInsertDict(notes, action, propName) {
+  let noteCopy = [...notes]
+  let parentLen = action.data.path.length
+  let schema = noteCopy
+
+  // Loop through parent notes until reaching curr note
+  for (let i = 0; i < parentLen; i++) {
+    let temp = schema.find(note => note.id === action.data.path[i]) 
+    schema = i !== parentLen-1 ? temp.insideNote : temp
+  }
+  if (parentLen === 0) return schema
+
+  schema[propName].splice(action.data.indx, 0, {
+    id: Math.random().toString(16).slice(-8),
+    content: "",
+    insideNote: null
+  })
+
+  // return the the noteCopy
+  return schema[propName]
+
+}
+
+export { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition, setNestedDict, getNestedDict, getAndInsertDict }

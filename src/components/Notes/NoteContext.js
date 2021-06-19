@@ -1,60 +1,10 @@
 import React, { useReducer, useContext } from "react";
-import { setNestedDict, getNestedDict } from "../../assets/js/editable";
+import produce from "immer";
+import { getDocNotes } from "./NoteData";
 
-const docNotes = [
-    {
-        id: 'a594726d',
-        content: "test",
-        insideNote: null
-    },
-    {
-        id: 'd528a56b',
-        content: "this is another note with sub text pls ",
-        insideNote: [
-            {
-                id: 'gh4822g5',
-                content: "this is a sub text",
-                insideNote: [
-                    {
-                        id: '813gh689',
-                        content: "only one child note",
-                        insideNote: null
-                    }
-                ]
-            },
-            {
-                id: '56472vh5',
-                content: "does this sub text update",
-                insideNote: [
-                    {
-                        id: '78vh79ab',
-                        content: "sub text inside subtext",
-                        insideNote: [
-                            {
-                                id: '725chb46',
-                                content: "this is some high level branching you got here",
-                                insideNote: null
-                            },
-                            {
-                                id: 'b46ag83a',
-                                content: "look what we have here",
-                                insideNote: null
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: '54g8v621',
-        content: "Hope this works",
-        insideNote: null
-    }
-]
 
 // CONTEXTS
-const NoteContext = React.createContext()
+export const NoteContext = React.createContext()
 const UpdateNoteContext = React.createContext()
 
 // HOOKS
@@ -75,28 +25,85 @@ export const NOTE_ACTION = {
 function reducer(note, action) {
     switch (action.type) {
         case NOTE_ACTION.ADD_NOTE:
-            console.log('adding note')
-            let editedNote = getNestedDict(note, action.data.path, 'insideNote')
-            editedNote.splice(action.data.indx, 0, {
-                id: Math.random().toString(16).slice(-8),
-                content: '',
-                insideNote: null
+            const noteCopy = produce(note, draft => {
+                // Initialize variables
+                let path = action.data.path
+                let draftRef = draft
+
+                // loop through the parents until reaching the desired note container
+                for (let i = 0; i < action.data.path.length; i+=2) draftRef = draftRef[path[i]][path[i+1]]
+
+                // insert note in the desired indx
+                draftRef.splice(action.data.indx, 0, {
+                    id: Math.random().toString(16).slice(-8),
+                    content: '',
+                    insideNote: null
+                })
             })
-            let newNoteCopy = setNestedDict(note, action.data.path, 'insideNote', editedNote)
-            return newNoteCopy
+            return noteCopy     // return the edited copy
         case NOTE_ACTION.REMOVE_NOTE:
-            break;
+            return produce(note, draft => {
+                // Initialize variables
+                let path = action.data.path
+                let draftRef = draft
+                let noteIndx = action.data.indx
+
+                if (!action.data.isLastChild) {
+                    // loop through the parents until reaching the desired note container
+                    for (let i = 0; i < path.length; i+=2) {
+                        if (i === path.length-2) draftRef[path[i]].content += action.data.noteText
+                        draftRef = draftRef[path[i]][path[i+1]]
+                        
+                    }
+
+                    // Insert the child notes if note has childNotes
+                    if (action.data.hasChildren) draftRef.splice(noteIndx+1, 0, ...draftRef[noteIndx].insideNote)
+
+                    // delete the note
+                    draftRef.splice(noteIndx, 1)
+                } else {
+                    // Initialize variables
+                    let insertPath = path.slice(0, -2)
+                    let notePath = path.slice(-2)
+
+                    // loop through parents of insert path until reaching the desired note container
+                    for (let i = 0; i < insertPath.length; i+=2) draftRef = draftRef[insertPath[i]][insertPath[i+1]]
+
+                    // Initialize variable referencing to the note
+                    let noteRef = draftRef[notePath[0]].insideNote
+
+                    // Insert the note to the container
+                    draftRef.splice(path.slice(-2)[0]+1, 0, {...noteRef[noteIndx]})
+
+                    // delete the note
+                    noteRef.splice(noteIndx, 1)
+                }
+
+            })
         case NOTE_ACTION.UPDATE_NOTE:
-            return setNestedDict(note, action.data.path, action.data.property, action.data.newValue)
+            return produce(note, draft => {
+                // Initialize variables
+                let path = action.data.path
+                let draftRef = draft
+
+                // loop through the parents until reaching the desired note container
+                for (let i = 0; i < action.data.path.length; i+=2) 
+                        draftRef = path[i+1]
+                        ? draftRef[path[i]][path[i+1]]
+                        : draftRef[path[i]]
+
+                // Update content
+                draftRef.content = action.data.newValue
+            })
         default:
+            console.log('ERROR: something went wrong in the reducer function')
             return note
     }
-    return note
 }
 
 // Note Provider Component
 export function NoteProvider({ children }) {
-    const [note, setNote] = useReducer(reducer, docNotes)
+    const [note, setNote] = useReducer(reducer, getDocNotes())
 
     return (
         <NoteContext.Provider value={note}>

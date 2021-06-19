@@ -11,20 +11,32 @@ export default class NoteContentEditable extends Component {
         }
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.text !== prevState.text) {
+            return({...this.state, text: nextProps.text})
+        }
+        return null
+    }
+
     onTextChangeHandler(e) {
-        this.state.text = e.target.value
-        this.state.textChange(e.target.value)
+        this.setState({...this.state, text: e.target.value})
+        this.state.textChange(e.target.value, this.props.path, this.contentEditable)
+    }
+
+    onKeyDownHandler(e) {
+        this.state.keyDown(e, this.props.indx, this.props.path, this.state.text)
     }
 
     render() {
         return (
             <ContentEditable
                     className="note-content"
+                    data-testid={`note-content-${this.props.noteId}`}
                     data-placeholder="type '/' for commands"
                     html={this.state.text} 
 
                     onChange={this.onTextChangeHandler.bind(this)}
-                    onKeyDown={this.state.keyDown} />
+                    onKeyDown={this.onKeyDownHandler.bind(this)} />
         )
     }
 }

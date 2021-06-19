@@ -1,0 +1,1236 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<NoteRow /> matches with snapshot 1`] = `
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="doc-page"
+        data-testid="note-doc"
+      >
+        <div
+          class="note-row"
+          data-testid="note-row-a594726d"
+          id="note-a594726d"
+          note="a594726d"
+        >
+          <div
+            class="note-cont"
+          >
+            <div
+              class="controls"
+            >
+              <div
+                class="control"
+              >
+                <svg
+                  class="add-icon"
+                  data-testid="note-add-a594726d"
+                  fill="currentColor"
+                  height="1em"
+                  stroke="currentColor"
+                  stroke-width="0"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                  />
+                </svg>
+              </div>
+              <div
+                class="control"
+              >
+                <img
+                  alt="handles"
+                  class="handles-icon"
+                  src="handles.svg"
+                />
+              </div>
+            </div>
+            <div
+              class="note-content"
+              contenteditable="true"
+              data-placeholder="type '/' for commands"
+              data-testid="note-content-a594726d"
+            >
+              1st parent with no child
+            </div>
+          </div>
+        </div>
+        <div
+          class="note-row"
+          data-testid="note-row-d528a56b"
+          id="note-d528a56b"
+          note="d528a56b"
+        >
+          <div
+            class="note-cont"
+          >
+            <div
+              class="controls"
+            >
+              <div
+                class="control"
+              >
+                <svg
+                  class="add-icon"
+                  data-testid="note-add-d528a56b"
+                  fill="currentColor"
+                  height="1em"
+                  stroke="currentColor"
+                  stroke-width="0"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                  />
+                </svg>
+              </div>
+              <div
+                class="control"
+              >
+                <img
+                  alt="handles"
+                  class="handles-icon"
+                  src="handles.svg"
+                />
+              </div>
+            </div>
+            <div
+              class="note-content"
+              contenteditable="true"
+              data-placeholder="type '/' for commands"
+              data-testid="note-content-d528a56b"
+            >
+              2nd parent with child
+            </div>
+            <div
+              class="child-note-cont"
+              data-testid="note-child-cont-d528a56b"
+            >
+              <div
+                class="note-row"
+                data-testid="note-row-gh4822g5"
+                id="note-gh4822g5"
+                note="gh4822g5"
+              >
+                <div
+                  class="note-cont"
+                >
+                  <div
+                    class="controls"
+                  >
+                    <div
+                      class="control"
+                    >
+                      <svg
+                        class="add-icon"
+                        data-testid="note-add-gh4822g5"
+                        fill="currentColor"
+                        height="1em"
+                        stroke="currentColor"
+                        stroke-width="0"
+                        viewBox="0 0 448 512"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="control"
+                    >
+                      <img
+                        alt="handles"
+                        class="handles-icon"
+                        src="handles.svg"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="note-content"
+                    contenteditable="true"
+                    data-placeholder="type '/' for commands"
+                    data-testid="note-content-gh4822g5"
+                  >
+                    fist child of 2nd parent
+                  </div>
+                  <div
+                    class="child-note-cont"
+                    data-testid="note-child-cont-gh4822g5"
+                  >
+                    <div
+                      class="note-row"
+                      data-testid="note-row-813gh689"
+                      id="note-813gh689"
+                      note="813gh689"
+                    >
+                      <div
+                        class="note-cont"
+                      >
+                        <div
+                          class="controls"
+                        >
+                          <div
+                            class="control"
+                          >
+                            <svg
+                              class="add-icon"
+                              data-testid="note-add-813gh689"
+                              fill="currentColor"
+                              height="1em"
+                              stroke="currentColor"
+                              stroke-width="0"
+                              viewBox="0 0 448 512"
+                              width="1em"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                              />
+                            </svg>
+                          </div>
+                          <div
+                            class="control"
+                          >
+                            <img
+                              alt="handles"
+                              class="handles-icon"
+                              src="handles.svg"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="note-content"
+                          contenteditable="true"
+                          data-placeholder="type '/' for commands"
+                          data-testid="note-content-813gh689"
+                        >
+                          only child of of first child of 2nd parent
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="note-row"
+                data-testid="note-row-46dd816a"
+                id="note-46dd816a"
+                note="46dd816a"
+              >
+                <div
+                  class="note-cont"
+                >
+                  <div
+                    class="controls"
+                  >
+                    <div
+                      class="control"
+                    >
+                      <svg
+                        class="add-icon"
+                        data-testid="note-add-46dd816a"
+                        fill="currentColor"
+                        height="1em"
+                        stroke="currentColor"
+                        stroke-width="0"
+                        viewBox="0 0 448 512"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="control"
+                    >
+                      <img
+                        alt="handles"
+                        class="handles-icon"
+                        src="handles.svg"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="note-content"
+                    contenteditable="true"
+                    data-placeholder="type '/' for commands"
+                    data-testid="note-content-46dd816a"
+                  >
+                    2nd child of 2nd parent
+                  </div>
+                </div>
+              </div>
+              <div
+                class="note-row"
+                data-testid="note-row-56472vh5"
+                id="note-56472vh5"
+                note="56472vh5"
+              >
+                <div
+                  class="note-cont"
+                >
+                  <div
+                    class="controls"
+                  >
+                    <div
+                      class="control"
+                    >
+                      <svg
+                        class="add-icon"
+                        data-testid="note-add-56472vh5"
+                        fill="currentColor"
+                        height="1em"
+                        stroke="currentColor"
+                        stroke-width="0"
+                        viewBox="0 0 448 512"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="control"
+                    >
+                      <img
+                        alt="handles"
+                        class="handles-icon"
+                        src="handles.svg"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="note-content"
+                    contenteditable="true"
+                    data-placeholder="type '/' for commands"
+                    data-testid="note-content-56472vh5"
+                  >
+                    last child of 2nd parent
+                  </div>
+                  <div
+                    class="child-note-cont"
+                    data-testid="note-child-cont-56472vh5"
+                  >
+                    <div
+                      class="note-row"
+                      data-testid="note-row-78vh79ab"
+                      id="note-78vh79ab"
+                      note="78vh79ab"
+                    >
+                      <div
+                        class="note-cont"
+                      >
+                        <div
+                          class="controls"
+                        >
+                          <div
+                            class="control"
+                          >
+                            <svg
+                              class="add-icon"
+                              data-testid="note-add-78vh79ab"
+                              fill="currentColor"
+                              height="1em"
+                              stroke="currentColor"
+                              stroke-width="0"
+                              viewBox="0 0 448 512"
+                              width="1em"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                              />
+                            </svg>
+                          </div>
+                          <div
+                            class="control"
+                          >
+                            <img
+                              alt="handles"
+                              class="handles-icon"
+                              src="handles.svg"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="note-content"
+                          contenteditable="true"
+                          data-placeholder="type '/' for commands"
+                          data-testid="note-content-78vh79ab"
+                        >
+                          first child of last cild of 2nd parent
+                        </div>
+                        <div
+                          class="child-note-cont"
+                          data-testid="note-child-cont-78vh79ab"
+                        >
+                          <div
+                            class="note-row"
+                            data-testid="note-row-725chb46"
+                            id="note-725chb46"
+                            note="725chb46"
+                          >
+                            <div
+                              class="note-cont"
+                            >
+                              <div
+                                class="controls"
+                              >
+                                <div
+                                  class="control"
+                                >
+                                  <svg
+                                    class="add-icon"
+                                    data-testid="note-add-725chb46"
+                                    fill="currentColor"
+                                    height="1em"
+                                    stroke="currentColor"
+                                    stroke-width="0"
+                                    viewBox="0 0 448 512"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                                    />
+                                  </svg>
+                                </div>
+                                <div
+                                  class="control"
+                                >
+                                  <img
+                                    alt="handles"
+                                    class="handles-icon"
+                                    src="handles.svg"
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                class="note-content"
+                                contenteditable="true"
+                                data-placeholder="type '/' for commands"
+                                data-testid="note-content-725chb46"
+                              >
+                                this is some high level branching you got here
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="note-row"
+                            data-testid="note-row-b46ag83a"
+                            id="note-b46ag83a"
+                            note="b46ag83a"
+                          >
+                            <div
+                              class="note-cont"
+                            >
+                              <div
+                                class="controls"
+                              >
+                                <div
+                                  class="control"
+                                >
+                                  <svg
+                                    class="add-icon"
+                                    data-testid="note-add-b46ag83a"
+                                    fill="currentColor"
+                                    height="1em"
+                                    stroke="currentColor"
+                                    stroke-width="0"
+                                    viewBox="0 0 448 512"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                                    />
+                                  </svg>
+                                </div>
+                                <div
+                                  class="control"
+                                >
+                                  <img
+                                    alt="handles"
+                                    class="handles-icon"
+                                    src="handles.svg"
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                class="note-content"
+                                contenteditable="true"
+                                data-placeholder="type '/' for commands"
+                                data-testid="note-content-b46ag83a"
+                              >
+                                look what we have here
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="note-row"
+                      data-testid="note-row-725chb46"
+                      id="note-725chb46"
+                      note="725chb46"
+                    >
+                      <div
+                        class="note-cont"
+                      >
+                        <div
+                          class="controls"
+                        >
+                          <div
+                            class="control"
+                          >
+                            <svg
+                              class="add-icon"
+                              data-testid="note-add-725chb46"
+                              fill="currentColor"
+                              height="1em"
+                              stroke="currentColor"
+                              stroke-width="0"
+                              viewBox="0 0 448 512"
+                              width="1em"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                              />
+                            </svg>
+                          </div>
+                          <div
+                            class="control"
+                          >
+                            <img
+                              alt="handles"
+                              class="handles-icon"
+                              src="handles.svg"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="note-content"
+                          contenteditable="true"
+                          data-placeholder="type '/' for commands"
+                          data-testid="note-content-725chb46"
+                        >
+                          last child of last child of 2nd parent
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="note-row"
+          data-testid="note-row-54g8v621"
+          id="note-54g8v621"
+          note="54g8v621"
+        >
+          <div
+            class="note-cont"
+          >
+            <div
+              class="controls"
+            >
+              <div
+                class="control"
+              >
+                <svg
+                  class="add-icon"
+                  data-testid="note-add-54g8v621"
+                  fill="currentColor"
+                  height="1em"
+                  stroke="currentColor"
+                  stroke-width="0"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                  />
+                </svg>
+              </div>
+              <div
+                class="control"
+              >
+                <img
+                  alt="handles"
+                  class="handles-icon"
+                  src="handles.svg"
+                />
+              </div>
+            </div>
+            <div
+              class="note-content"
+              contenteditable="true"
+              data-placeholder="type '/' for commands"
+              data-testid="note-content-54g8v621"
+            >
+              last parent with no child
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="doc-page"
+      data-testid="note-doc"
+    >
+      <div
+        class="note-row"
+        data-testid="note-row-a594726d"
+        id="note-a594726d"
+        note="a594726d"
+      >
+        <div
+          class="note-cont"
+        >
+          <div
+            class="controls"
+          >
+            <div
+              class="control"
+            >
+              <svg
+                class="add-icon"
+                data-testid="note-add-a594726d"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                viewBox="0 0 448 512"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </div>
+            <div
+              class="control"
+            >
+              <img
+                alt="handles"
+                class="handles-icon"
+                src="handles.svg"
+              />
+            </div>
+          </div>
+          <div
+            class="note-content"
+            contenteditable="true"
+            data-placeholder="type '/' for commands"
+            data-testid="note-content-a594726d"
+          >
+            1st parent with no child
+          </div>
+        </div>
+      </div>
+      <div
+        class="note-row"
+        data-testid="note-row-d528a56b"
+        id="note-d528a56b"
+        note="d528a56b"
+      >
+        <div
+          class="note-cont"
+        >
+          <div
+            class="controls"
+          >
+            <div
+              class="control"
+            >
+              <svg
+                class="add-icon"
+                data-testid="note-add-d528a56b"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                viewBox="0 0 448 512"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </div>
+            <div
+              class="control"
+            >
+              <img
+                alt="handles"
+                class="handles-icon"
+                src="handles.svg"
+              />
+            </div>
+          </div>
+          <div
+            class="note-content"
+            contenteditable="true"
+            data-placeholder="type '/' for commands"
+            data-testid="note-content-d528a56b"
+          >
+            2nd parent with child
+          </div>
+          <div
+            class="child-note-cont"
+            data-testid="note-child-cont-d528a56b"
+          >
+            <div
+              class="note-row"
+              data-testid="note-row-gh4822g5"
+              id="note-gh4822g5"
+              note="gh4822g5"
+            >
+              <div
+                class="note-cont"
+              >
+                <div
+                  class="controls"
+                >
+                  <div
+                    class="control"
+                  >
+                    <svg
+                      class="add-icon"
+                      data-testid="note-add-gh4822g5"
+                      fill="currentColor"
+                      height="1em"
+                      stroke="currentColor"
+                      stroke-width="0"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    class="control"
+                  >
+                    <img
+                      alt="handles"
+                      class="handles-icon"
+                      src="handles.svg"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="note-content"
+                  contenteditable="true"
+                  data-placeholder="type '/' for commands"
+                  data-testid="note-content-gh4822g5"
+                >
+                  fist child of 2nd parent
+                </div>
+                <div
+                  class="child-note-cont"
+                  data-testid="note-child-cont-gh4822g5"
+                >
+                  <div
+                    class="note-row"
+                    data-testid="note-row-813gh689"
+                    id="note-813gh689"
+                    note="813gh689"
+                  >
+                    <div
+                      class="note-cont"
+                    >
+                      <div
+                        class="controls"
+                      >
+                        <div
+                          class="control"
+                        >
+                          <svg
+                            class="add-icon"
+                            data-testid="note-add-813gh689"
+                            fill="currentColor"
+                            height="1em"
+                            stroke="currentColor"
+                            stroke-width="0"
+                            viewBox="0 0 448 512"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="control"
+                        >
+                          <img
+                            alt="handles"
+                            class="handles-icon"
+                            src="handles.svg"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="note-content"
+                        contenteditable="true"
+                        data-placeholder="type '/' for commands"
+                        data-testid="note-content-813gh689"
+                      >
+                        only child of of first child of 2nd parent
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="note-row"
+              data-testid="note-row-46dd816a"
+              id="note-46dd816a"
+              note="46dd816a"
+            >
+              <div
+                class="note-cont"
+              >
+                <div
+                  class="controls"
+                >
+                  <div
+                    class="control"
+                  >
+                    <svg
+                      class="add-icon"
+                      data-testid="note-add-46dd816a"
+                      fill="currentColor"
+                      height="1em"
+                      stroke="currentColor"
+                      stroke-width="0"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    class="control"
+                  >
+                    <img
+                      alt="handles"
+                      class="handles-icon"
+                      src="handles.svg"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="note-content"
+                  contenteditable="true"
+                  data-placeholder="type '/' for commands"
+                  data-testid="note-content-46dd816a"
+                >
+                  2nd child of 2nd parent
+                </div>
+              </div>
+            </div>
+            <div
+              class="note-row"
+              data-testid="note-row-56472vh5"
+              id="note-56472vh5"
+              note="56472vh5"
+            >
+              <div
+                class="note-cont"
+              >
+                <div
+                  class="controls"
+                >
+                  <div
+                    class="control"
+                  >
+                    <svg
+                      class="add-icon"
+                      data-testid="note-add-56472vh5"
+                      fill="currentColor"
+                      height="1em"
+                      stroke="currentColor"
+                      stroke-width="0"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    class="control"
+                  >
+                    <img
+                      alt="handles"
+                      class="handles-icon"
+                      src="handles.svg"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="note-content"
+                  contenteditable="true"
+                  data-placeholder="type '/' for commands"
+                  data-testid="note-content-56472vh5"
+                >
+                  last child of 2nd parent
+                </div>
+                <div
+                  class="child-note-cont"
+                  data-testid="note-child-cont-56472vh5"
+                >
+                  <div
+                    class="note-row"
+                    data-testid="note-row-78vh79ab"
+                    id="note-78vh79ab"
+                    note="78vh79ab"
+                  >
+                    <div
+                      class="note-cont"
+                    >
+                      <div
+                        class="controls"
+                      >
+                        <div
+                          class="control"
+                        >
+                          <svg
+                            class="add-icon"
+                            data-testid="note-add-78vh79ab"
+                            fill="currentColor"
+                            height="1em"
+                            stroke="currentColor"
+                            stroke-width="0"
+                            viewBox="0 0 448 512"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="control"
+                        >
+                          <img
+                            alt="handles"
+                            class="handles-icon"
+                            src="handles.svg"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="note-content"
+                        contenteditable="true"
+                        data-placeholder="type '/' for commands"
+                        data-testid="note-content-78vh79ab"
+                      >
+                        first child of last cild of 2nd parent
+                      </div>
+                      <div
+                        class="child-note-cont"
+                        data-testid="note-child-cont-78vh79ab"
+                      >
+                        <div
+                          class="note-row"
+                          data-testid="note-row-725chb46"
+                          id="note-725chb46"
+                          note="725chb46"
+                        >
+                          <div
+                            class="note-cont"
+                          >
+                            <div
+                              class="controls"
+                            >
+                              <div
+                                class="control"
+                              >
+                                <svg
+                                  class="add-icon"
+                                  data-testid="note-add-725chb46"
+                                  fill="currentColor"
+                                  height="1em"
+                                  stroke="currentColor"
+                                  stroke-width="0"
+                                  viewBox="0 0 448 512"
+                                  width="1em"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                                  />
+                                </svg>
+                              </div>
+                              <div
+                                class="control"
+                              >
+                                <img
+                                  alt="handles"
+                                  class="handles-icon"
+                                  src="handles.svg"
+                                />
+                              </div>
+                            </div>
+                            <div
+                              class="note-content"
+                              contenteditable="true"
+                              data-placeholder="type '/' for commands"
+                              data-testid="note-content-725chb46"
+                            >
+                              this is some high level branching you got here
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="note-row"
+                          data-testid="note-row-b46ag83a"
+                          id="note-b46ag83a"
+                          note="b46ag83a"
+                        >
+                          <div
+                            class="note-cont"
+                          >
+                            <div
+                              class="controls"
+                            >
+                              <div
+                                class="control"
+                              >
+                                <svg
+                                  class="add-icon"
+                                  data-testid="note-add-b46ag83a"
+                                  fill="currentColor"
+                                  height="1em"
+                                  stroke="currentColor"
+                                  stroke-width="0"
+                                  viewBox="0 0 448 512"
+                                  width="1em"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                                  />
+                                </svg>
+                              </div>
+                              <div
+                                class="control"
+                              >
+                                <img
+                                  alt="handles"
+                                  class="handles-icon"
+                                  src="handles.svg"
+                                />
+                              </div>
+                            </div>
+                            <div
+                              class="note-content"
+                              contenteditable="true"
+                              data-placeholder="type '/' for commands"
+                              data-testid="note-content-b46ag83a"
+                            >
+                              look what we have here
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="note-row"
+                    data-testid="note-row-725chb46"
+                    id="note-725chb46"
+                    note="725chb46"
+                  >
+                    <div
+                      class="note-cont"
+                    >
+                      <div
+                        class="controls"
+                      >
+                        <div
+                          class="control"
+                        >
+                          <svg
+                            class="add-icon"
+                            data-testid="note-add-725chb46"
+                            fill="currentColor"
+                            height="1em"
+                            stroke="currentColor"
+                            stroke-width="0"
+                            viewBox="0 0 448 512"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="control"
+                        >
+                          <img
+                            alt="handles"
+                            class="handles-icon"
+                            src="handles.svg"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="note-content"
+                        contenteditable="true"
+                        data-placeholder="type '/' for commands"
+                        data-testid="note-content-725chb46"
+                      >
+                        last child of last child of 2nd parent
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="note-row"
+        data-testid="note-row-54g8v621"
+        id="note-54g8v621"
+        note="54g8v621"
+      >
+        <div
+          class="note-cont"
+        >
+          <div
+            class="controls"
+          >
+            <div
+              class="control"
+            >
+              <svg
+                class="add-icon"
+                data-testid="note-add-54g8v621"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                viewBox="0 0 448 512"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </div>
+            <div
+              class="control"
+            >
+              <img
+                alt="handles"
+                class="handles-icon"
+                src="handles.svg"
+              />
+            </div>
+          </div>
+          <div
+            class="note-content"
+            contenteditable="true"
+            data-placeholder="type '/' for commands"
+            data-testid="note-content-54g8v621"
+          >
+            last parent with no child
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;
