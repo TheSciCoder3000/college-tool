@@ -21,6 +21,11 @@ export function getDocNotes() {
                     ]
                 },
                 {
+                    id: '47ag6824',
+                    content: "mid child note here",
+                    insideNote: null
+                },
+                {
                     id: '56472vh5',
                     content: "does this sub text update",
                     insideNote: [
