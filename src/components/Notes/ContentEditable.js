@@ -13,7 +13,7 @@ export default class NoteContentEditable extends Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.text !== prevState.text) {
-            return({...this.state, text: nextProps.text})
+            return({...prevState, text: nextProps.text})
         }
         return null
     }
