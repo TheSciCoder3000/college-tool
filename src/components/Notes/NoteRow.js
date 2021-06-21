@@ -61,14 +61,15 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
             case 8:
                 if (getCaretPosition(contentEditableEl) !== 0) return
                 e.preventDefault();
+                console.log('is last note?')
+                console.log(document.getElementById(`note-${noteData.id}`).nextSibling ? false : true)
                 updateRootNote({ type: NOTE_ACTION.REMOVE_NOTE, data:{
                     indx: noteIndx,
                     path: currPath.slice(0, -1),
                     noteText: noteContent,
                     hasChildren: noteData.insideNote ? true : false,
-                    isLastChild: (document.getElementById(`note-${noteData.id}`) 
-                                  === document.getElementById(`note-${parents[parents.length-1]}`)
-                                      .querySelector('.child-note-cont').lastChild)
+                    isLastChild: (document.getElementById(`note-${noteData.id}`).nextSibling ? false : true),
+                    isFirstChild: (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
                 } })
                 break;
             // Tab Key
