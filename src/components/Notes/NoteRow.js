@@ -1,7 +1,7 @@
 import { FaPlus } from 'react-icons/fa'
 import handles from '../../assets/img/handles.svg'
 import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
-import { getCaretPosition } from '../../assets/js/editable.js'
+import { getCaretPosition, placeCaretAtEnd, setCaret } from '../../assets/js/editable.js'
 
 import { useEffect, memo, useRef } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'
@@ -63,14 +63,27 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 e.preventDefault();
                 console.log('is last note?')
                 console.log(document.getElementById(`note-${noteData.id}`).nextSibling ? false : true)
+                let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
+                let noteContentEl = isFirstChild
+                    ? (document.getElementById(`note-${parents[parents.length-1]}`)).querySelector('.note-content')
+                    : [].slice.call(document.getElementById(`note-${noteData.id}`).previousSibling.querySelectorAll('.note-content')).pop()
+                
+                let NoteTextLength = noteContentEl.innerText.length
+
+
+
                 updateRootNote({ type: NOTE_ACTION.REMOVE_NOTE, data:{
                     indx: noteIndx,
                     path: currPath.slice(0, -1),
                     noteText: noteContent,
                     hasChildren: noteData.insideNote ? true : false,
                     isLastChild: (document.getElementById(`note-${noteData.id}`).nextSibling ? false : true),
-                    isFirstChild: (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
+                    isFirstChild: isFirstChild
                 } })
+
+                setTimeout(() => {
+                    setCaret(noteContentEl, NoteTextLength)
+                }, 0);
                 break;
             // Tab Key
             case 9:
