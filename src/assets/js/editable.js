@@ -39,6 +39,16 @@ function getCaretPosition(editableDiv) {
   return caretPos;
 }
 
+function setCaret(el, caretPos) {
+  var range = document.createRange();
+  var sel = window.getSelection();
+  range.setStart(el.childNodes[0], caretPos);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  el.focus();
+}
+
 function getLastOfLastNoteChild(note) {
     let childCont = note.querySelector('.child-note-cont')
     if (!childCont) return note
@@ -108,4 +118,4 @@ function getAndInsertDict(notes, action, propName) {
 
 }
 
-export { placeCaretAtEnd, getLastOfLastNoteChild, getCaretPosition, setNestedDict, getNestedDict, getAndInsertDict }
+export { placeCaretAtEnd, getLastOfLastNoteChild, setCaret, getCaretPosition, setNestedDict, getNestedDict, getAndInsertDict }
