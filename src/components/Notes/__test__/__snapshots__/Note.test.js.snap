@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<NoteRow /> matches with snapshot 1`] = `
+exports[`<NoteDoc /> matches with snapshot 1`] = `
 Object {
   "asFragment": [Function],
   "baseElement": <body>
@@ -55,6 +55,7 @@ Object {
               contenteditable="true"
               data-placeholder="type '/' for commands"
               data-testid="note-content-a594726d"
+              id="note-content-a594726d"
             >
               1st parent with no child
             </div>
@@ -106,6 +107,7 @@ Object {
               contenteditable="true"
               data-placeholder="type '/' for commands"
               data-testid="note-content-d528a56b"
+              id="note-content-d528a56b"
             >
               2nd parent with child
             </div>
@@ -159,6 +161,7 @@ Object {
                     contenteditable="true"
                     data-placeholder="type '/' for commands"
                     data-testid="note-content-gh4822g5"
+                    id="note-content-gh4822g5"
                   >
                     fist child of 2nd parent
                   </div>
@@ -212,6 +215,7 @@ Object {
                           contenteditable="true"
                           data-placeholder="type '/' for commands"
                           data-testid="note-content-813gh689"
+                          id="note-content-813gh689"
                         >
                           only child of of first child of 2nd parent
                         </div>
@@ -266,6 +270,7 @@ Object {
                     contenteditable="true"
                     data-placeholder="type '/' for commands"
                     data-testid="note-content-46dd816a"
+                    id="note-content-46dd816a"
                   >
                     2nd child of 2nd parent
                   </div>
@@ -317,6 +322,7 @@ Object {
                     contenteditable="true"
                     data-placeholder="type '/' for commands"
                     data-testid="note-content-56472vh5"
+                    id="note-content-56472vh5"
                   >
                     last child of 2nd parent
                   </div>
@@ -370,6 +376,7 @@ Object {
                           contenteditable="true"
                           data-placeholder="type '/' for commands"
                           data-testid="note-content-78vh79ab"
+                          id="note-content-78vh79ab"
                         >
                           first child of last cild of 2nd parent
                         </div>
@@ -423,6 +430,7 @@ Object {
                                 contenteditable="true"
                                 data-placeholder="type '/' for commands"
                                 data-testid="note-content-725chb46"
+                                id="note-content-725chb46"
                               >
                                 this is some high level branching you got here
                               </div>
@@ -474,6 +482,7 @@ Object {
                                 contenteditable="true"
                                 data-placeholder="type '/' for commands"
                                 data-testid="note-content-b46ag83a"
+                                id="note-content-b46ag83a"
                               >
                                 look what we have here
                               </div>
@@ -528,6 +537,7 @@ Object {
                           contenteditable="true"
                           data-placeholder="type '/' for commands"
                           data-testid="note-content-ag452a47"
+                          id="note-content-ag452a47"
                         >
                           last child of last child of 2nd parent
                         </div>
@@ -585,6 +595,7 @@ Object {
               contenteditable="true"
               data-placeholder="type '/' for commands"
               data-testid="note-content-54g8v621"
+              id="note-content-54g8v621"
             >
               last parent with no child
             </div>
@@ -644,6 +655,7 @@ Object {
             contenteditable="true"
             data-placeholder="type '/' for commands"
             data-testid="note-content-a594726d"
+            id="note-content-a594726d"
           >
             1st parent with no child
           </div>
@@ -695,6 +707,7 @@ Object {
             contenteditable="true"
             data-placeholder="type '/' for commands"
             data-testid="note-content-d528a56b"
+            id="note-content-d528a56b"
           >
             2nd parent with child
           </div>
@@ -748,6 +761,7 @@ Object {
                   contenteditable="true"
                   data-placeholder="type '/' for commands"
                   data-testid="note-content-gh4822g5"
+                  id="note-content-gh4822g5"
                 >
                   fist child of 2nd parent
                 </div>
@@ -801,6 +815,7 @@ Object {
                         contenteditable="true"
                         data-placeholder="type '/' for commands"
                         data-testid="note-content-813gh689"
+                        id="note-content-813gh689"
                       >
                         only child of of first child of 2nd parent
                       </div>
@@ -855,6 +870,7 @@ Object {
                   contenteditable="true"
                   data-placeholder="type '/' for commands"
                   data-testid="note-content-46dd816a"
+                  id="note-content-46dd816a"
                 >
                   2nd child of 2nd parent
                 </div>
@@ -906,6 +922,7 @@ Object {
                   contenteditable="true"
                   data-placeholder="type '/' for commands"
                   data-testid="note-content-56472vh5"
+                  id="note-content-56472vh5"
                 >
                   last child of 2nd parent
                 </div>
@@ -959,6 +976,7 @@ Object {
                         contenteditable="true"
                         data-placeholder="type '/' for commands"
                         data-testid="note-content-78vh79ab"
+                        id="note-content-78vh79ab"
                       >
                         first child of last cild of 2nd parent
                       </div>
@@ -1012,6 +1030,7 @@ Object {
                               contenteditable="true"
                               data-placeholder="type '/' for commands"
                               data-testid="note-content-725chb46"
+                              id="note-content-725chb46"
                             >
                               this is some high level branching you got here
                             </div>
@@ -1063,6 +1082,7 @@ Object {
                               contenteditable="true"
                               data-placeholder="type '/' for commands"
                               data-testid="note-content-b46ag83a"
+                              id="note-content-b46ag83a"
                             >
                               look what we have here
                             </div>
@@ -1117,6 +1137,7 @@ Object {
                         contenteditable="true"
                         data-placeholder="type '/' for commands"
                         data-testid="note-content-ag452a47"
+                        id="note-content-ag452a47"
                       >
                         last child of last child of 2nd parent
                       </div>
@@ -1174,6 +1195,7 @@ Object {
             contenteditable="true"
             data-placeholder="type '/' for commands"
             data-testid="note-content-54g8v621"
+            id="note-content-54g8v621"
           >
             last parent with no child
           </div>
