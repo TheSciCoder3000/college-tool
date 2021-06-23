@@ -58,18 +58,19 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 } })
                 break;
             // Backspace
-            case 8:
+            case 8: {
                 if (getCaretPosition(contentEditableEl) !== 0) return
                 e.preventDefault();
-                console.log('is last note?')
-                console.log(document.getElementById(`note-${noteData.id}`).nextSibling ? false : true)
                 let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
+                let isLastChild = (document.getElementById(`note-${noteData.id}`).nextSibling ? false : true)
+
+                if (isFirstChild && !parents) return
+
                 let noteContentEl = isFirstChild
                     ? (document.getElementById(`note-${parents[parents.length-1]}`)).querySelector('.note-content')
                     : [].slice.call(document.getElementById(`note-${noteData.id}`).previousSibling.querySelectorAll('.note-content')).pop()
                 
-                let NoteTextLength = noteContentEl.innerText.length
-
+                let NoteTextLength = noteContentEl.textContent.length
 
 
                 updateRootNote({ type: NOTE_ACTION.REMOVE_NOTE, data:{
@@ -77,14 +78,21 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                     path: currPath.slice(0, -1),
                     noteText: noteContent,
                     hasChildren: noteData.insideNote ? true : false,
-                    isLastChild: (document.getElementById(`note-${noteData.id}`).nextSibling ? false : true),
+                    isLastChild: isLastChild,
                     isFirstChild: isFirstChild
                 } })
-
+            
                 setTimeout(() => {
+                    if (isLastChild && parents) {
+                        noteContentEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
+                        NoteTextLength = 0
+                    }
                     setCaret(noteContentEl, NoteTextLength)
+                    noteContentEl.focus()
+                    console.log('focusing note: ', noteContentEl.id)
                 }, 0);
                 break;
+            }
             // Tab Key
             case 9:
                 e.preventDefault();
