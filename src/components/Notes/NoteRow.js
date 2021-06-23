@@ -94,9 +94,24 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 break;
             }
             // Tab Key
-            case 9:
+            case 9: {
                 e.preventDefault();
+                let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
+                if (getCaretPosition(contentEditableEl) !== 0 || isFirstChild) return
+                console.log('making child of previous note')
+                updateRootNote({ type: NOTE_ACTION.MAKE_CHILD_NOTE, data:{
+                    indx: noteIndx,
+                    contPath: currPath.slice(0, -1)
+
+                } })
+
+                setTimeout(() => {
+                    let NoteEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
+                    setCaret(NoteEl, 0)
+                    NoteEl.focus()
+                }, 0);
                 break;
+            }
             // Up arrow
             case 38:
                 e.preventDefault();
