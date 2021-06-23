@@ -19,8 +19,13 @@ export default class NoteContentEditable extends Component {
     }
 
     onTextChangeHandler(e) {
-        this.setState({...this.state, text: e.target.value})
-        this.state.textChange(e.target.value, this.props.path, this.contentEditable)
+        if (e.target.value === '<br>') {
+            this.setState({...this.state, text: ""})
+            this.state.textChange("", this.props.path, this.contentEditable)
+        } else {
+            this.setState({...this.state, text: e.target.value})
+            this.state.textChange(e.target.value, this.props.path, this.contentEditable)
+        }
     }
 
     onKeyDownHandler(e) {
