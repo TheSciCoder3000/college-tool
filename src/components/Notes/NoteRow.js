@@ -89,7 +89,6 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                     }
                     setCaret(noteContentEl, NoteTextLength)
                     noteContentEl.focus()
-                    console.log('focusing note: ', noteContentEl.id)
                 }, 0);
                 break;
             }
@@ -98,7 +97,6 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 e.preventDefault();
                 let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
                 if (getCaretPosition(contentEditableEl) !== 0 || isFirstChild) return
-                console.log('making child of previous note')
                 updateRootNote({ type: NOTE_ACTION.MAKE_CHILD_NOTE, data:{
                     indx: noteIndx,
                     contPath: currPath.slice(0, -1)
