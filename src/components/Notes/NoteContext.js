@@ -133,8 +133,6 @@ function reducer(note, action) {
                 for (let i = 0; i < contPath.length; i+=2) {
                     noteCont = noteCont[contPath[i]][contPath[i+1]]
                 }
-                console.log('prevNote: ', original(noteCont[noteIndx-1]))
-                console.log('currNote: ', original(noteCont[noteIndx]))
 
                 let prevNote = noteCont[noteIndx-1]
                 let currNote = noteCont[noteIndx]
