@@ -40,12 +40,14 @@ function getCaretPosition(editableDiv) {
 }
 
 function setCaret(el, caretPos) {
-  var range = document.createRange();
-  var sel = window.getSelection();
-  range.setStart(el.childNodes[0], caretPos);
-  range.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(range);
+  if (el.childNodes) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.setStart(el.childNodes[0], caretPos);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
   el.focus();
 }
 
