@@ -142,54 +142,44 @@ describe('<NoteDoc />', () => {
             
             let isFirstChild = previousNoteRow ? false : true
             let isLastChild = NoteRow.nextSibling ? false : true
+
+            // get the note of where the currNote text will be appended to
             let prevNoteTextAppend = isFirstChild && !isLastChild ? parentNoteRow
                 : isLastChild && parentNoteRow.classList.contains('note-row')  ? NoteRow
-                : previousNoteRow
-
-            if (!(isFirstChild && !isLastChild) && !(isLastChild && parentNoteRow.classList.contains('note-row')))
-                while(prevNoteTextAppend.querySelector('.child-note-cont')) prevNoteTextAppend = prevNoteTextAppend.querySelector('.child-note-cont').lastChild
-              
+                : function() {
+                    let returnNote = previousNoteRow
+                    while(returnNote.querySelector('.child-note-cont')) returnNote = returnNote.querySelector('.child-note-cont').lastChild
+                    return returnNote
+                }()
+            
             prevNoteTextAppend = prevNoteTextAppend.querySelector('.note-content').textContent
             fireEvent.keyDown(NoteRow.querySelector('.note-content'), { key: 'Backspace', keyCode: 8})
 
             jest.runAllTimers()
-            // jest.setTimeout(1000)
-            // setTimeout(() => {
-            expect(Editable.setCaret).toBeCalled()
-            // console.log('running test')
             let noteAppendRef
 
-            if (isFirstChild && !isLastChild) {
+            if (isFirstChild && !isLastChild) {                                                    // For first child note only
                 noteAppendRef = parentNoteRow
-                if (!parentNoteRow.classList.contains('note-row')) return console.log('first child but on root')
+                if (!parentNoteRow.classList.contains('note-row')) return 
+                expect(MockSetCaret).toBeCalled()
                 expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
-                // console.log('prev text content:', prettyDOM(prevNoteTextAppend.querySelector('.note-content')))
-                // console.log('prev text content:', prevNoteTextAppend)
-                // console.log('note content:', NoteRowContent)
-                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
                 expect(noteAppendRef.querySelector('.note-content').textContent).toBe(prevNoteTextAppend+NoteRowContent)
 
-            } else if (isLastChild && parentNoteRow.classList.contains('note-row')) {
+            } else if (isLastChild && parentNoteRow.classList.contains('note-row')) {              // For last child note only
                 noteAppendRef = getByTestId(`note-row-${noteId}`)
                 expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
-                // console.log('prev text content', prevNoteTextAppend)
-                // console.log('note content:', NoteRowContent)
-                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
                 expect(noteAppendRef.querySelector('.note-content').textContent).toEqual(NoteRowContent)
 
-            } else {
+            } else {                                                                               // For Mid Note or last parent Note
                 noteAppendRef = previousNoteRow
                 while (noteAppendRef.querySelector('.child-note-cont')) {
                     noteAppendRef = noteAppendRef.querySelector('.child-note-cont').lastChild
                 }
+                expect(MockSetCaret).toBeCalled()
                 expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
-                // console.log('prev text content', prevNoteTextAppend)
-                // console.log('note content:', NoteRowContent)
-                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
                 expect(noteAppendRef.querySelector('.note-content').textContent).toBe(prevNoteTextAppend+NoteRowContent)
             }
                 
-            // }, 10)
             
         }
 
@@ -197,13 +187,40 @@ describe('<NoteDoc />', () => {
             for (let i = 0; i < 11; i++) {
                 let randArrIndx = Math.floor(Math.random()*NoteIdList.length)
                 let randomIdArr = NoteIdList[randArrIndx]
-                console.log('arr: ', randomIdArr, ' iteration: ', i)
                 triggerBackspaceOn(randomIdArr[0], randomIdArr[1], randArrIndx)
                 NoteIdList.splice(randArrIndx, 1)
             }
         })
     })
 
-    
+    describe('on Tab Key pressed', () => {
+        function triggerTabOn(noteId) {
+            let { getByTestId } = screen
+            jest.useFakeTimers()
+
+            let NoteRow = getByTestId(`note-row-${noteId}`)
+            let NoteRowContent = NoteRow.textContent
+            let prevNote = NoteRow.previousSibling
+
+            // if prevNote does not exist
+            if (!prevNote) return           // skip
+
+            fireEvent.keyDown(NoteRow.querySelector('.note-content'), { key: 'Tab', keyCode: 9 })
+            
+            jest.runAllTimers()
+
+            let prevNoteLastChild = prevNote.querySelector('.child-note-cont').lastChild
+            expect(prevNoteLastChild.textContent).toBe(NoteRowContent)
+        }
+
+        test('move as child note', () => {
+            for (let i = 0; i < 11; i++) {
+                let randArrIndx = Math.floor(Math.random()*NoteIdList.length)
+                let randomIdArr = NoteIdList[randArrIndx]
+                triggerTabOn(randomIdArr[0])
+                NoteIdList.splice(randArrIndx, 1)
+            }
+        })
+    })
     
 })
