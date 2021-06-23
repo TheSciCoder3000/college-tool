@@ -44,7 +44,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
 
 
     const keyDown = (e, noteIndx, currPath, noteContent) => {
-        let parentNote = findParentBySelector(e.target, '.note-row')
+        let NoteRow = findParentBySelector(e.target, '.note-row')
         let contentEditableEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
 
         switch (e.keyCode) {
@@ -113,12 +113,31 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
             // Up arrow
             case 38:
                 e.preventDefault();
-                if (parentNote.previousSibling) parentNote.previousSibling.querySelector('.note-content').focus()
+                if (NoteRow.previousSibling) {
+                    let prevNote = NoteRow.previousSibling
+                    while(prevNote.querySelector('.child-note-cont')) prevNote = prevNote.querySelector('.child-note-cont').lastChild
+                    prevNote.querySelector('.note-content').focus()
+                } else if (NoteRow.parentNode.classList.contains('child-note-cont')) {
+                    let parentNote = findParentBySelector(NoteRow, '.note-row')
+                    parentNote.querySelector('.note-content').focus()
+                }
                 break;
             // Down Arrow
             case 40:
                 e.preventDefault();
-                if (parentNote.nextSibling) parentNote.nextSibling.querySelector('.note-content').focus()
+                if (NoteRow.querySelector('.child-note-cont')) NoteRow.querySelector('.child-note-cont').firstChild.querySelector('.note-content').focus()
+                else if (NoteRow.nextSibling) NoteRow.nextSibling.querySelector('.note-content').focus()
+                else {
+                    let grandParentNextSibling = NoteRow
+                    let foundNextSibling = false
+                    while (findParentBySelector(grandParentNextSibling, '.note-row') && !foundNextSibling) {
+                        grandParentNextSibling = findParentBySelector(grandParentNextSibling, '.note-row')
+                        if (grandParentNextSibling.nextSibling) {
+                            foundNextSibling = true
+                            grandParentNextSibling.nextSibling.querySelector('.note-content').focus()
+                        }
+                    } 
+                }
                 break;
 
             case 80:
