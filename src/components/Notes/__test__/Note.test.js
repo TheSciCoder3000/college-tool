@@ -1,11 +1,12 @@
 import React from 'react'
-import { render, fireEvent, createEvent } from '@testing-library/react'
+import { render, fireEvent, createEvent, act } from '@testing-library/react'
 import { getAllByTestId, prettyDOM, screen } from '@testing-library/dom'
 import NoteDoc from '../NoteDoc'
+import * as Editable from '../../../assets/js/editable'
 import * as NoteContext from '../NoteContext'
 import * as NoteData from '../NoteData'
 
-var NoteIdList = ['a594726d', 'd528a56b', 'gh4822g5', '813gh689', '46dd816a', '56472vh5', '78vh79ab', '725chb46', 'b46ag83a', '725chb46', '54g8v621']
+var NoteIdList 
 const theNotes = [
     {
         id: 'a594726d',
@@ -53,7 +54,7 @@ const theNotes = [
                         ]
                     },
                     {
-                        id: '725chb46',
+                        id: 'ag452a47',
                         content: "last child of last child of 2nd parent",
                         insideNote: null
                     },
@@ -68,15 +69,23 @@ const theNotes = [
     }
 ]
 
-const NoteIds = {
-    firstNote: 'a594726d', 
-    SecondNote: 'd528a56b',
-    LastNote: '54g8v621'
-}
 
 var NestedNoteRow
 
+
 beforeEach(() => {
+    NoteIdList = [['a594726d', false], 
+                  ['d528a56b', true], 
+                  ['gh4822g5', true], 
+                  ['813gh689', false], 
+                  ['46dd816a', false], 
+                  ['56472vh5', true], 
+                  ['78vh79ab', true], 
+                  ['725chb46', false], 
+                  ['b46ag83a', false], 
+                  ['ag452a47', false], 
+                  ['54g8v621', false]]
+                  
     jest.spyOn(NoteData, 'getDocNotes').mockReturnValue(theNotes)
     NestedNoteRow = render(
         <NoteContext.NoteProvider>
@@ -86,52 +95,115 @@ beforeEach(() => {
     // NestedNoteRow = render(<BtnCont/>)
 })
 
-describe('<NoteRow />', () => {
+describe('<NoteDoc />', () => {
     it('matches with snapshot', () => {
         expect(NestedNoteRow).toMatchSnapshot()
     })
 
     // EVENTS
     describe('on Enter Key pressed', () => {
-        let { getByTestId } = screen
-        let NoteRow
-
-        function triggerEnteron(noteId) {
-            NoteRow = getByTestId(`note-content-${noteId}`)
+        function triggerEnterOn(noteId, hasChildren) {
+            let { getByTestId } = screen
+            let NoteRow = getByTestId(`note-content-${noteId}`)
             fireEvent.keyDown(NoteRow, { key: 'Enter', keyCode: 13 })
-            return getAllByTestId(document.body, /note-row/)
+            let NoteRows = getAllByTestId(document.body, /note-row/)
+            NoteRows.forEach(note => {
+                if (NoteIdList.some(row => row.includes(note.id.replace('note-', '')))) return
+                expect(note.textContent).toBe('')
+                let newNoteDOM = !hasChildren ? getByTestId(`note-row-${noteId}`).nextSibling
+                                             : getByTestId(`note-child-cont-${noteId}`).firstChild
+                expect(newNoteDOM.id).toBe(note.id)
+                NoteIdList.push([note.id.replace('note-', ''), false])
+            })
         }
 
-        it('creates new note after 1st note', () => {
-            let NoteRows = triggerEnteron(NoteIds.firstNote)
-            NoteRows.forEach(note => {
-                if (NoteIdList.includes(note.id.replace('note-', ''))) return
-                expect(note.textContent).toBe('')
-                expect(getByTestId('note-doc').children.item(1).id).toBe(note.id)
-                NoteIdList.push(note.id.replace('note-', ''))
-            })
-
+        test('add note without text', () => {
+            for (let i = 0; i < 10; i++) {
+                let randomIdArr = NoteIdList[Math.floor(Math.random()*NoteIdList.length)]
+                triggerEnterOn(randomIdArr[0], randomIdArr[1])
+            }
         })
-        it('creates new note inside the 2nd parent note', () => {
-            let NoteRows = triggerEnteron(NoteIds.SecondNote)
-            NoteRows.forEach(note => {
-                if (NoteIdList.includes(note.id.replace('note-', ''))) return
-                expect(note.textContent).toBe('')
-                expect(getByTestId(`note-child-cont-${NoteIds.SecondNote}`).children.item(0).id).toBe(note.id)
-                NoteIdList.push(note.id.replace('note-', ''))
-            })
 
-        })
-        it('creates new note after the last parent note', () => {
-            let NoteRows = triggerEnteron(NoteIds.LastNote)
-            NoteRows.forEach(note => {
-                if (NoteIdList.includes(note.id.replace('note-', ''))) return
-                expect(note.textContent).toBe('')
-                expect(getByTestId(`note-doc`).children.item(3).id).toBe(note.id)
-                NoteIdList.push(note.id.replace('note-', ''))
-            })
-
-        })
         
     })
+
+    
+    describe('on Backspace Key pressed', () => {
+        const MockSetCaret =  jest.spyOn(Editable, 'setCaret')
+
+        function triggerBackspaceOn(noteId, hasChildren, noteIndx) {
+            let { getByTestId } = screen
+            jest.useFakeTimers()
+
+            let NoteRow = getByTestId(`note-row-${noteId}`)
+            let NoteRowContent = NoteRow.querySelector('.note-content').textContent
+            let parentNoteRow = NoteRow.parentNode.parentNode.parentNode
+            let previousNoteRow = NoteRow.previousSibling
+            
+            let isFirstChild = previousNoteRow ? false : true
+            let isLastChild = NoteRow.nextSibling ? false : true
+            let prevNoteTextAppend = isFirstChild && !isLastChild ? parentNoteRow
+                : isLastChild && parentNoteRow.classList.contains('note-row')  ? NoteRow
+                : previousNoteRow
+
+            if (!(isFirstChild && !isLastChild) && !(isLastChild && parentNoteRow.classList.contains('note-row')))
+                while(prevNoteTextAppend.querySelector('.child-note-cont')) prevNoteTextAppend = prevNoteTextAppend.querySelector('.child-note-cont').lastChild
+              
+            prevNoteTextAppend = prevNoteTextAppend.querySelector('.note-content').textContent
+            fireEvent.keyDown(NoteRow.querySelector('.note-content'), { key: 'Backspace', keyCode: 8})
+
+            jest.runAllTimers()
+            // jest.setTimeout(1000)
+            // setTimeout(() => {
+            expect(Editable.setCaret).toBeCalled()
+            // console.log('running test')
+            let noteAppendRef
+
+            if (isFirstChild && !isLastChild) {
+                noteAppendRef = parentNoteRow
+                if (!parentNoteRow.classList.contains('note-row')) return console.log('first child but on root')
+                expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
+                // console.log('prev text content:', prettyDOM(prevNoteTextAppend.querySelector('.note-content')))
+                // console.log('prev text content:', prevNoteTextAppend)
+                // console.log('note content:', NoteRowContent)
+                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
+                expect(noteAppendRef.querySelector('.note-content').textContent).toBe(prevNoteTextAppend+NoteRowContent)
+
+            } else if (isLastChild && parentNoteRow.classList.contains('note-row')) {
+                noteAppendRef = getByTestId(`note-row-${noteId}`)
+                expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
+                // console.log('prev text content', prevNoteTextAppend)
+                // console.log('note content:', NoteRowContent)
+                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
+                expect(noteAppendRef.querySelector('.note-content').textContent).toEqual(NoteRowContent)
+
+            } else {
+                noteAppendRef = previousNoteRow
+                while (noteAppendRef.querySelector('.child-note-cont')) {
+                    noteAppendRef = noteAppendRef.querySelector('.child-note-cont').lastChild
+                }
+                expect(noteAppendRef.querySelector('.note-content')).toHaveFocus()
+                // console.log('prev text content', prevNoteTextAppend)
+                // console.log('note content:', NoteRowContent)
+                // console.log('currNote content:', noteAppendRef.querySelector('.note-content').textContent)
+                expect(noteAppendRef.querySelector('.note-content').textContent).toBe(prevNoteTextAppend+NoteRowContent)
+            }
+                
+            // }, 10)
+            
+        }
+
+        test('remove note', () => {
+            for (let i = 0; i < 11; i++) {
+                let randArrIndx = Math.floor(Math.random()*NoteIdList.length)
+                let randomIdArr = NoteIdList[randArrIndx]
+                console.log('arr: ', randomIdArr, ' iteration: ', i)
+                triggerBackspaceOn(randomIdArr[0], randomIdArr[1], randArrIndx)
+                NoteIdList.splice(randArrIndx, 1)
+            }
+        })
+    })
+
+    
+    
 })
