@@ -44,6 +44,11 @@ export function getDocNotes() {
                                     insideNote: null
                                 }
                             ]
+                        },
+                        {
+                            id: 'ad48c6g4',
+                            content: "last of last child of 2nd parent",
+                            insideNote: null
                         }
                     ]
                 }
