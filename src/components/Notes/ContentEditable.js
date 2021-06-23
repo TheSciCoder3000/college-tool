@@ -30,6 +30,7 @@ export default class NoteContentEditable extends Component {
     render() {
         return (
             <ContentEditable
+                    id={`note-content-${this.props.noteId}`}
                     className="note-content"
                     data-testid={`note-content-${this.props.noteId}`}
                     data-placeholder="type '/' for commands"
