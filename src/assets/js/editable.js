@@ -40,7 +40,7 @@ function getCaretPosition(editableDiv) {
 }
 
 function setCaret(el, caretPos) {
-  if (el.childNodes) {
+  if (el.textContent !== '') {
     var range = document.createRange();
     var sel = window.getSelection();
     range.setStart(el.childNodes[0], caretPos);
