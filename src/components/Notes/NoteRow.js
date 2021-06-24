@@ -158,13 +158,13 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
     }
 
     const onArrangementChange = (parentCont, insertIndx) => {
-        console.log(`insert on index ${insertIndx} of`)
-        console.log(parentCont)
-
-        updateRootNote({ type: NOTE_ACTION.ADD_NOTE, data:{
-            indx: insertIndx,
-            path: parents ? [...parents, note.id] : [note.id],
-            insertNoteData: noteData 
+        let contPath = parentCont.dataset.contPath
+        contPath = contPath === 'parent' ? [] : contPath.split(',')
+        updateRootNote({ type: NOTE_ACTION.ARRANGE_NOTE, data: {
+            notePath: path,
+            contPath: contPath, 
+            insertIndx: insertIndx,
+            noteData: note
         } })
     }
     
@@ -202,7 +202,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                     indx={indx} />
 
                 {note.insideNote && (
-                    <div className="child-note-cont" data-testid={`note-child-cont-${note.id}`}>
+                    <div className="child-note-cont" data-testid={`note-child-cont-${note.id}`} data-cont-path={[...path, 'insideNote']} >
                         {note.insideNote.map((childNote, childNoteIndx) => (
                             <NoteRow key={childNote.id}
                                     indx={childNoteIndx}
