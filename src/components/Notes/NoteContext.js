@@ -20,7 +20,8 @@ export const NOTE_ACTION = {
     ADD_NOTE:'add-note',
     REMOVE_NOTE: 'remove-note',
     UPDATE_NOTE: 'update-note',
-    MAKE_CHILD_NOTE: 'make-child-note'
+    MAKE_CHILD_NOTE: 'make-child-note',
+    ARRANGE_NOTE: 'arrange-note'
 }
 function reducer(note, action) {
     switch (action.type) {
@@ -144,6 +145,25 @@ function reducer(note, action) {
 
                 // delete note
                 noteCont.splice(noteIndx, 1)
+            })
+        case NOTE_ACTION.ARRANGE_NOTE:
+            return produce(note, draft => {
+                // Initialize variables
+                let contPath = action.data.contPath
+                let noteContPath = action.data.notePath.slice(0, -1)
+                let noteIndx = action.data.notePath.slice(-1)[0]
+                let insertIndx = action.data.insertIndx
+                let noteData = action.data.noteData
+
+                let noteRef = draft
+                let contRef = draft
+
+                noteContPath.forEach(location => {noteRef = noteRef[location]})
+                contPath.forEach(location => {contRef = contRef[location]})
+
+                noteRef.splice(noteIndx, 1)
+                contRef.splice(insertIndx, 0, noteData)
+
             })
         default:
             console.log('ERROR: something went wrong in the reducer function')
