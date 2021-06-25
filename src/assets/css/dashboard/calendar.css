@@ -2,6 +2,10 @@
     display: flex;
     justify-content: center;
     padding: 0 1.2rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+     -ms-user-select: none;
+         user-select: none;
 }
 #month-header {
     flex: 1;

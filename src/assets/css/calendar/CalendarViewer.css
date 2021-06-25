@@ -4,6 +4,10 @@
     display: flex;
     flex-direction: column;
     background-color: rgba(209, 209, 209, 0.281);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+     -ms-user-select: none;
+         user-select: none;
 }
 
 
