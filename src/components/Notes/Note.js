@@ -1,8 +1,14 @@
 import '../../assets/css/note_taking/Notes.css'
 import NoteDoc from './NoteDoc'
+import FileFolder from '../FolderSys/FolderSystem'
 import { NoteProvider } from './NoteContext'
+import { useState } from 'react'
 
 const RevNotes = () => {
+    const [tabs, setTabs] = useState([])
+    const [activeTab, setActiveTab] = useState(tabs.length > 0 ? tabs[0] : null)
+
+
     return (
         <div className="notes-body">
             <div className="doc-window">
@@ -20,14 +26,9 @@ const RevNotes = () => {
                     </NoteProvider>
                 </div>
             </div>
-            <div className="folder-sidepanel">
-                <div className="folder-header">
-                    <h1>Notes</h1>
-                </div>
-                <div className="folder-tree">
-
-                </div>
-            </div>
+                
+                <FileFolder />
+            
         </div>
     )
 }
