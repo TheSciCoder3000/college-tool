@@ -7,6 +7,7 @@ Object {
     <div>
       <div
         class="doc-page"
+        data-cont-path="parent"
         data-testid="note-doc"
       >
         <div
@@ -113,6 +114,7 @@ Object {
             </div>
             <div
               class="child-note-cont"
+              data-cont-path="1,insideNote"
               data-testid="note-child-cont-d528a56b"
             >
               <div
@@ -167,6 +169,7 @@ Object {
                   </div>
                   <div
                     class="child-note-cont"
+                    data-cont-path="1,insideNote,0,insideNote"
                     data-testid="note-child-cont-gh4822g5"
                   >
                     <div
@@ -328,6 +331,7 @@ Object {
                   </div>
                   <div
                     class="child-note-cont"
+                    data-cont-path="1,insideNote,2,insideNote"
                     data-testid="note-child-cont-56472vh5"
                   >
                     <div
@@ -382,6 +386,7 @@ Object {
                         </div>
                         <div
                           class="child-note-cont"
+                          data-cont-path="1,insideNote,2,insideNote,0,insideNote"
                           data-testid="note-child-cont-78vh79ab"
                         >
                           <div
@@ -607,6 +612,7 @@ Object {
   "container": <div>
     <div
       class="doc-page"
+      data-cont-path="parent"
       data-testid="note-doc"
     >
       <div
@@ -713,6 +719,7 @@ Object {
           </div>
           <div
             class="child-note-cont"
+            data-cont-path="1,insideNote"
             data-testid="note-child-cont-d528a56b"
           >
             <div
@@ -767,6 +774,7 @@ Object {
                 </div>
                 <div
                   class="child-note-cont"
+                  data-cont-path="1,insideNote,0,insideNote"
                   data-testid="note-child-cont-gh4822g5"
                 >
                   <div
@@ -928,6 +936,7 @@ Object {
                 </div>
                 <div
                   class="child-note-cont"
+                  data-cont-path="1,insideNote,2,insideNote"
                   data-testid="note-child-cont-56472vh5"
                 >
                   <div
@@ -982,6 +991,7 @@ Object {
                       </div>
                       <div
                         class="child-note-cont"
+                        data-cont-path="1,insideNote,2,insideNote,0,insideNote"
                         data-testid="note-child-cont-78vh79ab"
                       >
                         <div
