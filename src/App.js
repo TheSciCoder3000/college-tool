@@ -54,6 +54,7 @@ function App() {
         <div className="menu-bar"></div>
         <div className="app-content">
           <AppBar />
+          
           <Switch>
             <Route exact path="/">
               <Redirect to="/dashboard"/>
