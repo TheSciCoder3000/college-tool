@@ -37,11 +37,86 @@
     }
 
     .folder-sidepanel {
-        width: 20rem;
+        width: 18rem;
         background-color: rgba(255, 255, 255, 0.8);
 
         .folder-header {
             text-align: center;
+            max-height: 6rem;
+
+        }
+        .folder-tree {
+            padding: 0 0.5rem;
+            font-size: 0.85rem;
+            max-height: calc(100vh - 10rem);
+            overflow-y: auto;
+
+            // &::-webkit-scrollbar {
+            //     width: 8px;
+            //     background-color: rgba(179, 179, 179, 0.404);
+            //     border-radius: 10px;
+            //     margin-right: 10px;            
+            // }
+            // &::-webkit-scrollbar-track {
+            //     border: solid 4px transparent;
+            // }
+            // &::-webkit-scrollbar-thumb {
+            //     width: 8px;
+            //     background-color: rgba(143, 143, 143, 0.486);
+            //     border-radius: 10px;
+            //     margin-right: 10px;            
+            // }
+
+            &::-webkit-scrollbar {
+                width: 20px;
+            }
+            &::-webkit-scrollbar-thumb, &::-webkit-scrollbar-track {
+                width: 15px;
+                background-clip: padding-box;
+                border-radius: 10px;
+                border: solid 8px transparent;
+            }
+            &::-webkit-scrollbar-thumb {
+                background-color: rgba(143, 143, 143, 0.486);
+                min-height: 25px;
+            }
+            
+
+            .Folder {
+                margin-bottom: 0.2rem;
+
+                .folder-cont {
+                    display: flex;
+                    align-items: center;
+                    user-select: none;
+
+                    &:hover {
+                        cursor: pointer;
+                        background-color: #e8e8e85b;
+                    }
+
+                    .folder-icon {
+                        display: flex;
+                        img {
+                            align-items: center;
+                        }
+                    }
+                }
+                .folder-children {
+                    margin-left: 0.5rem;
+                }
+            }
+            .File {
+                margin-left: 1.6rem;
+                padding-top: 0.1rem;
+                padding-bottom: 0.1rem;
+                user-select: none;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: #e8e8e85b;
+                }
+            }
         }
     }
 }

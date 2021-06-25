@@ -55,12 +55,89 @@
 }
 
 .notes-body .folder-sidepanel {
-  width: 20rem;
+  width: 18rem;
   background-color: rgba(255, 255, 255, 0.8);
 }
 
 .notes-body .folder-sidepanel .folder-header {
   text-align: center;
+  max-height: 6rem;
+}
+
+.notes-body .folder-sidepanel .folder-tree {
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+}
+
+.notes-body .folder-sidepanel .folder-tree::-webkit-scrollbar {
+  width: 20px;
+}
+
+.notes-body .folder-sidepanel .folder-tree::-webkit-scrollbar-thumb, .notes-body .folder-sidepanel .folder-tree::-webkit-scrollbar-track {
+  width: 15px;
+  background-clip: padding-box;
+  border-radius: 10px;
+  border: solid 8px transparent;
+}
+
+.notes-body .folder-sidepanel .folder-tree::-webkit-scrollbar-thumb {
+  background-color: rgba(143, 143, 143, 0.486);
+  min-height: 25px;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder {
+  margin-bottom: 0.2rem;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont:hover {
+  cursor: pointer;
+  background-color: #e8e8e85b;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont .folder-icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont .folder-icon img {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-children {
+  margin-left: 0.5rem;
+}
+
+.notes-body .folder-sidepanel .folder-tree .File {
+  margin-left: 1.6rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.notes-body .folder-sidepanel .folder-tree .File:hover {
+  cursor: pointer;
+  background-color: #e8e8e85b;
 }
 
 .note-row {
