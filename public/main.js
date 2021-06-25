@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow} = require('electron')
+
 const path = require('path')
 const isDev = require('electron-is-dev')
 
@@ -11,7 +12,6 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true,
       nodeIntegration: true
     }
@@ -26,6 +26,9 @@ function createWindow () {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+
+  // Remove the Menu Bar
+  mainWindow.setMenuBarVisibility(false)
 }
 
 // This method will be called when Electron has finished
