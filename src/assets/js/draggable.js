@@ -227,6 +227,7 @@ function useDraggableHook(id, arrangementHandler) {
 
         // The handler argument will be used to update changes to the root note
         let indicatorCont = document.querySelector('.indicator-container')
+        if (!indicatorCont) return
         let childPos = indicatorCont.querySelectorAll('.extra-child-indicator').length - 1
         let indiContParent = indicatorCont.parentNode
         let indicatorIndx = Array.prototype.indexOf.call(indiContParent.children, indicatorCont)
