@@ -2,7 +2,6 @@ import React from 'react'
 import NoteRow from './NoteRow'
 
 import { useNote } from './NoteContext'
-// import { useState, useEffect } from 'react'
 
 const NoteDoc = () => {
     let theNotes = useNote()
