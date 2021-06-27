@@ -45,10 +45,10 @@ export function setUserTabs(userTabs) {
 // Retrieving the last active tab from localStorage
 export function getLastActiveTab() {
     let lastActiveTabPath = store.get('activeTab')
-    if (!lastActiveTabPath) return null
+    if (!lastActiveTabPath) return {notes: []}
 
     let lastActiveTab = fs.readFileSync(lastActiveTabPath, {encoding: 'utf8'})
-    if (!fs.existsSync(lastActiveTabPath)) return null         // File does not exist return null
+    if (!fs.existsSync(lastActiveTabPath)) return {notes: []}         // File does not exist return null
 
     let activeTabJson
     try {                                                      // Try parsing lastActiveTab raw data
