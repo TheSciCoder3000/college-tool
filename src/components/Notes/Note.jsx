@@ -61,9 +61,7 @@ const RevNotes = () => {
 
         // push the newly openned tab to the tabs state
         setTabs(tabState => {
-            let newTabState = produce(tabState, draft => [...tabState, tab])
-            setUserTabs(newTabState)                                                // Update the loalStorage
-            return newTabState
+            return [...tabState, tab]
         })
 
         // Set the tab to active tab
