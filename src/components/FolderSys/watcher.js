@@ -39,7 +39,7 @@ export default function StartWatcher(path, syncFiles){
     })
     .on('unlinkDir', function(path) {
         // console.log('Directory', path, 'has been removed');
-        syncFiles(WATCHER_EVENTS.FOLDER_DELETED)
+        syncFiles(WATCHER_EVENTS.FOLDER_DELETED, { folderPath: path })
     })
     .on('ready', onWatcherReady)
     
