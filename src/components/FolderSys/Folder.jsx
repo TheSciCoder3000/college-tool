@@ -1,6 +1,7 @@
 import React from 'react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import File from './File'
+import { isFolderOpen, setFolderOpen } from '../Notes/store'
 
 import ChevronRight from '../../assets/img/folder-right.svg'
 import ChevronDown from '../../assets/img/folder-down.svg'
@@ -10,10 +11,20 @@ const pathModule = window.require('path')
 
 
 const Folder = ({ folderData }) => {
+    // Initialize states
     const [folderName, setFolderName] = useState(folderData.name)
-    const [open, setOpen] = useState(false)
+    useEffect(() => setFolderName(folderData.name), [folderData.name])
 
-    const [path, setPath] = useState(folderData.path)
+    const path = folderData.path
+
+    const [open, setOpen] = useState(isFolderOpen(path))
+    const firstRender = useRef(true)
+    useEffect(() => {
+        if (!firstRender.current) setFolderOpen(path, open)
+        else firstRender.current = false
+    }, [open])
+    const [fileSync, setFileSync] = useState(true)
+
 
     const files = useMemo(() => fs
         .readdirSync(path)
@@ -31,26 +42,38 @@ const Folder = ({ folderData }) => {
               return a.name.localeCompare(b.name)
             }
             return a.type === 'folder' ? -1 : 1
-          }), [path])
+        }), [fileSync, folderData])
+    
+    
+    const folderCont = useRef()
+    const folderClickHandler = (e) => {
+        // if ctrl key is
+        if (!e.ctrlKey) {
+            document.querySelectorAll('.select-folder').forEach(folderEl => folderEl.classList.remove('select-folder'))     // unselect all folders
+            setOpen(openState => !openState)                                                                                // open/close folders
+        }
+
+        folderCont.current.classList.toggle('select-folder')
+    }
 
     return (
         <div className="Folder">
-            <div className="folder-cont"
-                 onClick={() => setOpen(openState => !openState)} >
+            <div ref={folderCont} className="folder-cont"
+                 onClick={folderClickHandler} >
                 <div className="folder-icon">
-                    <img src={open ? ChevronDown : ChevronRight} alt="folder-right" />
+                    <img className="folder-img" src={open ? ChevronDown : ChevronRight} alt="folder-right" />
                 </div>
                 <div className="folder-name">{folderName}</div>
             </div>
             {open && ( 
                 <div className="folder-children">
                     {files && (
-                        files.map((file, fileIndx) => {
+                        files.map((file) => {
                             if (file.type == 'folder') return (
-                                <Folder key={fileIndx} folderData={file} />
+                                <Folder key={`folder-${file.name}`} folderData={file} />
                             )
                             return (
-                                <File key={fileIndx} fileData={file} />
+                                <File key={`file-${file.name}`} fileData={file} />
                             )
                         })
                     )}
