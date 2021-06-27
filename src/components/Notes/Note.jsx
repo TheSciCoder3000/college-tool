@@ -116,7 +116,7 @@ const RevNotes = () => {
                         tabs.map((tab, tabIndx) => 
                             <div className={`tab ${activeTab.noteName === tab.noteName ? 'active' : ''}`} 
                                  key={tabIndx}
-                                 onClick={activeTab.noteName !== tab.noteName ? () => setActiveTabHandler(tabs[tabIndx]) : null } >
+                                 onClick={activeTab.noteName !== tab.noteName ? () => setActiveTab(tabs[tabIndx]) : null } >
                                 <div className="tab-name">{tab.noteName}</div>
                                 <div className="tab-exit"
                                      onClick={() => closeTab(tabIndx)} >
