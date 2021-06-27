@@ -82,13 +82,15 @@ export function setLastActiveTab(activeTab) {
 }
 
 
+// checks the localStorage if folderPath is one of the openned folders
 export function isFolderOpen(folderPath) {
     let folderPaths = store.get('openned-folders')
     if (!folderPaths) return false
     return folderPaths.includes(folderPath)
 }
 
-export function setFolderOpen(folderPath, openned) {
+// add or remove a folderPath from the localStorage of openned folders
+export function setFolderOpen(folderPath, openned, persistence=false) {
     let folderPaths = store.get('openned-folders') ? store.get('openned-folders') : []
     if (openned) {
         if (!folderPaths.includes(folderPath)) folderPaths.push(folderPath)
