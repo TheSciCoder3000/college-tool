@@ -4,6 +4,7 @@ const store = new Store()
 
 const fs = window.require('fs')
 const pathModule = window.require('path')
+const { dialog } = window.require('@electron/remote')
 
 // retrieving userTabs from localStorage
 export function getUserTabs() {
@@ -50,8 +51,8 @@ export function getLastActiveTab() {
     let lastActiveTabPath = store.get('activeTab')
     if (!lastActiveTabPath) return {notes: []}
 
+    if (!fs.existsSync(lastActiveTabPath)) return {notes: []}  // File does not exist return null
     let lastActiveTab = fs.readFileSync(lastActiveTabPath, {encoding: 'utf8'})
-    if (!fs.existsSync(lastActiveTabPath)) return {notes: []}         // File does not exist return null
 
     let activeTabJson
     try {                                                      // Try parsing lastActiveTab raw data
@@ -76,5 +77,21 @@ export function getLastActiveTab() {
 // Setting activeTab
 export function setLastActiveTab(activeTab) {
     let activeTabPath = activeTab.notePath                  // Retrieving the path of activeTab
+    if (!fs.existsSync(activeTabPath)) dialog.showErrorBox('This file no longer exist', `The file "${activeTab.noteName}" no longer exist in this directory "${activeTabPath}", Pls close this tab to stop this error`)
     store.set('activeTab', activeTabPath)                   // Setting it to activeTab localStorage
+}
+
+
+export function isFolderOpen(folderPath) {
+    let folderPaths = store.get('openned-folders')
+    if (!folderPaths) return false
+    return folderPaths.includes(folderPath)
+}
+
+export function setFolderOpen(folderPath, openned) {
+    let folderPaths = store.get('openned-folders') ? store.get('openned-folders') : []
+    if (openned) {
+        if (!folderPaths.includes(folderPath)) folderPaths.push(folderPath)
+    } else folderPaths = folderPaths.filter(folder => folder !== folderPath)
+    store.set('openned-folders', folderPaths)
 }
