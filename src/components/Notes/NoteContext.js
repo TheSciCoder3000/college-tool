@@ -192,8 +192,19 @@ export function NoteProvider({ notes,  children, updateNoteFile }) {
                     console.log('saving...')
                     updateNoteFile(note)
                     break;
+                case 113:
+                    e.preventDefault()
+                    console.log('renaming...')
+                    
+                    break;
             }
         }
+    }
+
+    document.onclick = e => {
+        let substrings = ['folder-cont', 'folder-img', 'folder-name']
+        if (!substrings.some(function(v) { return e.target.classList.value.indexOf(v) >= 0; })) 
+            document.querySelectorAll('.select-folder').forEach(folder => folder.classList.remove('select-folder'))
     }
      
 
