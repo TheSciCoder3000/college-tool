@@ -65,7 +65,7 @@ const RevNotes = () => {
         })
 
         // Set the tab to active tab
-        setActiveTabHandler(tab)
+        setActiveTab(tab)
     }
 
     // Handles Note closing when the tab is closed
@@ -79,11 +79,11 @@ const RevNotes = () => {
             })
 
             // set the active tab
-            setActiveTabHandler(function() {
+            setActiveTab(function() {
                 if (newTabState.length > 0) return newTabState[indx+1] ? newTabState[indx+1] : newTabState[indx-1]
                 return {notes: []}
             }())
-
+            
             setUserTabs(newTabState)                                   // Update the localStorage
             return newTabState
         })
