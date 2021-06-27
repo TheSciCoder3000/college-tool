@@ -11,7 +11,10 @@ export function getUserTabs() {
     if (!userTabs) return []                                    // if empty return an empty list of tabs
 
     // return an array of tab details
-    return userTabs.map(tabPath => {
+    return userTabs.filter(function (tab) {
+        if (fs.existsSync(tab)) return true
+        return false
+    }).map(tabPath => {
         let tab = fs.readFileSync(tabPath, {encoding: 'utf8'})  // read raw tab data
         let jsonTab
         try {                                                   // Try parsing raw tab data
