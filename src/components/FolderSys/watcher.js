@@ -22,8 +22,8 @@ export default function StartWatcher(path, syncFiles){
          syncFiles()
      })
     .on('change', function(path) {
-        // console.log('File', path, 'has been changed');
-        syncFiles()
+        console.log('File', path, 'has been changed');
+        // syncFiles()
     })
     .on('unlink', function(path) {
         // console.log('File', path, 'has been removed');
