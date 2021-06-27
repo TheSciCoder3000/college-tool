@@ -9,18 +9,41 @@
             display: flex;
             background-color: #dfdfdf;
             height: 2.3rem;
+            user-select: none;
 
             .tab {
                 padding: 0 1rem;
                 display: flex;
-                flex-direction: column;
                 justify-content: center;
                 background-color: #e8e8e8;
                 min-width: 5rem;
                 text-align: center;
+                align-items: center;
+
+                &:hover:not(.active) {
+                    cursor: pointer;
+                    background-color: #e3e3e3;
+                }
+
+                .tab-exit {
+                    margin-left: 0.8rem;
+                    display: none;
+
+                    img {
+                        height: 1rem;
+                    }
+                }
             }
             .active {
                 background-color: #f0f0f0;
+
+                .tab-exit {
+                    display: flex;
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
             }
         }
         .doc-body {
@@ -50,22 +73,6 @@
             font-size: 0.85rem;
             max-height: calc(100vh - 10rem);
             overflow-y: auto;
-
-            // &::-webkit-scrollbar {
-            //     width: 8px;
-            //     background-color: rgba(179, 179, 179, 0.404);
-            //     border-radius: 10px;
-            //     margin-right: 10px;            
-            // }
-            // &::-webkit-scrollbar-track {
-            //     border: solid 4px transparent;
-            // }
-            // &::-webkit-scrollbar-thumb {
-            //     width: 8px;
-            //     background-color: rgba(143, 143, 143, 0.486);
-            //     border-radius: 10px;
-            //     margin-right: 10px;            
-            // }
 
             &::-webkit-scrollbar {
                 width: 20px;
@@ -102,8 +109,12 @@
                         }
                     }
                 }
+                .select-folder {
+                    background-color: #ffffff96;
+                }
                 .folder-children {
-                    margin-left: 0.5rem;
+                    margin-left: 0.72rem;
+                    border-left: solid 0.5px rgba(200, 200, 200, 0.4);
                 }
             }
             .File {
@@ -164,6 +175,9 @@
             }
             &:focus {
                 outline: 0px solid transparent;
+            }
+            &::selection {
+                background-color: #8fd2f879;
             }
         }
         .child-note-cont {

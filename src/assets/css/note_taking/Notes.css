@@ -19,6 +19,10 @@
   display: flex;
   background-color: #dfdfdf;
   height: 2.3rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 .notes-body .doc-window .tabs .tab {
@@ -26,20 +30,43 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
   background-color: #e8e8e8;
   min-width: 5rem;
   text-align: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.notes-body .doc-window .tabs .tab:hover:not(.active) {
+  cursor: pointer;
+  background-color: #e3e3e3;
+}
+
+.notes-body .doc-window .tabs .tab .tab-exit {
+  margin-left: 0.8rem;
+  display: none;
+}
+
+.notes-body .doc-window .tabs .tab .tab-exit img {
+  height: 1rem;
 }
 
 .notes-body .doc-window .tabs .active {
   background-color: #f0f0f0;
+}
+
+.notes-body .doc-window .tabs .active .tab-exit {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.notes-body .doc-window .tabs .active .tab-exit:hover {
+  cursor: pointer;
 }
 
 .notes-body .doc-window .doc-body {
@@ -121,8 +148,13 @@
           align-items: center;
 }
 
+.notes-body .folder-sidepanel .folder-tree .Folder .select-folder {
+  background-color: #ffffff96;
+}
+
 .notes-body .folder-sidepanel .folder-tree .Folder .folder-children {
-  margin-left: 0.5rem;
+  margin-left: 0.72rem;
+  border-left: solid 0.5px rgba(200, 200, 200, 0.4);
 }
 
 .notes-body .folder-sidepanel .folder-tree .File {
@@ -197,6 +229,14 @@
 
 .note-row .note-cont .note-content:focus {
   outline: 0px solid transparent;
+}
+
+.note-row .note-cont .note-content::-moz-selection {
+  background-color: #8fd2f879;
+}
+
+.note-row .note-cont .note-content::selection {
+  background-color: #8fd2f879;
 }
 
 .note-row .note-cont .child-note-cont {
