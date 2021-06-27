@@ -33,6 +33,9 @@ const RevNotes = () => {
 
     // Handles Note openning requests from File component
     const openNoteHandler = (path, filename) => {
+        // check if note has already been loaded
+        if (tabs.find(tab => tab.notePath === path)) return console.log('note is already loaded')
+
         let rawData = fs.readFileSync(path, {encoding: 'utf8'})                     // read raw data from file path
         if (!fs.existsSync(path)) return dialog.showErrorBox('File does not exist', `This file does not exist in the directory ${path}`)
 
