@@ -84,7 +84,6 @@ const RevNotes = () => {
                 return {notes: []}
             }())
             
-            setUserTabs(newTabState)                                   // Update the localStorage
             return newTabState
         })
 
