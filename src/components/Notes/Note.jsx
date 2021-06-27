@@ -127,7 +127,7 @@ const RevNotes = () => {
                 </div>
                 <div className="doc-body">
                     {activeTab && (
-                        <NoteProvider notes={activeTab.notes}>
+                        <NoteProvider notes={activeTab.notes} updateNoteFile={updateNoteFile}>
                             <NoteDoc />
                         </NoteProvider>
                     )}
