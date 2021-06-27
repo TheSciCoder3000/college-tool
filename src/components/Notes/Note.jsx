@@ -2,7 +2,7 @@ import '../../assets/css/note_taking/Notes.css'
 import NoteDoc from './NoteDoc'
 import FileFolder from '../FolderSys/FolderSystem'
 import { NoteProvider } from './NoteContext'
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useEffect, useRef } from 'react'
 import produce from 'immer'
 import { getLastActiveTab, getUserTabs, setLastActiveTab, setUserTabs } from './store'
 
