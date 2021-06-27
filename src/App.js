@@ -14,6 +14,7 @@ import background from './assets/img/dashBackground.jpg';
 import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 
 function DashboardRoute() {
+  document.onkeydown = null
   return(
     <>
       {/* tool viewer*/}
@@ -26,6 +27,7 @@ function DashboardRoute() {
 }
 
 function CalendarRoute() {
+  document.onkeydown = null
   return(
     <>
       {/* tool viewer*/}
@@ -38,6 +40,7 @@ function CalendarRoute() {
 }
 
 function NotesRoute() {
+  document.onkeydown = null
   return(
     <>
       {/* <Notes /> */}
