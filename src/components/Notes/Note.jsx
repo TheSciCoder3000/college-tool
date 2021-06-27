@@ -21,7 +21,15 @@ export function useOpenNote() {
 const RevNotes = () => {
     // State initialization
     const [tabs, setTabs] = useState(getUserTabs())
+    useEffect(() => setUserTabs(tabs), [tabs])
+
     const [activeTab, setActiveTab] = useState(getLastActiveTab())
+    const firstRender = useRef(true)
+    useEffect(() => {
+        if (!firstRender.current) setLastActiveTab(activeTab)                                          // if not initial render, update localStorage
+        else firstRender.current = false                                                               // else set initial render to false
+    }, [activeTab])
+    
 
     // Handles Note openning requests from File component
     const openNoteHandler = (path, filename) => {
