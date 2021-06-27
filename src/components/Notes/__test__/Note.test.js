@@ -88,7 +88,7 @@ beforeEach(() => {
                   
     jest.spyOn(NoteData, 'getDocNotes').mockReturnValue(theNotes)
     NestedNoteRow = render(
-        <NoteContext.NoteProvider>
+        <NoteContext.NoteProvider notes={theNotes} >
             <NoteDoc />
         </NoteContext.NoteProvider>
     )
