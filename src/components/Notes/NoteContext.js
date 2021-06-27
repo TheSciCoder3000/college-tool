@@ -1,4 +1,4 @@
-import React, { useReducer, useContext } from "react";
+import React, { useReducer, useContext, useEffect } from "react";
 import produce, { original } from "immer";
 import { getDocNotes } from "./NoteData";
 
@@ -21,7 +21,8 @@ export const NOTE_ACTION = {
     REMOVE_NOTE: 'remove-note',
     UPDATE_NOTE: 'update-note',
     MAKE_CHILD_NOTE: 'make-child-note',
-    ARRANGE_NOTE: 'arrange-note'
+    ARRANGE_NOTE: 'arrange-note',
+    ROOT_UPDATE: 'root-update'
 }
 function reducer(note, action) {
     switch (action.type) {
@@ -165,6 +166,8 @@ function reducer(note, action) {
                 contRef.splice(insertIndx, 0, noteData)
 
             })
+        case NOTE_ACTION.ROOT_UPDATE:
+            return action.data.note
         default:
             console.log('ERROR: something went wrong in the reducer function')
             return note
@@ -172,16 +175,31 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ children }) {
-    const [note, setNote] = useReducer(reducer, getDocNotes())
+export function NoteProvider({ notes,  children, updateNoteFile }) {
+    const [note, setNote] = useReducer(reducer, notes)
 
-    function setMidNote(action) {
-        setNote(action)
+    // Update note state when notes prop is different
+    useEffect(() => {
+        setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} })
+    }, [notes])
+
+    // adding on key down event listeners for shortcuts
+    document.onkeydown = (e) => {
+        if (e.ctrlKey) {
+            switch(e.keyCode) {
+                case 83:
+                    e.preventDefault()
+                    console.log('saving...')
+                    updateNoteFile(note)
+                    break;
+            }
+        }
     }
+     
 
     return (
         <NoteContext.Provider value={note}>
-            <UpdateNoteContext.Provider value={setMidNote}>
+            <UpdateNoteContext.Provider value={setNote}>
                 {children}
             </UpdateNoteContext.Provider>
         </NoteContext.Provider>
