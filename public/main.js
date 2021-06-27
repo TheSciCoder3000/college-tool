@@ -1,9 +1,12 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, session} = require('electron');
 
 const path = require('path')
+const os = require('os')
 const isDev = require('electron-is-dev')
+const Store = require('electron-store')
 
+Store.initRenderer()
 require('@electron/remote/main').initialize()
 
 function createWindow () {
@@ -31,6 +34,15 @@ function createWindow () {
   mainWindow.setMenuBarVisibility(false)
 }
 
+const reactDevToolsPath = path.join(
+  os.homedir(),
+  'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'
+)
+
+async function loadExtension(){
+  await session.defaultSession.loadExtension(reactDevToolsPath)
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -42,6 +54,9 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+  // loadExtension()
+}).then(async () => {
+  await session.defaultSession.loadExtension(reactDevToolsPath)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
