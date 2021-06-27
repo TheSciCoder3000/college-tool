@@ -89,22 +89,27 @@ const RevNotes = () => {
 
     }
 
-    // Handles setting the active tab
-    const setActiveTabHandler = (tab) => {
-        setActiveTab(tab)
-        setLastActiveTab(tab)
-    }
 
-    // adding on key down event listeners for shortcuts
-    document.onkeydown = (e) => {
-       if (e.ctrlKey) {
-           switch(e.keyCode) {
-               case 83:
-                    e.preventDefault()
-                    console.log('saving...')
-                    break;
-           }
-       }
+    // Handler Save events
+    const updateNoteFile = (updatedNote) => {
+        console.log('handling save event')
+        // initialize note Path
+        let updatedNotePath = activeTab.notePath
+
+        // cancell save file if content are unchanged
+        if (JSON.stringify(updatedNote) === JSON.stringify(activeTab.notes)) return console.log('saving cancelled, notes are unchanged')
+
+        // update tabs
+        setTabs(tabsState => tabsState.map(tabState => {
+            if (tabState.notePath === updatedNotePath) return {...tabState, notes: updatedNote}
+            return tabState
+        }))
+
+        // update activeTabs
+        setActiveTab(activeTabState => {return {...activeTabState, notes: updatedNote}})
+        
+        // update file
+        fs.writeFileSync(updatedNotePath, JSON.stringify(updatedNote))
     }
     
 
