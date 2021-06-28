@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { setFolderOpen } from '../Notes/store'
 import File from './File'
-import Folder from './Folder'
+import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
 import StartWatcher, { WATCHER_EVENTS } from './watcher'
+import  { ContextMenu, MenuItem } from 'react-contextmenu'
 
 const fs = window.require('fs')
 const pathModule = window.require('path')
@@ -56,6 +57,10 @@ const FileFolder = () => {
     }, [path])
 
 
+    const handleContextMenu = (e, { action, path, onClickHandler }) => {
+        onClickHandler(action, path)
+    }
+
     return (
         <div className="folder-sidepanel">
             <div className="folder-header">
@@ -75,6 +80,41 @@ const FileFolder = () => {
                     })
                 )}
             </div>
+            <ContextMenu id="folder-context-menu" className="folder-context-menu-cont">
+                <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.ADD_FILE }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        New File
+                    </div>
+                    <div className="context-menu-item-shortcut">
+                        Shift + a
+                    </div>
+                </MenuItem>
+                <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.ADD_FOLDER }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        New Folder
+                    </div>
+                    <div className="context-menu-item-shortcut">
+                        Ctrl + Shift + a
+                    </div>
+                </MenuItem>
+                <MenuItem divider className="folder-context-menu-divider" />
+                <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.RENAME }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        Rename
+                    </div>
+                    <div className="context-menu-item-shortcut">
+                        F2
+                    </div>
+                </MenuItem>
+                <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.DELETE }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        Delete
+                    </div>
+                    <div className="context-menu-item-shortcut">
+                        Delete
+                    </div>
+                </MenuItem>
+            </ContextMenu>
         </div>
     )
 }
