@@ -12,7 +12,8 @@ export const WATCHER_EVENTS = {
 export default function StartWatcher(path, syncFiles){
     let watcher = chokidar.watch(path, {
         ignored: /[\/\\]\./,
-        persistent: true
+        persistent: true,
+        usePolling: true
     });
 
     function onWatcherReady(){
