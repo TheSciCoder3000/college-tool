@@ -56,7 +56,7 @@ app.whenReady().then(() => {
   })
   // loadExtension()
 }).then(async () => {
-  await session.defaultSession.loadExtension(reactDevToolsPath)
+  if (fs.existsSync(reactDevToolsPath)) await session.defaultSession.loadExtension(reactDevToolsPath)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
