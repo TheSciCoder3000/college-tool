@@ -5,6 +5,9 @@ const path = require('path')
 const os = require('os')
 const isDev = require('electron-is-dev')
 const Store = require('electron-store')
+try {
+  require('electron-reloader')(module)
+} catch (_) {}
 
 Store.initRenderer()
 require('@electron/remote/main').initialize()
