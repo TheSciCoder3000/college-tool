@@ -5,9 +5,9 @@ const path = require('path')
 const os = require('os')
 const isDev = require('electron-is-dev')
 const Store = require('electron-store')
-try {
-  require('electron-reloader')(module)
-} catch (_) {}
+// try {
+//   require('electron-reloader')(module)
+// } catch (_) {}
 
 Store.initRenderer()
 require('@electron/remote/main').initialize()
@@ -59,7 +59,7 @@ app.whenReady().then(() => {
   })
   // loadExtension()
 }).then(async () => {
-  if (fs.existsSync(reactDevToolsPath)) await session.defaultSession.loadExtension(reactDevToolsPath)
+  await session.defaultSession.loadExtension(reactDevToolsPath)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
