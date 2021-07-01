@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom';
 import { useState, useMemo, useEffect, useRef } from 'react'
 import File from './File'
 import { isFolderOpen, setFolderOpen } from '../Notes/store'
@@ -6,9 +7,9 @@ import { ContextMenuTrigger } from 'react-contextmenu'
 
 import ChevronRight from '../../assets/img/folder-right.svg'
 import ChevronDown from '../../assets/img/folder-down.svg'
+import { addItem, viewDB, findFolderFiles, removeItem, updateItem } from '../Notes/store/Utils'
+import ProxyItem from './ProxyItem';
 
-const fs = window.require('fs')
-const pathModule = window.require('path')
 
 export const CONTEXT_MENU_ACTIONS = {
     ADD_FILE: 'add-file',
@@ -17,65 +18,53 @@ export const CONTEXT_MENU_ACTIONS = {
     DELETE: 'delete'
 }
 
-const Folder = ({ folderData }) => {
+const Folder = ({ folderData, setParentFiles }) => {
     // Initialize states
     const [folderName, setFolderName] = useState(folderData.name)
     useEffect(() => setFolderName(folderData.name), [folderData.name])
 
-    const path = folderData.path
+    const [open, setOpen] = useState(folderData.open)
 
-    const [allowOpen, setAllowOpen] = useState(true)
-    const [open, setOpen] = useState(isFolderOpen(path))
-    const firstRender = useRef(true)
+    const [files, setFiles] = useState()
     useEffect(() => {
-        if (!firstRender.current) setFolderOpen(path, open)
-        else firstRender.current = false
-    }, [open])
-    const [fileSync, setFileSync] = useState(true)
-
-
-    const files = useMemo(() => fs
-        .readdirSync(path)
-        .map(file => {
-            const stat = fs.statSync(pathModule.join(path, file))
-
-            return {
-                name: file,
-                type: stat.isFile() ? 'file' : 'folder',
-                path: pathModule.join(path, file),
-            }
-        })
-        .sort((a, b) => {
-            if (a.type === b.type) {
-              return a.name.localeCompare(b.name)
-            }
-            return a.type === 'folder' ? -1 : 1
-        }), [fileSync, folderData])
+        if (!files) findFolderFiles(folderData._id, setFiles)
+    }, [])
     
-    
-    const folderCont = useRef()
+
+    const folderCont = useRef()                                             // Ref to the Main Folder container
     const folderClickHandler = (e) => {
-        if (!allowOpen) return
+        if (!allowOpen) return                                              // Makes sure folder does not open/close when renaming
 
-        // if ctrl key is
+        // if ctrl key is not pressed
         if (!e.ctrlKey) {
             document.querySelectorAll('.select-folder').forEach(folderEl => folderEl.classList.remove('select-folder'))     // unselect all folders
-            setOpen(openState => !openState)                                                                                // open/close folders
+            setOpen(openState => {
+                updateItem({...folderData}, 'open', !openState)
+                return !openState
+            })                                                                                // open/close folders
         }
 
         folderCont.current.classList.toggle('select-folder')
     }
 
     // Handling context menu actions
-    const folderRenameInput = useRef()
-    const folderNameEl = useRef()
-    const contextMenuHandler = (action, path) => {
+    const [allowOpen, setAllowOpen] = useState(true)                        // Used to prevent the folder from openning when the input is clicked
+    const [proxyInput, setProxyInput] = useState(false)                     // Used to render/unmount the proxyInput for folder/note creation
+    const folderRenameInput = useRef()                                      // Ref to the input field used in renaming a folder
+    const folderNameEl = useRef()                                           // Ref to the element that contains the name of the folder
+    const folderChildrenEl = useRef()                                       // Ref to the element that contains the child folders/notes
+    const createItem = useRef()
+    const contextMenuHandler = (action, noteid) => {
         switch (action) {
             case CONTEXT_MENU_ACTIONS.ADD_FILE:
-                console.log('create new file')
+                setOpen(true)
+                setProxyInput(true)
+                createItem.current = 'note'
                 break;
             case CONTEXT_MENU_ACTIONS.ADD_FOLDER:
-                console.log('create new folder')
+                setOpen(true)
+                setProxyInput(true)
+                createItem.current = 'folder'
                 break;
             case CONTEXT_MENU_ACTIONS.RENAME:
                 setAllowOpen(state => !state)                                               // Prevent the folder from openning when input is clicked
@@ -88,10 +77,26 @@ const Folder = ({ folderData }) => {
                 folderRenameInput.current.querySelector('input').focus()                    // focus on the input
                 break;
             case CONTEXT_MENU_ACTIONS.DELETE:
-                // removes the directory
-                fs.rmdirSync(path, { recursive: true })
+                // removes the folder/note
+                removeItem(folderData._id, folderData.type, folderData.parentFolder, setParentFiles)
+                break;
+            case 'view-db':
+                viewDB()
                 break;
         }
+    }
+
+    // Handler for creating folders/notes on submit
+    const onSubmitCreation = (e) => {
+        e.preventDefault()
+
+        let proxyFolder = document.getElementById('proxy-folder-creation')
+        let itemName = proxyFolder.querySelector('input').value
+        if (itemName === '' || !itemName) return
+        setProxyInput(false)
+
+        // add an item to the database
+        addItem(folderData._id, createItem.current, itemName,  setFiles)
     }
 
     // Handler for onFolderInput submit
@@ -99,43 +104,50 @@ const Folder = ({ folderData }) => {
         // Initialization
         e.preventDefault()
         let folderInputEl = folderRenameInput.current.querySelector('input')
+        if (folderInputEl.value === '' || !folderInputEl.value) return
 
         // styling
-        folderInputEl.style.display = 'none'
+        folderRenameInput.current.style.display = 'none'
         folderNameEl.current.style.display = 'block'
-        folderNameEl.current.innerText = folderInputEl.value
 
         // rename directory
-        let newPath = pathModule.join(pathModule.join(path, '..'), folderInputEl.value)
-        fs.renameSync(path, newPath)
+        updateItem({ ...folderData }, 'name', folderInputEl.value, setParentFiles)
+    }
+
+    // Handle on blur for rename input
+    const onRenameInputBlur = () => {
+        folderRenameInput.current.style.display = 'none'
+        folderNameEl.current.style.display = 'block'
     }
 
     return (
         <div className="Folder">
-            <ContextMenuTrigger id="folder-context-menu" path={path} onClickHandler={contextMenuHandler} collect={(props) => {return props}}>
+            <ContextMenuTrigger id="folder-context-menu" noteid={folderData._id} onClickHandler={contextMenuHandler} collect={(props) => {return props}}>
                 <div ref={folderCont} className="folder-cont"
                     onClick={folderClickHandler} >
                     <div className="folder-icon">
                         <img className="folder-img" src={open ? ChevronDown : ChevronRight} alt="folder-right" />
                     </div>
                     <div ref={folderNameEl} className="folder-name">{folderName}</div>
-                    <form className="folder-name-form" ref={folderRenameInput} action="POST" onSubmit={onFolderInputSubmit}><input type="text" /></form>
+                    <form className="folder-name-form" ref={folderRenameInput} action="POST" onSubmit={onFolderInputSubmit}>
+                        <input type="text" 
+                               onBlur={onRenameInputBlur} />
+                    </form>
                 </div>
             </ContextMenuTrigger>
-            {open && ( 
-                <div className="folder-children">
+                <div ref={folderChildrenEl} className={open ? "folder-children" : "folder-children closed"}>
+                    {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(false)} />)}
                     {files && (
                         files.map((file) => {
                             if (file.type == 'folder') return (
-                                <Folder key={`folder-${file.name}`} folderData={file} />
+                                <Folder key={`folder-${file._id}`} folderData={file} setParentFiles={setFiles} />
                             )
                             return (
-                                <File key={`file-${file.name}`} fileData={file} />
+                                <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
                             )
                         })
                     )}
                 </div>
-            )}
         </div>
     )
 }
