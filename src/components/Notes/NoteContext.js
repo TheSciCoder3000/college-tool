@@ -1,4 +1,4 @@
-import React, { useReducer, useContext, useEffect } from "react";
+import React, { useReducer, useContext, useEffect, useState } from "react";
 import produce, { original } from "immer";
 import { getDocNotes } from "./NoteData";
 
@@ -175,8 +175,15 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ notes,  children, updateNoteFile }) {
+export function NoteProvider({ noteID, notes, setUnsync, children, updateNoteFile }) {
+    const [id, setId] = useState(noteID)
+    useEffect(() => setId(noteID), [noteID])
     const [note, setNote] = useReducer(reducer, notes)
+    useEffect(() => {
+        if (id === noteID) {
+            setUnsync({ state: notes !== note, data: note })
+        }
+    }, [notes, note])
 
     // Update note state when notes prop is different
     useEffect(() => {
@@ -189,22 +196,21 @@ export function NoteProvider({ notes,  children, updateNoteFile }) {
             switch(e.keyCode) {
                 case 83:
                     e.preventDefault()
-                    console.log('saving...')
-                    updateNoteFile(note)
+                    updateNoteFile(id, note)
                     break;
-                case 113:
-                    e.preventDefault()
-                    console.log('renaming...')
+                // case 113:
+                //     e.preventDefault()
+                //     console.log('renaming...')
                     
-                    break;
+                //     break;
             }
         }
     }
 
     document.onclick = e => {
-        let substrings = ['folder-cont', 'folder-img', 'folder-name']
+        let substrings = ['folder-cont', 'folder-img', 'folder-name', 'filename']
         if (!substrings.some(function(v) { return e.target.classList.value.indexOf(v) >= 0; })) 
-            document.querySelectorAll('.select-folder').forEach(folder => folder.classList.remove('select-folder'))
+            document.querySelectorAll('.item-selected').forEach(folder => folder.classList.remove('item-selected'))
     }
      
 
