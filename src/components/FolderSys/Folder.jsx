@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react'
 import File from './File'
 import { ContextMenuTrigger } from 'react-contextmenu'
-import { useHotKeys, useKey } from '../compUtils'
+import { useHotKeys } from '../compUtils'
 
 import ChevronRight from '../../assets/img/folder-right.svg'
 import ChevronDown from '../../assets/img/folder-down.svg'
@@ -11,6 +11,7 @@ import { useDisplayFolders } from './FolderSystem'
 import { useRemovedFiles } from '../Notes/Note'
 
 
+// Shared with the main folder system component
 export const CONTEXT_MENU_ACTIONS = {
     ADD_FILE: 'add-file',
     ADD_FOLDER: 'add-folder',
@@ -20,52 +21,37 @@ export const CONTEXT_MENU_ACTIONS = {
 
 
 const Folder = ({ folderData, setParentFiles }) => {
-    // Initialize states
+    // ============================================= State Initialization =============================================
     const [folderName, setFolderName] = useState(folderData.name)
     useEffect(() => setFolderName(folderData.name), [folderData.name])
 
     const [open, setOpen] = useState(folderData.open)
     useEffect(() => updateItem({...folderData}, 'open', open), [open])
 
-    const setDisplayFolder = useDisplayFolders()
+    const setDisplayFolder = useDisplayFolders()                                        // Used to update the openned folders obj of the main folder comp
     const [files, setFiles] = useState()
     useEffect(() => {
-        if (!files) findFolderFiles(folderData._id, setFiles)
-        else {
-            setDisplayFolder(folders => {
+        if (!files) findFolderFiles(folderData._id, setFiles)                           // On render, fetch data files from database
+        else setDisplayFolder(folders => {                                              // Once data retrieved, update opnned folders state
                 if (Object.keys(folders).includes(folderData._id)) {
                     let foldersCopy = {...folders}
                     foldersCopy[folderData._id] = true
                     return foldersCopy
                 } else return folders
             })
-        }
     }, [files])
     
 
-    // Handling click events on a folder
-    const itemSelectClass = 'item-selected'
-    const folderCont = useRef()                                             // Ref to the Main Folder container
-    const folderClickHandler = (e) => {
-        if (!allowOpen) return                                              // Makes sure folder does not open/close when renaming
-
-        // if ctrl key is not pressed
-        if (!e.ctrlKey) {
-            document.querySelectorAll(`.${itemSelectClass}`).forEach(folderEl => folderEl.classList.remove(itemSelectClass))     // unselect all folders
-            setOpen(openState => !openState)                                                                                // open/close folders
-        }
-
-        folderCont.current.classList.toggle(itemSelectClass)
-    }
-
+    // ============================================= SHARED FUNCTIONS =============================================
     // Handling context menu actions
     const [allowOpen, setAllowOpen] = useState(true)                        // Used to prevent the folder from openning when the input is clicked
     const [proxyInput, setProxyInput] = useState(false)                     // Used to render/unmount the proxyInput for folder/note creation
     const folderRenameInput = useRef()                                      // Ref to the input field used in renaming a folder
     const folderNameEl = useRef()                                           // Ref to the element that contains the name of the folder
     const folderChildrenEl = useRef()                                       // Ref to the element that contains the child folders/notes
-    const createItem = useRef()
-    const checkRemovedFiles = useRemovedFiles()
+    const createItem = useRef()                                             // Holds ref to type of item being created
+    const checkRemovedFiles = useRemovedFiles()                             // Used context to sync deletion of files with the tabs
+
     const contextMenuHandler = (action, noteid) => {
         switch (action) {
             case CONTEXT_MENU_ACTIONS.ADD_FILE:
@@ -98,6 +84,23 @@ const Folder = ({ folderData, setParentFiles }) => {
         }
     }
 
+
+    // ============================================= COMPONENT BASED FUNCTIONS =============================================
+    // Handling click events on a folder
+    const itemSelectClass = 'item-selected'
+    const folderCont = useRef()                                             // Ref to the Main Folder container
+    const folderClickHandler = (e) => {
+        if (!allowOpen) return                                              // Makes sure folder does not open/close when renaming
+
+        // if ctrl key is not pressed
+        if (!e.ctrlKey) {
+            document.querySelectorAll(`.${itemSelectClass}`).forEach(folderEl => folderEl.classList.remove(itemSelectClass))     // unselect all folders
+            setOpen(openState => !openState)                                                                                     // open/close folders
+        }
+
+        folderCont.current.classList.toggle(itemSelectClass)
+    }
+    
     // Handler for creating folders/notes on submit
     const onSubmitCreation = (e) => {
         e.preventDefault()
@@ -123,7 +126,7 @@ const Folder = ({ folderData, setParentFiles }) => {
         folderNameEl.current.style.display = 'block'
 
         // rename directory
-        if (folderInputEl.value === folderData.name) return console.log('same name')
+        if (folderInputEl.value === folderName) return console.log('same name')
         updateItem({ ...folderData }, 'name', folderInputEl.value, setParentFiles)
         setAllowOpen(true)
     }
@@ -136,7 +139,7 @@ const Folder = ({ folderData, setParentFiles }) => {
     }
 
 
-    // HotKey handlers
+    // ============================================= KEYMAP SETUP =============================================
     const keyMap = {
         ADD_FILE: 'A',
         ADD_FOLDER: 'Ctrl+A',
@@ -149,7 +152,9 @@ const Folder = ({ folderData, setParentFiles }) => {
         RENAME: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.RENAME, folderData._id) },
         DELETE: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.DELETE, folderData._id) }
     }
-    useHotKeys(keyMap, handlers)
+    // Add event listeners to document using custom made HotKeys hook
+    useHotKeys(keyMap, handlers)                                                // ISSUE: inefficent design due to repeated event listener assignment every re-render
+
 
     return (
         <div className="Folder">
@@ -167,19 +172,20 @@ const Folder = ({ folderData, setParentFiles }) => {
                     </form>
                 </div>
             </ContextMenuTrigger>
-                <div ref={folderChildrenEl} className={open ? "folder-children" : "folder-children closed"}>
-                    {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(false)} />)}
-                    {files && (
-                        files.map((file) => {
-                            if (file.type == 'folder') return (
-                                <Folder key={`folder-${file._id}`} folderData={file} setParentFiles={setFiles} />
-                            )
-                            return (
-                                <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
-                            )
-                        })
-                    )}
-                </div>
+
+            <div ref={folderChildrenEl} className={open ? "folder-children" : "folder-children closed"}>
+                {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(false)} />)}
+                {files && (
+                    files.map((file) => {
+                        if (file.type == 'folder') return (
+                            <Folder key={`folder-${file._id}`} folderData={file} setParentFiles={setFiles} />
+                        )
+                        return (
+                            <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
+                        )
+                    })
+                )}
+            </div>
         </div>
     )
 }

@@ -29,18 +29,22 @@ export function useRenamedFile() {
 }
 
 const RevNotes = () => {
-    // State initialization
-    const [unsync, setUnsync] = useState({ state: false, data: null })
+    // ============================================= State Initialization =============================================
     const [tabs, setTabs] = useState(getOpenTabs())
-
-    const [activeTab, setActiveTab] = useState()
-    useEffect(() => ReactDOM.render(<MenuComponent activetab={activeTab} unsync={unsync} updateNoteFile={updateNoteFile} />, document.getElementById('menu-bar-cont')), [activeTab, unsync])
-    useEffect(() => {
-        if (!activeTab) getLastActiveTab().then(setActiveTab)
-    }, [])
     
-    //useWhyDidYouUpdate('revnotes', { tabs, activeTab })
+    const [activeTab, setActiveTab] = useState()
+    useEffect(() => { if (!activeTab) getLastActiveTab().then(setActiveTab) }, [])      // fetch data from database
 
+    const [unsync, setUnsync] = useState({ state: false, data: null })
+    // Render top menu bar component
+    useEffect(() => ReactDOM.render(
+        <MenuComponent activetab={activeTab} unsync={unsync} updateNoteFile={updateNoteFile} />, 
+        document.getElementById('menu-bar-cont')
+    ), [activeTab, unsync])
+    
+    // useWhyDidYouUpdate('revnotes', { tabs, activeTab })
+
+    // ============================================= SHARED FUNCTIONS =============================================
     // Handles Note openning requests from File component
     const openNoteHandler = (noteId, filename) => {
         if (tabs.find(tab => tab.id === noteId)) return console.log('note already is in the viewer')
@@ -49,17 +53,6 @@ const RevNotes = () => {
             setLastActiveTab(note._id).then(setActiveTab)
         })
     }
-
-    // Handles Note closing when the tab is closed
-    const closeTab = (id, tabIndx) => {
-        // update the tabs state
-        if (tabs.length > 1) {
-            let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
-            setLastActiveTab(tabs[newTabIndx].id).then(setActiveTab)
-        } else setLastActiveTab(null).then(() => setActiveTab(null))
-        setTabs(removeOpenTab(id))                              // remove tabs in the database and set the tabs state
-    }
-
 
     // Handler Save events
     const updateNoteFile = (id, updatedNote) => {
@@ -75,6 +68,18 @@ const RevNotes = () => {
         })
 
     }
+
+    // ============================================= COMPONENT BASED FUNCTIONS =============================================
+    // Handles Note closing when the tab is closed
+    const closeTab = (id, tabIndx) => {
+        // update the tabs state
+        if (tabs.length > 1) {
+            let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
+            setLastActiveTab(tabs[newTabIndx].id).then(setActiveTab)
+        } else setLastActiveTab(null).then(() => setActiveTab(null))
+        setTabs(removeOpenTab(id))                              // remove tabs in the database and set the tabs state
+    }
+    
 
 
     // ============================================= FUNCTIONS TO SYNC CHANGES FROM FOLDERS COMPONENT TO TABS =============================================

@@ -1,33 +1,29 @@
-import React, { useState, useMemo, useEffect, useRef, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { findFolderFiles, getOpenFolders } from '../Notes/store/Utils'
 import File, { NOTE_CONTEXT_ACTION } from './File'
 import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
 import  { ContextMenu, MenuItem } from 'react-contextmenu'
 import { useWhyDidYouUpdate } from '../compUtils'
 
-const fs = window.require('fs')
-const pathModule = window.require('path')
-const { app } = window.require('@electron/remote')
-var watcher = null;
 
 const DisplayFolders = React.createContext()
 export function useDisplayFolders() {
     return useContext(DisplayFolders)
 }
 
+
 const FileFolder = () => {
-    // initialize files
+    // ============================================= State Initialization =============================================
     const [files, setFiles] = useState()
-    useEffect(() => {
-        if (!files) findFolderFiles('root-folder', setFiles)
-    }, [])
+    useEffect(() => { if (!files) findFolderFiles('root-folder', setFiles) }, [])       // fetch files data from the database
 
     const [showFolders, setShowFolders] = useState(false)
     const [openFolders, setOpenFolders] = useState()
+    // Used to only display the folder tree once all folders are openned
     useEffect(() => {
-        if (!openFolders) getOpenFolders(setOpenFolders)
-        else if (!Object.values(openFolders).includes(false)) {
-            setShowFolders(true)
+        if (!openFolders) getOpenFolders(setOpenFolders)                                // On render, get an object of open folders w/ values set to false
+        else if (!Object.values(openFolders).includes(false)) {                         // if there are no unopenned folders
+            setShowFolders(true)                                                            // Then show the entire folder tree
         }
     }, [openFolders])
     
@@ -35,9 +31,9 @@ const FileFolder = () => {
     // DEV DEBUGGING LOG
     // useWhyDidYouUpdate('FileFolder', { files, showFolders, openFolders })
 
-    const handleContextMenu = (e, { action, noteid, onClickHandler }) => {
-        onClickHandler(action, noteid)
-    }
+    // ============================================= SHARED FUNCTIONS =============================================
+    // link the clickHandler to the contextMenuHandler
+    const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
 
     return (
         <div className="folder-sidepanel">
