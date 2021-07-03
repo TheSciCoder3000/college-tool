@@ -1,64 +1,42 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'
-import { setFolderOpen } from '../Notes/store'
-import File from './File'
+import React, { useState, useMemo, useEffect, useRef, useContext } from 'react'
+import { findFolderFiles, getOpenFolders } from '../Notes/store/Utils'
+import File, { NOTE_CONTEXT_ACTION } from './File'
 import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
-import StartWatcher, { WATCHER_EVENTS } from './watcher'
 import  { ContextMenu, MenuItem } from 'react-contextmenu'
+import { useWhyDidYouUpdate } from '../compUtils'
 
 const fs = window.require('fs')
 const pathModule = window.require('path')
 const { app } = window.require('@electron/remote')
 var watcher = null;
 
+const DisplayFolders = React.createContext()
+export function useDisplayFolders() {
+    return useContext(DisplayFolders)
+}
+
 const FileFolder = () => {
-    const path = pathModule.join(app.getPath('userData'), 'NotesHome')
-
-    // if userData folder does not exist then create folder
-    if (!fs.existsSync(path)) fs.mkdir(path, (error) => { if (error) console.error(error) })
-    const [fileSync, setFileSync] = useState(true)
-
     // initialize files
-    let files = useMemo(() => fs
-        .readdirSync(path)
-        .map(file => {
-            const stat = fs.statSync(pathModule.join(path, file))
-            
-            return {
-                name: file,
-                type: stat.isFile() ? 'file' : 'folder',
-                path: pathModule.join(path, file),
-            }
-        })
-        .sort((a, b) => {
-            if (a.type === b.type) {
-                return a.name.localeCompare(b.name)
-            }
-            return a.type === 'folder' ? -1 : 1
-        }), [fileSync, path])
-    
-    // initializing the file watcher
+    const [files, setFiles] = useState()
     useEffect(() => {
-        if (watcher) watcher.close()
-        watcher = StartWatcher(path, (event, data) => {
-            switch(event){
-                case WATCHER_EVENTS.FOLDER_DELETED:
-                    setFolderOpen(data.folderPath, false, true)
-                    break;
-            }
-            setFileSync(syncState => !syncState)
-        })
+        if (!files) findFolderFiles('root-folder', setFiles)
+    }, [])
 
-        // cleanup function
-        return () => {
-            // close watcher if component is unmounted
-            if (watcher) watcher.close()
-            watcher = null
+    const [showFolders, setShowFolders] = useState(false)
+    const [openFolders, setOpenFolders] = useState()
+    useEffect(() => {
+        if (!openFolders) getOpenFolders(setOpenFolders)
+        else if (!Object.values(openFolders).includes(false)) {
+            setShowFolders(true)
         }
-    }, [path])
+    }, [openFolders])
+    
 
+    // DEV DEBUGGING LOG
+    // useWhyDidYouUpdate('FileFolder', { files, showFolders, openFolders })
 
-    const handleContextMenu = (e, { action, path, onClickHandler }) => {
-        onClickHandler(action, path)
+    const handleContextMenu = (e, { action, noteid, onClickHandler }) => {
+        onClickHandler(action, noteid)
     }
 
     return (
@@ -66,20 +44,31 @@ const FileFolder = () => {
             <div className="folder-header">
                 <h1>Notes</h1>
             </div>
-            <div className="folder-tree">
+
+            {!showFolders && (
+                <div className="loading-folders">
+                    <h5>Loading...</h5>
+                </div>
+            )}
+
+            <div className={showFolders ? "folder-tree" : "folder-tree no-display"}>
                 {files && (
                     files.map((file) => {
                         if (file.type == 'folder') {
                             return (
-                                <Folder key={`folder-${file.name}`} folderData={file} />
+                                <DisplayFolders.Provider key={`folder-${file._id}`} value={setOpenFolders}>
+                                    <Folder folderData={file} setParentFiles={setFiles} />
+                                </DisplayFolders.Provider>
                             )
                         }
                         return (
-                            <File key={`file-${file.name}`} fileData={file} />
+                            <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
                         )
                     })
                 )}
             </div>
+
+            {/* Context menu for folders */}
             <ContextMenu id="folder-context-menu" className="folder-context-menu-cont">
                 <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.ADD_FILE }} onClick={handleContextMenu} >
                     <div className="context-menu-item-name">
@@ -114,7 +103,43 @@ const FileFolder = () => {
                         Delete
                     </div>
                 </MenuItem>
+                <MenuItem className="folder-cotext-menu-item" data={{ action: 'view-db' }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        view db
+                    </div>
+                </MenuItem>
             </ContextMenu>
+            
+            {/* Context menu for files or notes */}
+            <ContextMenu id="note-context-menu" className="folder-context-menu-cont">
+                <MenuItem className="folder-cotext-menu-item" data={{ action: NOTE_CONTEXT_ACTION.OPEN_NOTE }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        Open Note
+                    </div>
+                    <div className="context-menu-item-shortcut">
+                        
+                    </div>
+                </MenuItem>
+                <MenuItem divider className="folder-context-menu-divider" />
+                <MenuItem className="folder-cotext-menu-item" data={{ action: NOTE_CONTEXT_ACTION.RENAME_NOTE }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        Rename Note
+                    </div>
+                    <MenuItem divider className="folder-context-menu-divider" />
+                    <div className="context-menu-item-shortcut">
+                        F2
+                    </div>
+                </MenuItem>
+                <MenuItem className="folder-cotext-menu-item" data={{ action: NOTE_CONTEXT_ACTION.DELETE_NOTE }} onClick={handleContextMenu} >
+                    <div className="context-menu-item-name">
+                        Delete Note
+                    </div>
+                    <MenuItem divider className="folder-context-menu-divider" />
+                    <div className="context-menu-item-shortcut">
+                        Delete
+                    </div>
+                </MenuItem>
+            </ContextMenu>            
         </div>
     )
 }

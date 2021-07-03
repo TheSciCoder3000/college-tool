@@ -1,14 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom';
-import { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react'
 import File from './File'
-import { isFolderOpen, setFolderOpen } from '../Notes/store'
 import { ContextMenuTrigger } from 'react-contextmenu'
+import { useHotKeys, useKey } from '../compUtils'
 
 import ChevronRight from '../../assets/img/folder-right.svg'
 import ChevronDown from '../../assets/img/folder-down.svg'
 import { addItem, viewDB, findFolderFiles, removeItem, updateItem } from '../Notes/store/Utils'
 import ProxyItem from './ProxyItem';
+import { useDisplayFolders } from './FolderSystem'
+import { useRemovedFiles } from '../Notes/Note'
 
 
 export const CONTEXT_MENU_ACTIONS = {
@@ -18,33 +18,44 @@ export const CONTEXT_MENU_ACTIONS = {
     DELETE: 'delete'
 }
 
+
 const Folder = ({ folderData, setParentFiles }) => {
     // Initialize states
     const [folderName, setFolderName] = useState(folderData.name)
     useEffect(() => setFolderName(folderData.name), [folderData.name])
 
     const [open, setOpen] = useState(folderData.open)
+    useEffect(() => updateItem({...folderData}, 'open', open), [open])
 
+    const setDisplayFolder = useDisplayFolders()
     const [files, setFiles] = useState()
     useEffect(() => {
         if (!files) findFolderFiles(folderData._id, setFiles)
-    }, [])
+        else {
+            setDisplayFolder(folders => {
+                if (Object.keys(folders).includes(folderData._id)) {
+                    let foldersCopy = {...folders}
+                    foldersCopy[folderData._id] = true
+                    return foldersCopy
+                } else return folders
+            })
+        }
+    }, [files])
     
 
+    // Handling click events on a folder
+    const itemSelectClass = 'item-selected'
     const folderCont = useRef()                                             // Ref to the Main Folder container
     const folderClickHandler = (e) => {
         if (!allowOpen) return                                              // Makes sure folder does not open/close when renaming
 
         // if ctrl key is not pressed
         if (!e.ctrlKey) {
-            document.querySelectorAll('.select-folder').forEach(folderEl => folderEl.classList.remove('select-folder'))     // unselect all folders
-            setOpen(openState => {
-                updateItem({...folderData}, 'open', !openState)
-                return !openState
-            })                                                                                // open/close folders
+            document.querySelectorAll(`.${itemSelectClass}`).forEach(folderEl => folderEl.classList.remove(itemSelectClass))     // unselect all folders
+            setOpen(openState => !openState)                                                                                // open/close folders
         }
 
-        folderCont.current.classList.toggle('select-folder')
+        folderCont.current.classList.toggle(itemSelectClass)
     }
 
     // Handling context menu actions
@@ -54,6 +65,7 @@ const Folder = ({ folderData, setParentFiles }) => {
     const folderNameEl = useRef()                                           // Ref to the element that contains the name of the folder
     const folderChildrenEl = useRef()                                       // Ref to the element that contains the child folders/notes
     const createItem = useRef()
+    const checkRemovedFiles = useRemovedFiles()
     const contextMenuHandler = (action, noteid) => {
         switch (action) {
             case CONTEXT_MENU_ACTIONS.ADD_FILE:
@@ -78,7 +90,7 @@ const Folder = ({ folderData, setParentFiles }) => {
                 break;
             case CONTEXT_MENU_ACTIONS.DELETE:
                 // removes the folder/note
-                removeItem(folderData._id, folderData.type, folderData.parentFolder, setParentFiles)
+                removeItem(folderData._id, folderData.type, folderData.parentFolder, setParentFiles).then(checkRemovedFiles)
                 break;
             case 'view-db':
                 viewDB()
@@ -104,33 +116,53 @@ const Folder = ({ folderData, setParentFiles }) => {
         // Initialization
         e.preventDefault()
         let folderInputEl = folderRenameInput.current.querySelector('input')
-        if (folderInputEl.value === '' || !folderInputEl.value) return
+        if (folderInputEl.value === '' || !folderInputEl.value) return console.error('INVALID FOLDER NAME')
 
         // styling
         folderRenameInput.current.style.display = 'none'
         folderNameEl.current.style.display = 'block'
 
         // rename directory
+        if (folderInputEl.value === folderData.name) return console.log('same name')
         updateItem({ ...folderData }, 'name', folderInputEl.value, setParentFiles)
+        setAllowOpen(true)
     }
 
     // Handle on blur for rename input
     const onRenameInputBlur = () => {
         folderRenameInput.current.style.display = 'none'
         folderNameEl.current.style.display = 'block'
+        setAllowOpen(true)
     }
+
+
+    // HotKey handlers
+    const keyMap = {
+        ADD_FILE: 'A',
+        ADD_FOLDER: 'Ctrl+A',
+        RENAME: 'F2',
+        DELETE: 'Delete'
+    }
+    const handlers = {
+        ADD_FILE: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.ADD_FILE, folderData._id) },
+        ADD_FOLDER: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.ADD_FOLDER, folderData._id) },
+        RENAME: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.RENAME, folderData._id) },
+        DELETE: e => { if (e && document.getElementById(folderData._id).classList.contains(itemSelectClass)) contextMenuHandler(CONTEXT_MENU_ACTIONS.DELETE, folderData._id) }
+    }
+    useHotKeys(keyMap, handlers)
 
     return (
         <div className="Folder">
             <ContextMenuTrigger id="folder-context-menu" noteid={folderData._id} onClickHandler={contextMenuHandler} collect={(props) => {return props}}>
-                <div ref={folderCont} className="folder-cont"
+                <div ref={folderCont} id={folderData._id} className="folder-cont"
                     onClick={folderClickHandler} >
                     <div className="folder-icon">
                         <img className="folder-img" src={open ? ChevronDown : ChevronRight} alt="folder-right" />
                     </div>
                     <div ref={folderNameEl} className="folder-name">{folderName}</div>
                     <form className="folder-name-form" ref={folderRenameInput} action="POST" onSubmit={onFolderInputSubmit}>
-                        <input type="text" 
+                        <input type="text"
+                               onKeyDown={e => e.code === 'Escape' && (onRenameInputBlur())} 
                                onBlur={onRenameInputBlur} />
                     </form>
                 </div>
@@ -152,4 +184,4 @@ const Folder = ({ folderData, setParentFiles }) => {
     )
 }
 
-export default Folder
+export default memo(Folder)

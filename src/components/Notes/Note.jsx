@@ -2,11 +2,13 @@ import '../../assets/css/note_taking/Notes.css'
 import NoteDoc from './NoteDoc'
 import FileFolder from '../FolderSys/FolderSystem'
 import { NoteProvider } from './NoteContext'
-import { useState, createContext, useContext, useEffect, useRef } from 'react'
+import { useState, createContext, useContext, useEffect, useCallback } from 'react'
 import produce from 'immer'
-import { getLastActiveTab, getUserTabs, setLastActiveTab, setUserTabs } from './store'
 
 import closeTabIcon from '../../assets/img/close-tab.svg'
+import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActiveTab, updateItem } from './store/Utils'
+import { useWhyDidYouUpdate } from '../compUtils'
+import ReactDOM from 'react-dom'
 
 // electron isolated imports
 const fs = window.require('fs')
@@ -14,104 +16,87 @@ const { dialog } = window.require('@electron/remote')
 
 // Context Initialization
 const OpenNote = createContext()
+const updateRemovedFiles = createContext()
+const updateRenamedFile = createContext()
 export function useOpenNote() {
     return useContext(OpenNote)
+}
+export function useRemovedFiles() {
+    return useContext(updateRemovedFiles)
+}
+export function useRenamedFile() {
+    return useContext(updateRenamedFile)
 }
 
 const RevNotes = () => {
     // State initialization
-    const [tabs, setTabs] = useState(getUserTabs())
-    useEffect(() => setUserTabs(tabs), [tabs])
+    const [unsync, setUnsync] = useState({ state: false, data: null })
+    const [tabs, setTabs] = useState(getOpenTabs())
 
-    const [activeTab, setActiveTab] = useState(getLastActiveTab())
-    const firstRender = useRef(true)
+    const [activeTab, setActiveTab] = useState()
+    useEffect(() => ReactDOM.render(<MenuComponent activetab={activeTab} unsync={unsync} updateNoteFile={updateNoteFile} />, document.getElementById('menu-bar-cont')), [activeTab, unsync])
     useEffect(() => {
-        if (!firstRender.current) setLastActiveTab(activeTab)                                          // if not initial render, update localStorage
-        else firstRender.current = false                                                               // else set initial render to false
-    }, [activeTab])
+        if (!activeTab) getLastActiveTab().then(setActiveTab)
+    }, [])
     
+    //useWhyDidYouUpdate('revnotes', { tabs, activeTab })
 
     // Handles Note openning requests from File component
-    const openNoteHandler = (path, filename) => {
-        // check if note has already been loaded
-        if (tabs.find(tab => tab.notePath === path)) return console.log('note is already loaded')
-
-        let rawData = fs.readFileSync(path, {encoding: 'utf8'})                     // read raw data from file path
-        if (!fs.existsSync(path)) return dialog.showErrorBox('File does not exist', `This file does not exist in the directory ${path}`)
-
-        // Initialize JsonNote
-        let jsonNote
-        try {                                                                       // Try parsing rawData to json 
-            jsonNote = JSON.parse(rawData)
-        } catch (error) {                                                           // Catch Syntax error
-            console.log(`Error: cannot parse ${filename}`)
-            jsonNote = [{
-                id: Math.random().toString(16).slice(-8),
-                content: "",
-                insideNote: null
-            }]
-        }
-
-        // Initialize the tab data
-        let tab = {
-            noteName: filename.split('.').slice(0, -1).join('.'),
-            notePath: path,
-            notes: jsonNote
-        }
-
-        // push the newly openned tab to the tabs state
-        setTabs(tabState => {
-            return [...tabState, tab]
+    const openNoteHandler = (noteId, filename) => {
+        if (tabs.find(tab => tab.id === noteId)) return console.log('note already is in the viewer')
+        addOpenTab(noteId, filename).then(note => {
+            setTabs(getOpenTabs())
+            setLastActiveTab(note._id).then(setActiveTab)
         })
-
-        // Set the tab to active tab
-        setActiveTab(tab)
     }
 
     // Handles Note closing when the tab is closed
-    const closeTab = (indx) => {
+    const closeTab = (id, tabIndx) => {
         // update the tabs state
-        setTabs(tabState => {
-            // Create immutable variable
-            let newTabState = produce(tabState, draft => {
-                draft.splice(indx, 1)                                   // remove the tab at indx
-                return draft
-            })
-
-            // set the active tab
-            setActiveTab(function() {
-                if (newTabState.length > 0) return newTabState[indx+1] ? newTabState[indx+1] : newTabState[indx-1]
-                return {notes: []}
-            }())
-            
-            return newTabState
-        })
-
+        if (tabs.length > 1) {
+            let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
+            setLastActiveTab(tabs[newTabIndx].id).then(setActiveTab)
+        } else setLastActiveTab(null).then(() => setActiveTab(null))
+        setTabs(removeOpenTab(id))                              // remove tabs in the database and set the tabs state
     }
 
 
     // Handler Save events
-    const updateNoteFile = (updatedNote) => {
-        console.log('handling save event')
-        // initialize note Path
-        let updatedNotePath = activeTab.notePath
-
+    const updateNoteFile = (id, updatedNote) => {
         // cancell save file if content are unchanged
-        if (JSON.stringify(updatedNote) === JSON.stringify(activeTab.notes)) return console.log('saving cancelled, notes are unchanged')
+        if (JSON.stringify(updatedNote) === JSON.stringify(activeTab.notes)) {
+            setUnsync({ state: false, data: updatedNote })
+            return
+        }
 
-        // update tabs
-        setTabs(tabsState => tabsState.map(tabState => {
-            if (tabState.notePath === updatedNotePath) return {...tabState, notes: updatedNote}
-            return tabState
-        }))
+        updateItem({ _id: id }, 'notes', updatedNote).then(() => {
+            setUnsync({ state: false, data: updatedNote })
+            setActiveTab(tabState => { return { ...tabState, notes: updatedNote } })
+        })
 
-        // update activeTabs
-        setActiveTab(activeTabState => {return {...activeTabState, notes: updatedNote}})
-        
-        // update file
-        fs.writeFileSync(updatedNotePath, JSON.stringify(updatedNote))
     }
-    
+
+
+    // ============================================= FUNCTIONS TO SYNC CHANGES FROM FOLDERS COMPONENT TO TABS =============================================
+    // removing tabs whose files are removed
+    const checkTabsForRemovedFiles = (files) => {
+        if (files) files.forEach(noteFile => {
+            if (tabs.find(noteTab => noteTab.id === noteFile)) setTabs(removeOpenTab(noteFile))
+            if (noteFile === activeTab._id) {
+                setLastActiveTab(null).then(() => setActiveTab(null))
+            }
+        })
+    }
+
+    // renaming tabs whose files are renamed
+    const checkTabsForRenamedFile = (file) => {
+        if (file && tabs.find(tab => tab.id === file.id)) setTabs(tabState => tabState.map(tab => {
+            console.log('replacing', tab.id, file.id, file.name)
+            if (tab.id === file.id) return { ...tab, noteName: file.name }
+            return tab
+        })) 
+    }
+
 
     return (
         <div className="notes-body">
@@ -119,12 +104,12 @@ const RevNotes = () => {
                 <div className="tabs">
                     {tabs.length > 0 && (
                         tabs.map((tab, tabIndx) => 
-                            <div className={`tab ${activeTab.noteName === tab.noteName ? 'active' : ''}`} 
-                                 key={tabIndx}
-                                 onClick={activeTab.noteName !== tab.noteName ? () => setActiveTab(tabs[tabIndx]) : null } >
+                            <div className={`tab ${activeTab && activeTab.name === tab.noteName ? 'active' : ''}`} 
+                                 key={`tab-${tab.id}`}
+                                 onClick={!activeTab || activeTab.name !== tab.noteName ? () => setLastActiveTab(tab.id).then(setActiveTab) : null} >
                                 <div className="tab-name">{tab.noteName}</div>
                                 <div className="tab-exit"
-                                     onClick={() => closeTab(tabIndx)} >
+                                     onClick={() => closeTab(tab.id, tabIndx)} >
                                     <img src={closeTabIcon} alt="" />
                                 </div>
                             </div>
@@ -132,17 +117,36 @@ const RevNotes = () => {
                 </div>
                 <div className="doc-body">
                     {activeTab && (
-                        <NoteProvider notes={activeTab.notes} updateNoteFile={updateNoteFile}>
+                        <NoteProvider noteID={activeTab._id} notes={activeTab.notes} setUnsync={setUnsync} updateNoteFile={updateNoteFile}>
                             <NoteDoc />
                         </NoteProvider>
                     )}
                 </div>
             </div>
             <OpenNote.Provider value={openNoteHandler}>
-                <FileFolder />
+                <updateRemovedFiles.Provider value={checkTabsForRemovedFiles}>
+                    <updateRenamedFile.Provider value={checkTabsForRenamedFile}>
+                        <FileFolder />
+                    </updateRenamedFile.Provider>
+                </updateRemovedFiles.Provider>
             </OpenNote.Provider>
         </div>
     )
 }
+
+
+
+const MenuComponent = ({ activetab, unsync, updateNoteFile }) => {
+    let { state: unsyncState, data: newNoteData } = unsync
+    return (
+        <div className="note-menu-bar">
+            <button className={unsyncState ? "save-btn" : "save-btn hide"} onClick={() => updateNoteFile(activetab._id, newNoteData)} >
+                Save
+            </button>
+        </div>
+    )
+}
+
+
 
 export default RevNotes
