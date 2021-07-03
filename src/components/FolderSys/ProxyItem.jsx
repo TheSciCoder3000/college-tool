@@ -9,7 +9,11 @@ const ProxyItem = ({ onSubmitCreation, removeProxy }) => {
     return (
         <div className="Folder proxy-folder-note" id="proxy-folder-creation">
             <form action="POST" onSubmit={onSubmitCreation}>
-            <input onBlur={removeProxy} ref={proxyInput} id='proxy-input' type="text" />
+                <input onBlur={removeProxy} 
+                       ref={proxyInput} 
+                       id='proxy-input' 
+                       type="text" 
+                       onKeyDown={e => e.code === 'Escape' && (removeProxy())} />
             </form>
         </div>
     )
