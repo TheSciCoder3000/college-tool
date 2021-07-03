@@ -54,7 +54,7 @@ function App() {
     <HashRouter>
       <div className="App"
         style={{ backgroundImage: `url(${background})` }}>
-        <div className="menu-bar"></div>
+        <div id="menu-bar-cont" className="menu-bar"></div>
         <div className="app-content">
           <AppBar />
           
