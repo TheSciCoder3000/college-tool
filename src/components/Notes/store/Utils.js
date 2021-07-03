@@ -1,6 +1,5 @@
 const Pouchdb = window.require('pouchdb-browser')
 const PouchdbFind = window.require('pouchdb-find')
-Pouchdb.plugin(window.require('relational-pouch'))
 Pouchdb.plugin(PouchdbFind)
 
 const path = window.require('path')
@@ -13,24 +12,6 @@ const Store = window.require('electron-store')
 const store = new Store()
 export var UserSettingsdb = new Pouchdb(path.join(app.getPath('userData'), 'userSettings'))
 export var Notedb = new Pouchdb(path.join(app.getPath('userData'), 'noteDb'))
-Notedb.setSchema([
-    {
-        singular: 'folder',
-        plural: 'folders',
-        relations: {
-            parentFolder: {belongsTo: 'folder'},
-            subFolders: {hasMany: 'folder'},
-            notes: {hasMany: 'note'}
-        }
-    },
-    {
-        singular: 'note',
-        plural: 'notes',
-        relations: {
-            parentFolder: {belongsTo: 'folder'}
-        }
-    }
-])
 
 
 // ================================================ FOLDER FUNCTIONS FUNCTIONS ================================================
