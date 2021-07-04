@@ -120,4 +120,165 @@ function getAndInsertDict(notes, action, propName) {
 
 }
 
+
+function createRange(node, chars, range) {
+  if (!range) {
+      range = document.createRange()
+      range.selectNode(node);
+      range.setStart(node, 0);
+  }
+
+  if (chars.count === 0) {
+      range.setEnd(node, chars.count);
+  } else if (node && chars.count >0) {
+      if (node.nodeType === Node.TEXT_NODE) {
+          if (node.textContent.length < chars.count) {
+              chars.count -= node.textContent.length;
+          } else {
+              range.setEnd(node, chars.count);
+              chars.count = 0;
+          }
+      } else {
+         for (var lp = 0; lp < node.childNodes.length; lp++) {
+              range = createRange(node.childNodes[lp], chars, range);
+
+              if (chars.count === 0) {
+                  break;
+              }
+          }
+      }
+  } 
+
+  return range;
+};
+
+export function setCurrentCursorPosition(contendEditableEl, chars) {
+  if (chars >= 0) {
+      var selection = window.getSelection();
+
+      let range = createRange(contendEditableEl, { count: chars });
+
+      if (range) {
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+      }
+  }
+};
+
+
+export function extractHTMLContentFromStartToCaret(contendEditableEl, chars) {
+  if (chars >= 0) {
+      var selection = window.getSelection();
+
+      let range = createRange(contendEditableEl, { count: chars });
+
+      if (range) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+          let docFrag = range.extractContents()
+          let tempDiv = document.createElement('div')
+          tempDiv.append(docFrag)
+          return tempDiv.innerHTML
+      }
+  }
+};
+
+
+
+export function extractHTMLContentFromCaretToEnd(contendEditableEl, chars) {
+  function createRangeToEnd(node, chars, range) {
+    if (!range) {
+        range = document.createRange()
+        range.selectNode(node)
+        let endNode = node
+        while (endNode.nodeType !== Node.TEXT_NODE) endNode = endNode.lastChild
+        range.setEnd(endNode, endNode.length)
+    }
+    if (chars.count === 0) {
+        range.setStart(node, chars.count);
+    } else if (node && chars.count >0) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            if (node.textContent.length < chars.count) {
+                chars.count -= node.textContent.length;
+            } else {
+                range.setStart(node, chars.count);
+                chars.count = 0;
+            }
+        } else {
+           for (var lp = 0; lp < node.childNodes.length; lp++) {
+                range = createRangeToEnd(node.childNodes[lp], chars, range);
+
+                if (chars.count === 0) {
+                    break;
+                }
+            }
+        }
+    } 
+
+
+    return range;
+  }
+
+  if (chars >= 0) {
+    var selection = window.getSelection();
+
+    let range = createRangeToEnd(contendEditableEl, { count: chars });
+
+    if (range) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+        let docFrag = range.extractContents()
+        let tempDiv = document.createElement('div')
+        tempDiv.append(docFrag)
+        return tempDiv.innerHTML
+    }
+  }
+}
+
+
+
+function isChildOf(node, parentId) {
+  while (node !== null) {
+      if (node.id === parentId) {
+          return true;
+      }
+      node = node.parentNode;
+  }
+
+  return false;
+};
+
+export function getCurrentCursorPosition(parentId) {
+  var selection = window.getSelection(),
+      charCount = -1,
+      node;
+
+  if (selection.focusNode) {
+      if (isChildOf(selection.focusNode, parentId)) {
+          node = selection.focusNode; 
+          charCount = selection.focusOffset;
+
+          while (node) {
+              if (node.id === parentId) {
+                  break;
+              }
+
+              if (node.previousSibling) {
+                  node = node.previousSibling;
+                  charCount += node.textContent.length;
+              } else {
+                   node = node.parentNode;
+                   if (node === null) {
+                       break
+                   }
+              }
+         }
+    }
+ }
+
+  return charCount;
+};
+
+
 export { placeCaretAtEnd, getLastOfLastNoteChild, setCaret, getCaretPosition, setNestedDict, getNestedDict, getAndInsertDict }
