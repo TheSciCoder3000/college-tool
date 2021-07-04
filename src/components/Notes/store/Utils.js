@@ -270,33 +270,33 @@ export async function getLastActiveTab() {
 
     if (!lastActiveTabId) return null
     return Notedb.get(lastActiveTabId).then(result => {
-        if (result.notes.length === 0) return {
-            ...result,
-            notes: [{
-                id: Math.random().toString(16).slice(-8),
-                content:"",
-                insideNote: null
-            }]
+        // if notes is empty
+        if (result.notes.length === 0) {
+            // initialize notes with an empty row
+            let revisedResult = {
+                ...result,
+                notes: [{
+                    id: Math.random().toString(16).slice(-8),
+                    content:"",
+                    insideNote: null
+                }]
+            }
+            // save to session storage
+            sessionStorage.setItem(`tab-${lastActiveTabId}`, JSON.stringify(revisedResult))
+            // return to caller
+            return revisedResult
         }
+
+        sessionStorage.setItem(`tab-${lastActiveTabId}`, JSON.stringify(result))
         return result
     })
 }
 
 export async function setLastActiveTab(id) {
     console.log('setting last active', id)
+    
     store.set('activeTab', id)
-    if (id) return Notedb.get(id).then(result => {
-        if (result.notes.length === 0) return {
-            ...result,
-            notes: [{
-                id: Math.random().toString(16).slice(-8),
-                content:"",
-                insideNote: null
-            }]
-        }
-
-        return result
-    })
+    if (id) return await getLastActiveTab()
 }
 
 // ================================================ DEVELOPER HELPER FUNCTIONS ================================================
