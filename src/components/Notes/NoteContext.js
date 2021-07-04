@@ -38,7 +38,7 @@ function reducer(note, action) {
                 // insert note in the desired indx
                 draftRef.splice(action.data.indx, 0, {
                     id: Math.random().toString(16).slice(-8),
-                    content: '',
+                    content: action.data.newNoteContent ? action.data.newNoteContent : '',
                     insideNote: null
                 })
             })
