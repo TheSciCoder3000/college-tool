@@ -2,8 +2,7 @@ import '../../assets/css/note_taking/Notes.css'
 import NoteDoc from './NoteDoc'
 import FileFolder from '../FolderSys/FolderSystem'
 import { NoteProvider } from './NoteContext'
-import { useState, createContext, useContext, useEffect, useCallback } from 'react'
-import produce from 'immer'
+import { useState, createContext, useContext, useEffect } from 'react'
 
 import closeTabIcon from '../../assets/img/close-tab.svg'
 import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActiveTab, updateItem } from './store/Utils'
@@ -47,7 +46,10 @@ const RevNotes = () => {
     // ============================================= SHARED FUNCTIONS =============================================
     // Handles Note openning requests from File component
     const openNoteHandler = (noteId, filename) => {
+        // check if note is already openned
         if (tabs.find(tab => tab.id === noteId)) return console.log('note already is in the viewer')
+
+        // else add it to tabs and set to active tab
         addOpenTab(noteId, filename).then(note => {
             setTabs(getOpenTabs())
             setLastActiveTab(note._id).then(setActiveTab)
@@ -72,6 +74,9 @@ const RevNotes = () => {
     // ============================================= COMPONENT BASED FUNCTIONS =============================================
     // Handles Note closing when the tab is closed
     const closeTab = (id, tabIndx) => {
+        // remove from session storage
+        sessionStorage.removeItem(`tab-${id}`)
+        
         // update the tabs state
         if (tabs.length > 1) {
             let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
