@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ContentEditable from 'react-contenteditable'
+import { noteDataContext } from './NoteRow';
 
 export default class NoteContentEditable extends Component {
     constructor(props) {
@@ -7,18 +8,24 @@ export default class NoteContentEditable extends Component {
         this.state = {
             text: this.props.text,
             keyDown: this.props.keyDown,
-            textChange: this.props.onTextChange
+            textChange: this.props.onTextChange,
+            noteData: this.props.noteData
         }
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.text !== prevState.text) {
+            console.log('text change')
             return({...prevState, text: nextProps.text})
+        }
+        if (nextProps.noteData !== prevState.noteData) {
+            return {...prevState, noteData: nextProps.noteData}
         }
         return null
     }
 
     onTextChangeHandler(e) {
+        console.log('onChange', this.contentEditable)
         if (e.target.value === '<br>') {
             this.setState({...this.state, text: ""})
             this.state.textChange("", this.props.path, this.contentEditable)
@@ -29,7 +36,7 @@ export default class NoteContentEditable extends Component {
     }
 
     onKeyDownHandler(e) {
-        this.state.keyDown(e, this.props.indx, this.props.path, this.state.text)
+        this.state.keyDown(e, this.props.indx, this.props.path, this.state.text, this.state.noteData)
     }
 
     render() {
