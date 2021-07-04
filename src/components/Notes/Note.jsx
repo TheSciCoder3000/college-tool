@@ -2,11 +2,11 @@ import '../../assets/css/note_taking/Notes.css'
 import NoteDoc from './NoteDoc'
 import FileFolder from '../FolderSys/FolderSystem'
 import { NoteProvider } from './NoteContext'
-import { useState, createContext, useContext, useEffect } from 'react'
+import { useState, createContext, useContext, useEffect, useCallback } from 'react'
 
 import closeTabIcon from '../../assets/img/close-tab.svg'
 import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActiveTab, updateItem } from './store/Utils'
-import { useWhyDidYouUpdate } from '../compUtils'
+import { useNotedbListener, useWhyDidYouUpdate } from '../compUtils'
 import ReactDOM from 'react-dom'
 
 // electron isolated imports
@@ -15,16 +15,8 @@ const { dialog } = window.require('@electron/remote')
 
 // Context Initialization
 const OpenNote = createContext()
-const updateRemovedFiles = createContext()
-const updateRenamedFile = createContext()
 export function useOpenNote() {
     return useContext(OpenNote)
-}
-export function useRemovedFiles() {
-    return useContext(updateRemovedFiles)
-}
-export function useRenamedFile() {
-    return useContext(updateRenamedFile)
 }
 
 const RevNotes = () => {
@@ -43,6 +35,7 @@ const RevNotes = () => {
     
     // useWhyDidYouUpdate('revnotes', { tabs, activeTab })
 
+    
     // ============================================= SHARED FUNCTIONS =============================================
     // Handles Note openning requests from File component
     const openNoteHandler = (noteId, filename) => {
@@ -76,7 +69,7 @@ const RevNotes = () => {
     const closeTab = (id, tabIndx) => {
         // remove from session storage
         sessionStorage.removeItem(`tab-${id}`)
-        
+
         // update the tabs state
         if (tabs.length > 1) {
             let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
@@ -89,23 +82,32 @@ const RevNotes = () => {
 
     // ============================================= FUNCTIONS TO SYNC CHANGES FROM FOLDERS COMPONENT TO TABS =============================================
     // removing tabs whose files are removed
-    const checkTabsForRemovedFiles = (files) => {
+    const checkTabsForRemovedFiles = useCallback((files) => {
+        console.log('removing file', files)
         if (files) files.forEach(noteFile => {
             if (tabs.find(noteTab => noteTab.id === noteFile)) setTabs(removeOpenTab(noteFile))
             if (noteFile === activeTab._id) {
                 setLastActiveTab(null).then(() => setActiveTab(null))
             }
         })
-    }
+    }, [tabs, activeTab])
 
     // renaming tabs whose files are renamed
-    const checkTabsForRenamedFile = (file) => {
-        if (file && tabs.find(tab => tab.id === file.id)) setTabs(tabState => tabState.map(tab => {
-            console.log('replacing', tab.id, file.id, file.name)
-            if (tab.id === file.id) return { ...tab, noteName: file.name }
-            return tab
-        })) 
-    }
+    const checkTabsForRenamedFile = useCallback((file) => {
+        console.log('checking renamed file', file)
+        if (file && tabs.find(tab => tab.id === file.id)) {
+            setTabs(tabState => tabState.map(tab => {
+                if (tab.id === file.id) return { ...tab, noteName: file.name }
+                return tab
+            }))
+
+            let sessionTab = sessionStorage.getItem(`tab-${file.id}`)
+            console.log(sessionTab)
+            if (sessionTab) sessionStorage.setItem(`tab-${file.id}`, JSON.stringify({ ...JSON.parse(sessionTab), name: file.name }))
+        }
+    }, [tabs])
+
+    useNotedbListener(checkTabsForRenamedFile, checkTabsForRemovedFiles)
 
 
     return (
@@ -134,11 +136,7 @@ const RevNotes = () => {
                 </div>
             </div>
             <OpenNote.Provider value={openNoteHandler}>
-                <updateRemovedFiles.Provider value={checkTabsForRemovedFiles}>
-                    <updateRenamedFile.Provider value={checkTabsForRenamedFile}>
-                        <FileFolder />
-                    </updateRenamedFile.Provider>
-                </updateRemovedFiles.Provider>
+                <FileFolder />
             </OpenNote.Provider>
         </div>
     )

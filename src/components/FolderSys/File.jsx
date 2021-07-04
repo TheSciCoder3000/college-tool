@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useOpenNote, useRemovedFiles, useRenamedFile } from '../Notes/Note'
+import { useOpenNote } from '../Notes/Note'
 import { ContextMenuTrigger } from 'react-contextmenu'
 import { removeItem, updateItem } from '../Notes/store/Utils'
 import { useHotKeys } from '../compUtils'
@@ -33,15 +33,13 @@ const File = ({ fileData, setParentFiles }) => {
 
     const filenameEl = useRef()
     const NoteRenameInput = useRef()
-    const checkRemovedFiles = useRemovedFiles()
-    const checkRenamedFile = useRenamedFile()
     const contextMenuHandler = (action, noteid) => {
         switch (action) {
             case NOTE_CONTEXT_ACTION.OPEN_NOTE:
                 openNote(fileData._id, fileData.name)
                 break;
             case NOTE_CONTEXT_ACTION.DELETE_NOTE:
-                removeItem(fileData._id, fileData.type, fileData.parentFolder, setParentFiles).then(checkRemovedFiles)
+                removeItem(fileData._id, fileData.type, fileData.parentFolder, setParentFiles)
                 break;
             case NOTE_CONTEXT_ACTION.RENAME_NOTE:
                 filenameEl.current.style.display = 'none'
@@ -64,7 +62,7 @@ const File = ({ fileData, setParentFiles }) => {
 
         // Update the database with the new name, re-render component then sync name changes with the tabs
         let newName = NoteRenameInput.current.querySelector('input').value
-        updateItem({...fileData}, 'name', newName, setParentFiles).then(() => checkRenamedFile({id: fileData._id, name: newName }))
+        updateItem({...fileData}, 'name', newName, setParentFiles)
     }
 
     // Removes Input component when unfocused
@@ -96,6 +94,7 @@ const File = ({ fileData, setParentFiles }) => {
 
                 <form className="folder-name-form" ref={NoteRenameInput} action="POST" onSubmit={onNoteInputSubmit}>
                         <input type="text" 
+                               onKeyDown={e => e.code === 'Escape' && (onRenameInputBlur())}
                                onBlur={onRenameInputBlur} />
                 </form>
             </div>

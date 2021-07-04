@@ -85,7 +85,7 @@ async function initializeRootFiles(setSync) {
 // find the files of the folder id
 export async function findFolderFiles(id, setFiles) {
     // create and index and find the children of folder id
-    let FolderData = await Notedb.createIndex({
+    let FolderData = id ? await Notedb.createIndex({
         index: {fields: ['parentFolder']},
         ddoc: 'parentFolder-indexes'
     }).then(() => {
@@ -93,26 +93,22 @@ export async function findFolderFiles(id, setFiles) {
             selector: {
                 'parentFolder': id
             }
-        })
-    })
+        }).catch(err => console.error(`ERROR: cannot find files of ${id}`, err))
+    }) : []         // set to empty array if there is no id
     FolderData = FolderData.docs
 
     // sort the folder data if items are > 1
     if (FolderData.length > 1) FolderData = FolderData.sort((doc1, doc2) => {
-        if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
-        return doc1.type === 'folder' ? -1 : 1
-    }).map(doc => {
-        if (doc.type === 'note') {
-            delete doc.notes
-            return doc
-        } else return doc
-    })
-    
-    // restructure the folder data in a way react can understand
-    if (id === 'root-folder' && FolderData.length < 1) initializeRootFiles(() => findFolderFiles(id, setFiles))
-
-    // fail safe to prevent loops
-    if (!id) FolderData = []
+            if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
+            return doc1.type === 'folder' ? -1 : 1
+        }).map(doc => {
+            if (doc.type === 'note') {
+                delete doc.notes
+                return doc
+            } else return doc
+        })
+    // else if empty db, the initialize starting files of db
+    else if (id === 'root-folder' && FolderData.length < 1) initializeRootFiles(() => findFolderFiles(id, setFiles))
 
     // update the react folder component
     if (setFiles) setFiles(FolderData)
@@ -121,6 +117,7 @@ export async function findFolderFiles(id, setFiles) {
 
 // add a folder/note to the db
 export async function addItem(id, type, itemName, setFiles) {
+    console.log('adding at item in folder')
     // pre initialize item Obj
     let itemObj = {
         _id: `${new Date().toISOString()}-${Math.random().toString(16).slice(-4)}`,
@@ -138,14 +135,16 @@ export async function addItem(id, type, itemName, setFiles) {
 
     console.log('generating item', itemObj)
 
-    Notedb.put(itemObj).then(() => {
+    return Notedb.put(itemObj).then(() => {
         console.log('item saved to db successfully')
         findFolderFiles(id, setFiles)
+        return itemObj
     })
 }
 
 // remove a folder or note
 export async function removeItem(id, type, parentFolderID, setFiles) {
+    console.log('removing an item in folder')
     if (type === 'note') {
         console.log('deleting note')
         return Notedb.get(id).then(doc => {
@@ -216,9 +215,30 @@ async function removeFilesOfFolder(id) {
 
 // updates a property of the doc in the database
 export async function updateItem(itemData, property, newValue, setFiles) {
+    console.log('updating file in folder')
     return Notedb.get(itemData._id).catch(err => console.log('get err', err)).then(result => {
+        if (property !== 'notes' && result[property] === newValue) {
+            console.log(`no need to update "${property}" from ${result[property]} to ${newValue}`)
+            return
+        }
+
+        if (result.type === 'note' && property === 'name') {
+            switch (property) {
+                case 'name':
+                    console.log('renaming store tabs')
+                    let storeTabs = store.get('openTabs')
+                    if (storeTabs.find(tab => tab.id === result._id)) store.set('openTabs', storeTabs.map(tab => {
+                        if (tab.id === result._id) return { ...tab, noteName: newValue }
+                        return tab
+                    }))
+                    break;
+            }
+        }
+
         let doc = result
         doc[property] = newValue
+
+        if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
 
         return Notedb.put(doc).catch(err => console.log('put err', err))
     }).then(() => {
@@ -227,8 +247,10 @@ export async function updateItem(itemData, property, newValue, setFiles) {
     }).catch(err => console.log(err))
 }
 
+// returns an object of openned folders as keys with values set to false
 export async function getOpenFolders(callback) {
-    Notedb.createIndex({
+    let sessionTabs = sessionStorage.getItem('tabs')
+    return Notedb.createIndex({
         index: {
             fields: ['type', 'open']
         },
@@ -245,8 +267,9 @@ export async function getOpenFolders(callback) {
         result.docs.forEach(doc => {
             parsedResult[doc._id] = false
         });
-        callback(parsedResult)
-    }).catch(console.log)
+        if (callback) callback(parsedResult)
+        else return parsedResult
+    }).catch(err => console.error(`ERROR: failed in getting openned folders`, err))
 }
 
 // ================================================ TAB AND NOTE FUNCTIONS ================================================
@@ -265,10 +288,17 @@ export function removeOpenTab(id) {
     return newTabArray
 }
 
-export async function getLastActiveTab() {
-    let lastActiveTabId = store.get('activeTab')
+// runs on initial render to get the last active note/tab
+export async function getLastActiveTab(id) {
+    let lastActiveTabId = id ? id : store.get('activeTab')
 
     if (!lastActiveTabId) return null
+
+    // checks if the note data is stored in session storage
+    let sessionTab = sessionStorage.getItem(`tab-${lastActiveTabId}`)
+    if (sessionTab) return JSON.parse(sessionTab)
+
+    // else retrieve data from the database
     return Notedb.get(lastActiveTabId).then(result => {
         // if notes is empty
         if (result.notes.length === 0) {
@@ -292,9 +322,9 @@ export async function getLastActiveTab() {
     })
 }
 
+// Used to set the active tab in the localStorage and returns the object of the id arg
 export async function setLastActiveTab(id) {
-    console.log('setting last active', id)
-    
+    console.log('setting active tab', id)
     store.set('activeTab', id)
     if (id) return await getLastActiveTab()
 }
@@ -304,5 +334,17 @@ export async function setLastActiveTab(id) {
 export function viewDB() {
     Notedb.allDocs({include_docs: true}).then(console.log).then(() => {
         return Notedb.getIndexes().then(console.log)
+    })
+}
+
+// Used for listenning db changes
+export function getNotedbListenner() {
+    return Notedb.changes({
+        since: 'now',
+        live: true,
+        include_docs: true,
+        filter: function (doc) {
+            return doc.type === 'note' || doc._deleted === true
+        }
     })
 }

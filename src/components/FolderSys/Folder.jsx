@@ -8,7 +8,7 @@ import ChevronDown from '../../assets/img/folder-down.svg'
 import { addItem, viewDB, findFolderFiles, removeItem, updateItem } from '../Notes/store/Utils'
 import ProxyItem from './ProxyItem';
 import { useDisplayFolders } from './FolderSystem'
-import { useRemovedFiles } from '../Notes/Note'
+import { useOpenNote } from '../Notes/Note'
 
 
 // Shared with the main folder system component
@@ -50,7 +50,6 @@ const Folder = ({ folderData, setParentFiles }) => {
     const folderNameEl = useRef()                                           // Ref to the element that contains the name of the folder
     const folderChildrenEl = useRef()                                       // Ref to the element that contains the child folders/notes
     const createItem = useRef()                                             // Holds ref to type of item being created
-    const checkRemovedFiles = useRemovedFiles()                             // Used context to sync deletion of files with the tabs
 
     const contextMenuHandler = (action, noteid) => {
         switch (action) {
@@ -76,7 +75,7 @@ const Folder = ({ folderData, setParentFiles }) => {
                 break;
             case CONTEXT_MENU_ACTIONS.DELETE:
                 // removes the folder/note
-                removeItem(folderData._id, folderData.type, folderData.parentFolder, setParentFiles).then(checkRemovedFiles)
+                removeItem(folderData._id, folderData.type, folderData.parentFolder, setParentFiles)
                 break;
             case 'view-db':
                 viewDB()
@@ -102,6 +101,7 @@ const Folder = ({ folderData, setParentFiles }) => {
     }
     
     // Handler for creating folders/notes on submit
+    const openNote = useOpenNote()
     const onSubmitCreation = (e) => {
         e.preventDefault()
 
@@ -111,7 +111,7 @@ const Folder = ({ folderData, setParentFiles }) => {
         setProxyInput(false)
 
         // add an item to the database
-        addItem(folderData._id, createItem.current, itemName,  setFiles)
+        addItem(folderData._id, createItem.current, itemName,  setFiles).then(result => openNote(result._id, result.name))
     }
 
     // Handler for onFolderInput submit
