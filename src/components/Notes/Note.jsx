@@ -39,14 +39,17 @@ const RevNotes = () => {
     // ============================================= SHARED FUNCTIONS =============================================
     // Handles Note openning requests from File component
     const openNoteHandler = (noteId, filename) => {
-        // check if note is already openned
-        if (tabs.find(tab => tab.id === noteId)) return console.log('note already is in the viewer')
-
-        // else add it to tabs and set to active tab
-        addOpenTab(noteId, filename).then(note => {
-            setTabs(getOpenTabs())
-            setLastActiveTab(note._id).then(setActiveTab)
-        })
+        
+        if (tabs.find(tab => tab.id === noteId)) {                  // check if note is already openned
+            // set as active tab
+            setLastActiveTab(noteId).then(setActiveTab)
+        } else {                                                    // else
+            // add to open tabs
+            addOpenTab(noteId, filename).then(note => {
+                setTabs(getOpenTabs())                              // set tabs state
+                setLastActiveTab(note._id).then(setActiveTab)       // set as active tab
+            })
+        }
     }
 
     // Handler Save events
@@ -116,9 +119,9 @@ const RevNotes = () => {
                 <div className="tabs">
                     {tabs.length > 0 && (
                         tabs.map((tab, tabIndx) => 
-                            <div className={`tab ${activeTab && activeTab.name === tab.noteName ? 'active' : ''}`} 
+                            <div className={`tab ${activeTab && activeTab._id === tab.id ? 'active' : ''}`} 
                                  key={`tab-${tab.id}`}
-                                 onClick={!activeTab || activeTab.name !== tab.noteName ? () => setLastActiveTab(tab.id).then(setActiveTab) : null} >
+                                 onClick={!activeTab || activeTab._id !== tab.id ? () => setLastActiveTab(tab.id).then(setActiveTab) : null} >
                                 <div className="tab-name">{tab.noteName}</div>
                                 <div className="tab-exit"
                                      onClick={() => closeTab(tab.id, tabIndx)} >
