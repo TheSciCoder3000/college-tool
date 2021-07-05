@@ -8,18 +8,18 @@ export function useWhyDidYouUpdate(name, props) {
     const previousProps = useRef();
   
     useEffect(() => {
-        if (previousProps) {
+        if (previousProps.current) {
             // Get all keys from previous and current props
-            const allKeys = Object.keys({ ...previousProps, ...props });
+            const allKeys = Object.keys({ ...previousProps.current, ...props });
             // Use this object to keep track of changed props
             const changesObj = {};
             // Iterate through keys
             allKeys.forEach((key) => {
                 // If previous is different from current
-                if (previousProps[key] !== props[key]) {
+                if (previousProps.current[key] !== props[key]) {
                     // Add to changesObj
                     changesObj[key] = {
-                        from: previousProps[key],
+                        from: previousProps.current[key],
                         to: props[key],
                     };
                 }
@@ -31,11 +31,11 @@ export function useWhyDidYouUpdate(name, props) {
             }
             
         } else {
-            console.log(`initial render`)
+            console.log(`[why-did-you-update] initial render`)
         }
   
-        // Finally update previousProps with current props for next hook call
-        previousProps = props;
+        // Finally update previousProps.current with current props for next hook call
+        previousProps.current = props;
     });
 }
 
@@ -79,7 +79,6 @@ export function useHotKeys(keyMaps, handlers) {
 
 export function useNotedbListener(renamedFileCb, removedFilesCb) {
     useEffect(() => {
-        console.log('initial render')
         let changes = getNotedbListenner().on('change', change => {
             console.log(change)
             if (change.doc._deleted) removedFilesCb([change.doc._id])
