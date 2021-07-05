@@ -1,7 +1,7 @@
 import { FaPlus } from 'react-icons/fa'
 import handles from '../../assets/img/handles.svg'
 import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
-import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCaretPosition, getCurrentCursorPosition, placeCaretAtEnd, setCaret } from '../../assets/js/editable.js'
+import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCaretPosition, getCurrentCursorPosition, placeCaretAtEnd, setCaret, setCurrentCursorPosition } from '../../assets/js/editable.js'
 
 import { useEffect, memo, useRef, createContext, useContext, useState } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'
@@ -58,9 +58,18 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 e.preventDefault()
                 let currentCaretPos = getCurrentCursorPosition(`note-content-${keyNoteData.id}`)
 
-                let extractDiv = extractHTMLContentFromCaretToEnd(contentEditableEl, currentCaretPos)
+                let extractDiv
+                let reviseContent
 
-                let reviseContent = extractHTMLContentFromStartToCaret(contentEditableEl, currentCaretPos)
+                try {
+                    extractDiv = extractHTMLContentFromCaretToEnd(contentEditableEl, currentCaretPos)
+                    reviseContent = extractHTMLContentFromStartToCaret(contentEditableEl, currentCaretPos)
+                } catch(err) {
+                    console.error(err)
+                    extractDiv = ''
+                    reviseContent = ''
+                }
+
                 console.log(reviseContent)
                 console.log(extractDiv)
                 onTextChange(reviseContent, currPath)
@@ -74,8 +83,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                     let focusElement = document.getElementById(`note-${keyNoteData.id}`).nextSibling
                     if (keyNoteData.insideNote) focusElement = document.getElementById(`note-${keyNoteData.id}`).querySelector('.child-note-cont').firstChild
                     focusElement = focusElement.querySelector('.note-content')
-                    focusElement.focus()
-                    console.log(getCurrentCursorPosition(`note-content-${keyNoteData.id}`))                    
+                    focusElement.focus()                    
                 }, 10);
                 break;
             // Backspace
@@ -108,7 +116,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                         noteContentEl = document.getElementById(`note-${keyNoteData.id}`).querySelector('.note-content')
                         NoteTextLength = 0
                     }
-                    setCaret(noteContentEl, NoteTextLength)
+                    setCurrentCursorPosition(noteContentEl, NoteTextLength)
                     noteContentEl.focus()
                 }, 0);
                 break;
@@ -170,6 +178,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
     }
     // Handle Text changes inside the Note
     const onTextChange = (newNoteText, notePath) => {
+        console.log('onTextChange from note row')
         updateRootNote({ type: NOTE_ACTION.UPDATE_NOTE, data: {
             id: note.id,
             path: [...notePath], // parents ? [...parents, note.id] : [note.id],
