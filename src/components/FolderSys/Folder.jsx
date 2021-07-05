@@ -111,7 +111,7 @@ const Folder = ({ folderData, setParentFiles }) => {
         setProxyInput(false)
 
         // add an item to the database
-        addItem(folderData._id, createItem.current, itemName,  setFiles).then(result => openNote(result._id, result.name))
+        addItem(folderData._id, createItem.current, itemName,  setFiles).then(result => { if (result.type === 'note') openNote(result._id, result.name) })
     }
 
     // Handler for onFolderInput submit
