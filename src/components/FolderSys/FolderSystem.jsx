@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { findFolderFiles, getOpenFolders } from '../Notes/store/Utils'
+import { addItem, findFolderFiles, getOpenFolders } from '../Notes/store/Utils'
 import File, { NOTE_CONTEXT_ACTION } from './File'
 import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
 import  { ContextMenu, MenuItem } from 'react-contextmenu'
+import ProxyItem from './ProxyItem'
 import { useWhyDidYouUpdate } from '../compUtils'
+import { useOpenNote } from '../Notes/Note'
 
 
 const DisplayFolders = React.createContext()
@@ -16,6 +18,9 @@ const FileFolder = () => {
     // ============================================= State Initialization =============================================
     const [files, setFiles] = useState()
     useEffect(() => { if (!files) findFolderFiles('root-folder', setFiles) }, [])       // fetch files data from the database
+
+    const [proxyInput, setProxyInput] = useState(null)
+    const openNote = useOpenNote()
 
     const [showFolders, setShowFolders] = useState(false)
     const [openFolders, setOpenFolders] = useState()
@@ -31,6 +36,21 @@ const FileFolder = () => {
     // DEV DEBUGGING LOG
     // useWhyDidYouUpdate('FileFolder', { files, showFolders, openFolders })
 
+
+
+    const onSubmitCreation = (e) => {
+        e.preventDefault()
+
+        let itemName = document.getElementById('proxy-folder-creation').querySelector('input').value
+        let itemType = {...proxyInput}
+        if (itemName === '' || !itemName) return
+        
+        setProxyInput(null)
+
+        addItem('root-folder', itemType.item, itemName, setFiles).then(result => { if (result.type == 'note') openNote(result._id, result.name) })
+    }
+
+
     // ============================================= SHARED FUNCTIONS =============================================
     // link the clickHandler to the contextMenuHandler
     const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
@@ -39,6 +59,10 @@ const FileFolder = () => {
         <div className="folder-sidepanel">
             <div className="folder-header">
                 <h1>Notes</h1>
+                <div style={{display: 'flex', justifyContent: 'center'}} className="root-folder-btns">
+                    <button className="add-file" onClick={() => setProxyInput({ item: 'note' })}>File</button>
+                    <button className="add-folder" onClick={() => setProxyInput({ item: 'folder' })}>Folder</button>
+                </div>
             </div>
 
             {!showFolders && (
@@ -48,6 +72,7 @@ const FileFolder = () => {
             )}
 
             <div className={showFolders ? "folder-tree" : "folder-tree no-display"}>
+                {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(null)} />)}
                 {files && (
                     files.map((file) => {
                         if (file.type == 'folder') {
