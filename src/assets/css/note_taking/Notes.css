@@ -297,11 +297,13 @@
   outline: 0px solid transparent;
 }
 
-.note-row .note-cont .note-content::-moz-selection {
+.note-row .note-cont .note-content::-moz-selection,
+.note-row .note-cont .note-content *::-moz-selection {
   background-color: #8fd2f879;
 }
 
-.note-row .note-cont .note-content::selection {
+.note-row .note-cont .note-content::selection,
+.note-row .note-cont .note-content *::selection {
   background-color: #8fd2f879;
 }
 

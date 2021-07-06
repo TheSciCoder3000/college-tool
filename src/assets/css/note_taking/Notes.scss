@@ -228,7 +228,8 @@
             &:focus {
                 outline: 0px solid transparent;
             }
-            &::selection {
+            &::selection,
+            *::selection {
                 background-color: #8fd2f879;
             }
         }
