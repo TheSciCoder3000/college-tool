@@ -63,6 +63,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
 
                 try {
                     extractDiv = extractHTMLContentFromCaretToEnd(contentEditableEl, currentCaretPos)
+                    console.log('extract div', extractDiv)
                     reviseContent = extractHTMLContentFromStartToCaret(contentEditableEl, currentCaretPos)
                 } catch(err) {
                     console.error(err)
@@ -88,7 +89,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 break;
             // Backspace
             case 8: {
-                if (getCaretPosition(contentEditableEl) !== 0) return
+                if (getCurrentCursorPosition(`note-${keyNoteData.id}`) !== 0) return
                 e.preventDefault();
                 let isFirstChild = (document.getElementById(`note-${keyNoteData.id}`).previousSibling ? false : true)
                 let isLastChild = (document.getElementById(`note-${keyNoteData.id}`).nextSibling ? false : true)
@@ -125,7 +126,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
             case 9: {
                 e.preventDefault();
                 let isFirstChild = (document.getElementById(`note-${keyNoteData.id}`).previousSibling ? false : true)
-                if (getCaretPosition(contentEditableEl) !== 0 || isFirstChild) return
+                if (getCurrentCursorPosition(`note-${keyNoteData.id}`) !== 0 || isFirstChild) return
                 updateRootNote({ type: NOTE_ACTION.MAKE_CHILD_NOTE, data:{
                     indx: noteIndx,
                     contPath: currPath.slice(0, -1)
@@ -134,7 +135,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
 
                 setTimeout(() => {
                     let NoteEl = document.getElementById(`note-${keyNoteData.id}`).querySelector('.note-content')
-                    setCaret(NoteEl, 0)
+                    setCurrentCursorPosition(NoteEl, 0)
                     NoteEl.focus()
                 }, 0);
                 break;
