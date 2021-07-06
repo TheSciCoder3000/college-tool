@@ -17,64 +17,13 @@ export var Notedb = new Pouchdb(path.join(app.getPath('userData'), 'noteDb'))
 // ================================================ FOLDER FUNCTIONS FUNCTIONS ================================================
 // Initializing root folders if the db is empty
 async function initializeRootFiles(setSync) {
-    // Initialize item ids
-    let baseId = new Date().toISOString()
-    let initialNoteId = baseId+10
-    let initialFolderId = baseId
-
     // add to database
-    Notedb.put({
-        _id: 'root-folder',
-        name: 'root-folder',
-    }).then(() => {
-        return Notedb.put({
-            _id: initialFolderId,
-            name: 'parent folder 1',
-            type: 'folder',
-            open: false,
-            parentFolder: 'root-folder'
-        }).then(() => {
-            return Notedb.put({
-                _id: initialFolderId+3,
-                name: 'sub folder 1',
-                type: 'folder',
-                open: false,
-                parentFolder: initialFolderId
-            })
-        }).then(() => {
-            return Notedb.put({
-                _id: initialNoteId+2,
-                name: 'sub note 1',
-                type: 'note',
-                parentFolder: initialFolderId,
-                notes: []
-            })
-        })
-    }).then(() => {
-        return Notedb.put({
-            _id: initialFolderId+2,
-            name: 'parent folder 2',
-            type: 'folder',
-            open: false,
-            parentFolder: 'root-folder'
-        }).then(() => {
-            return Notedb.put({
-                _id: initialNoteId,
-                name: 'parent note 1',
-                type: 'note',
-                parentFolder: initialFolderId+2,
-                notes: []
-            })
-        })
-    }).then(() => {
-        return Notedb.put({
-            _id: initialNoteId+3,
-            name: 'parent note 1',
-            type: 'note',
-            parentFolder: 'root-folder',
-            notes: []
-        })
-    }).then(result => {
+    Notedb.bulkDocs([
+        {
+            _id: 'root-folder',
+            name: 'root-folder'
+        }
+    ]).then(result => {
         console.log('bulk put completed', result)
         setSync()                                       // get root files if success
     }).catch(error => {
@@ -98,10 +47,10 @@ export async function findFolderFiles(id, setFiles) {
     FolderData = FolderData.docs
 
     // sort the folder data if items are > 1
-    if (FolderData.length > 1) FolderData = FolderData.sort((doc1, doc2) => {
+    if (FolderData.length > 1) FolderData = FolderData.sort((doc1, doc2) => {           // sort the files, folders first alphabetically
             if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
             return doc1.type === 'folder' ? -1 : 1
-        }).map(doc => {
+        }).map(doc => {                                                                 // remove the notes data for optimization
             if (doc.type === 'note') {
                 delete doc.notes
                 return doc
@@ -115,9 +64,9 @@ export async function findFolderFiles(id, setFiles) {
     else return await FolderData
 }
 
+
 // add a folder/note to the db
 export async function addItem(id, type, itemName, setFiles) {
-    console.log('adding at item in folder')
     // pre initialize item Obj
     let itemObj = {
         _id: `${new Date().toISOString()}-${Math.random().toString(16).slice(-4)}`,
@@ -135,19 +84,18 @@ export async function addItem(id, type, itemName, setFiles) {
 
     console.log('generating item', itemObj)
 
+    // adding item to db
     return Notedb.put(itemObj).then(() => {
-        console.log('item saved to db successfully')
         findFolderFiles(id, setFiles)
         return itemObj
-    })
+    }).catch(err => console.error('ERROR: adding item error', err))
 }
 
 // remove a folder or note
 export async function removeItem(id, type, parentFolderID, setFiles) {
-    console.log('removing an item in folder')
-    if (type === 'note') {
-        console.log('deleting note')
+    if (type === 'note') {                                                                      // if the item is a note type
         return Notedb.get(id).then(doc => {
+            // Initialize the dialog for confirmation
             let deleteMsg = `Are you sure you want to delete the Note ${doc.name}`
             let deleteRes = dialog.showMessageBoxSync({
                 message: deleteMsg,
@@ -156,16 +104,21 @@ export async function removeItem(id, type, parentFolderID, setFiles) {
                 defaultId: 1,
                 cancelId: 1,
             })
+
+            // if user agrees, delete the item
             if (deleteRes === 0) return Notedb.remove(doc).then(() => {
                 findFolderFiles(parentFolderID, setFiles)
                 return [id]
-            })
+            }).catch(err => console.error('ERROR: deleting note error', err))
         })
-    } else {
+    } else {                                                                                   // else, its a folder type
         return Notedb.get(id).then(doc => {
+            // collect all children files
             return removeFilesOfFolder(id).then(result => {
+                // add the item to be deleted with the children files
                 let batchDelete = [...result, doc]
 
+                // Initialize the dialog for confirmation
                 let batchNames = batchDelete.map(doc => doc.name)
                 let deleteMsg = `Are you sure you want to delete these files and folders \n${batchNames.join('\n')}`
                 let deleteBatch = dialog.showMessageBoxSync({
@@ -176,6 +129,7 @@ export async function removeItem(id, type, parentFolderID, setFiles) {
                     cancelId: 1,
                 })
                 
+                // if user agrees, batch delete
                 if (deleteBatch === 0) {
                     batchDelete = batchDelete.map(doc => { return {...doc, _deleted: true} })
                     return Notedb.bulkDocs(batchDelete).then(() => {
@@ -213,35 +167,46 @@ async function removeFilesOfFolder(id) {
     })
 }
 
+
 // updates a property of the doc in the database
 export async function updateItem(itemData, property, newValue, setFiles) {
     console.log('updating file in folder')
-    return Notedb.get(itemData._id).catch(err => console.log('get err', err)).then(result => {
+    return Notedb.get(itemData._id).catch(err => console.log('Update item: Get err', err)).then(result => {
+        // if the prev value is the same with the new value
         if (property !== 'notes' && result[property] === newValue) {
+            // then cancel update
             console.log(`no need to update "${property}" from ${result[property]} to ${newValue}`)
             return
         }
 
-        if (result.type === 'note' && property === 'name') {
-            switch (property) {
-                case 'name':
-                    console.log('renaming store tabs')
-                    let storeTabs = store.get('openTabs')
-                    if (storeTabs.find(tab => tab.id === result._id)) store.set('openTabs', storeTabs.map(tab => {
-                        if (tab.id === result._id) return { ...tab, noteName: newValue }
-                        return tab
-                    }))
-                    break;
-            }
-        }
-
+        // update the doc
         let doc = result
         doc[property] = newValue
 
-        if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
+        // send the updated doc to the db
+        return Notedb.put(doc).catch(err => console.log('update item err', err)).then(() => {
+            // once db successfully updates
+            // update the item in session storage if it exists
+            if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
 
-        return Notedb.put(doc).catch(err => console.log('put err', err))
+            // if item is note and name was updated
+            if (result.type === 'note' && property === 'name') {
+                console.log('renaming the store tabs')
+                let storeTabs = store.get('openTabs')
+
+                // if store tabs exist and the updated name is inside it
+                if (storeTabs && storeTabs.find(tab => tab.id === result._id)) 
+                    // then map through the values of store tab
+                    store.set('openTabs', storeTabs.map(tab => {
+                        // and update the noteName
+                        if (tab.id === result._id) return { id: tab.id, noteName: newValue }
+                        // else return the original element
+                        return tab
+                    }))
+            }
+        })
     }).then(() => {
+        // after finshing the procedures, update the files of the parent cont
         if (setFiles) findFolderFiles(itemData.parentFolder, setFiles)
         else return 
     }).catch(err => console.log(err))
@@ -277,6 +242,7 @@ export function getOpenTabs() {
     return store.get('openTabs') || []
 }
 
+// Used when adding another tab
 export async function addOpenTab(id, noteName) {
     store.set('openTabs', [...getOpenTabs(), {id: id, noteName: noteName}])
     return Notedb.get(id)
@@ -284,6 +250,9 @@ export async function addOpenTab(id, noteName) {
 
 export function removeOpenTab(id) { 
     let newTabArray = getOpenTabs().filter(tab => tab.id !== id)
+
+    sessionStorage.removeItem(`tab-${id}`)
+
     store.set('openTabs', newTabArray)
     return newTabArray
 }
@@ -311,13 +280,10 @@ export async function getLastActiveTab(id) {
                     insideNote: null
                 }]
             }
-            // save to session storage
-            sessionStorage.setItem(`tab-${lastActiveTabId}`, JSON.stringify(revisedResult))
             // return to caller
             return revisedResult
         }
 
-        sessionStorage.setItem(`tab-${lastActiveTabId}`, JSON.stringify(result))
         return result
     })
 }
@@ -326,7 +292,10 @@ export async function getLastActiveTab(id) {
 export async function setLastActiveTab(id) {
     console.log('setting active tab', id)
     store.set('activeTab', id)
-    if (id) return await getLastActiveTab()
+    if (id) return await getLastActiveTab().then(activeTabDoc => {
+        sessionStorage.setItem(`tab-${activeTabDoc._id}`, JSON.stringify(activeTabDoc))
+        return activeTabDoc
+    })
 }
 
 // ================================================ DEVELOPER HELPER FUNCTIONS ================================================
