@@ -1,6 +1,7 @@
 import React, { useReducer, useContext, useEffect, useState } from "react";
 import produce, { original } from "immer";
 import { getDocNotes } from "./NoteData";
+import { useWhyDidYouUpdate } from "../compUtils";
 
 // CONTEXTS
 export const NoteContext = React.createContext()
@@ -175,20 +176,40 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ noteID, notes, setUnsync, children, updateNoteFile }) {
+export function NoteProvider({ noteID, notes, setUnsync, setTabs, children, updateNoteFile }) {
+    // ============================================= State Initialization =============================================
     const [id, setId] = useState(noteID)
     useEffect(() => setId(noteID), [noteID])
-    const [note, setNote] = useReducer(reducer, notes)
-    useEffect(() => {
-        if (id === noteID) {
-            setUnsync({ state: notes !== note, data: note })
-        }
-    }, [notes, note])
 
-    // Update note state when notes prop is different
+    const [note, setNote] = useReducer(reducer, notes)
+
+    // Runs everytime the note state and the notes, noteID props change
     useEffect(() => {
-        setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} })
-    }, [notes])
+        console.log('running effect', {
+            notes: notes,
+            note: note,
+            noteID: noteID,
+            id: id
+        })
+        // if a new tab is loaded, set
+        if (id === noteID) {
+            console.log('tab selected')
+            if (JSON.stringify(notes) !== JSON.stringify(note)) {
+                setUnsync({ state: true, data: note, id: noteID })
+                console.log('the notes have changed')
+            } else setUnsync({ state: false, data: null })
+        } else console.log('switching tab', {
+            notesState: note,
+            noteProps: notes
+        })
+    }, [notes, note, noteID])
+
+
+    //dev
+    useWhyDidYouUpdate('NoteProvider', {noteID, notes, setUnsync, children, updateNoteFile, id, note})
+
+    // changes the note state when a new notes prop is passed to the component
+    useEffect(() => setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} }), [notes])
 
     // adding on key down event listeners for shortcuts
     document.onkeydown = (e) => {
@@ -198,15 +219,11 @@ export function NoteProvider({ noteID, notes, setUnsync, children, updateNoteFil
                     e.preventDefault()
                     updateNoteFile(id, note)
                     break;
-                // case 113:
-                //     e.preventDefault()
-                //     console.log('renaming...')
-                    
-                //     break;
             }
         }
     }
 
+    // Unselects the folder/note when anything besides that item is clicked
     document.onclick = e => {
         let substrings = ['folder-cont', 'folder-img', 'folder-name', 'filename']
         if (!substrings.some(function(v) { return e.target.classList.value.indexOf(v) >= 0; })) 

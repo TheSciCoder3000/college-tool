@@ -9,9 +9,6 @@ import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActive
 import { useNotedbListener, useWhyDidYouUpdate } from '../compUtils'
 import ReactDOM from 'react-dom'
 
-// electron isolated imports
-const fs = window.require('fs')
-const { dialog } = window.require('@electron/remote')
 
 // Context Initialization
 const OpenNote = createContext()
@@ -27,6 +24,11 @@ const RevNotes = () => {
     useEffect(() => { if (!activeTab) getLastActiveTab().then(setActiveTab) }, [])      // fetch data from database
 
     const [unsync, setUnsync] = useState({ state: false, data: null })
+    useEffect(() => {
+        if (unsync.state) setTabs(tabsState => tabsState.map(tabData => unsync.id === tabData.id ? { ...tabData, unsaved: true } : tabData))
+    }, [unsync])
+
+
     // Render top menu bar component
     useEffect(() => ReactDOM.render(
         <MenuComponent activetab={activeTab} unsync={unsync} updateNoteFile={updateNoteFile} />, 
@@ -54,6 +56,11 @@ const RevNotes = () => {
 
     // Handler Save events
     const updateNoteFile = (id, updatedNote) => {
+        setTabs(tabsState => tabsState.map(tabData => {
+            if (tabData.id === id) delete tabData.unsaved
+            return tabData
+        }))
+
         // cancell save file if content are unchanged
         if (JSON.stringify(updatedNote) === JSON.stringify(activeTab.notes)) {
             setUnsync({ state: false, data: updatedNote })
@@ -73,8 +80,9 @@ const RevNotes = () => {
         // remove from session storage
         sessionStorage.removeItem(`tab-${id}`)
 
-        // update the tabs state
+        // update the activetab state
         if (tabs.length > 1) {
+            if (activeTab._id !== id) return
             let newTabIndx = tabIndx === 0 ? 1 : tabIndx-1
             setLastActiveTab(tabs[newTabIndx].id).then(setActiveTab)
         } else setLastActiveTab(null).then(() => setActiveTab(null))
@@ -119,7 +127,7 @@ const RevNotes = () => {
                 <div className="tabs">
                     {tabs.length > 0 && (
                         tabs.map((tab, tabIndx) => 
-                            <div className={`tab ${activeTab && activeTab._id === tab.id ? 'active' : ''}`} 
+                            <div className={`tab ${activeTab && activeTab._id === tab.id ? 'active' : ''} ${tab.unsaved ? 'tab-unsaved' : ''}`} 
                                  key={`tab-${tab.id}`}
                                  onClick={!activeTab || activeTab._id !== tab.id ? () => setLastActiveTab(tab.id).then(setActiveTab) : null} >
                                 <div className="tab-name">{tab.noteName}</div>
@@ -130,14 +138,16 @@ const RevNotes = () => {
                             </div>
                     ))}
                 </div>
+
                 <div className="doc-body">
                     {activeTab && (
-                        <NoteProvider noteID={activeTab._id} notes={activeTab.notes} setUnsync={setUnsync} updateNoteFile={updateNoteFile}>
+                        <NoteProvider noteID={activeTab._id} notes={activeTab.notes} setUnsync={setUnsync} setTabs={setTabs} updateNoteFile={updateNoteFile}>
                             <NoteDoc />
                         </NoteProvider>
                     )}
                 </div>
             </div>
+
             <OpenNote.Provider value={openNoteHandler}>
                 <FileFolder />
             </OpenNote.Provider>
