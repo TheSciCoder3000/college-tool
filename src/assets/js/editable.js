@@ -1,3 +1,4 @@
+// DEPRECATED: READY FOR DELETION
 function placeCaretAtEnd(el) {
     if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
         var range = document.createRange()
@@ -14,6 +15,7 @@ function placeCaretAtEnd(el) {
     }
 }
 
+// DEPRECATED: READY FOR DELETION
 function getCaretPosition(editableDiv) {
   var caretPos = 0,
     sel, range;
@@ -39,6 +41,7 @@ function getCaretPosition(editableDiv) {
   return caretPos;
 }
 
+// DEPRECATED: READY FOR DELETION
 function setCaret(el, caretPos) {
   if (el.textContent !== '') {
     var range = document.createRange();
@@ -51,6 +54,7 @@ function setCaret(el, caretPos) {
   el.focus();
 }
 
+// DEPRECATED: READY FOR DELETION
 function getLastOfLastNoteChild(note) {
     let childCont = note.querySelector('.child-note-cont')
     if (!childCont) return note
@@ -59,6 +63,7 @@ function getLastOfLastNoteChild(note) {
     return childCont
 }
 
+// DEPRECATED: READY FOR DELETION
 function setNestedDict(notes, parents, propName, newText) {
   // Initialize variables
   let noteCopy = [...notes]
@@ -80,6 +85,7 @@ function setNestedDict(notes, parents, propName, newText) {
   return noteCopy
 }
 
+// DEPRECATED: READY FOR DELETION
 function getNestedDict(notes, parents, propName) {
   // Initialize variables
   let noteCopy = [...notes]
@@ -97,6 +103,7 @@ function getNestedDict(notes, parents, propName) {
   return schema[propName]
 }
 
+// DEPRECATED: READY FOR DELETION
 function getAndInsertDict(notes, action, propName) {
   let noteCopy = [...notes]
   let parentLen = action.data.path.length
@@ -119,6 +126,7 @@ function getAndInsertDict(notes, action, propName) {
   return schema[propName]
 
 }
+
 
 
 function createRange(node, chars, range) {
@@ -226,12 +234,25 @@ export function extractHTMLContentFromCaretToEnd(contendEditableEl, chars) {
     let range = createRangeToEnd(contendEditableEl, { count: chars });
 
     if (range) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-        let docFrag = range.extractContents()
-        let tempDiv = document.createElement('div')
-        tempDiv.append(docFrag)
-        return tempDiv.innerHTML
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      let docFrag = range.extractContents()
+      
+      let markupTagNames = ['b', 'i']
+      let parentNodes = {
+        start: range.startContainer.parentNode.localName,
+        end: range.endContainer.parentNode.localName
+      }
+      if (parentNodes.start === parentNodes.end && markupTagNames.includes(parentNodes.start)) {
+        let markupEl = document.createElement(parentNodes.start)
+        markupEl.append(docFrag)
+        docFrag = markupEl
+      }
+
+      let tempDiv = document.createElement('div')
+      tempDiv.append(docFrag)
+      return tempDiv.innerHTML
     }
   }
 }
