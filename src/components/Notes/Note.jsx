@@ -1,5 +1,4 @@
 import '../../assets/css/note_taking/Notes.css'
-import NoteDoc from './NoteDoc'
 import FileFolder from '../FolderSys/FolderSystem'
 import MenuComponent from './MenuComponent'
 import { NoteProvider } from './NoteContext'
@@ -10,6 +9,22 @@ import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActive
 import { useNotedbListener, useWhyDidYouUpdate } from '../compUtils'
 import ReactDOM from 'react-dom'
 
+import { motion } from 'framer-motion'
+
+const routeVariant = {
+    hidden: {
+      x: '100vw'
+    },
+    visible: {
+      x: 0, 
+      transition: { type: 'linear', duration: 2, when: 'afterChildren' }
+    },
+    exit: {
+      x: '100vw',
+      transition: { ease: 'easeOut'}
+    }
+}
+  
 
 // Context Initialization
 const OpenNote = createContext()
@@ -131,7 +146,12 @@ const RevNotes = () => {
 
     return (
         <div className="notes-body">
-            <div className="doc-window">
+            <motion.div className="doc-window"
+                variants={routeVariant}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+            >
                 <div className="tabs">
                     {tabs.length > 0 && (
                         tabs.map((tab, tabIndx) => 
@@ -158,7 +178,7 @@ const RevNotes = () => {
                                           updateNoteFile={updateNoteFile} />
                     ))}
                 </div>
-            </div>
+            </motion.div>
 
             <OpenNote.Provider value={openNoteHandler}>
                 <FileFolder />

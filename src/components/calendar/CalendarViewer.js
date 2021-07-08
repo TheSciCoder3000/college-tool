@@ -1,6 +1,19 @@
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '../../assets/css/calendar/CalendarViewer.css'
+import { motion } from 'framer-motion'
+
+const CalendarVariant = {
+    hidden: {
+        opacity: 0
+    },
+    visible: {
+        opacity: 1
+    },
+    exit: {
+        opacity: 0
+    }
+}
 
 const CalendarViewer = () => {
     const [ViewDate, setViewDate] = useState(new Date())
@@ -61,7 +74,12 @@ const CalendarViewer = () => {
 
 
     return (
-        <div className="calendar-viewer">
+        <motion.div className="calendar-viewer"
+            variants={CalendarVariant}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             <div className="calendar-viewer-header">
                 <h1 id="calendar-month-header">{months[monthState]}</h1>
                 <button id="viewer-left"
@@ -103,7 +121,7 @@ const CalendarViewer = () => {
                 </div>
                 {renderCalenderViewer(ViewDate)}
             </div>
-        </div>
+        </motion.div>
     )
 }
 

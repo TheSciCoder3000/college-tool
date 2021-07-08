@@ -1,0 +1,38 @@
+.viewer {
+    flex: 1;
+    height: calc(100vh - 4rem);
+    padding: 2rem;
+    box-sizing: border-box;
+    position: relative;
+
+    .greeting {
+        text-align: center;
+        color: white;
+        user-select: none;
+
+        .greeting-time {
+            font-size: 6.5em;
+            font-weight: 400;
+        }
+        .greeting-date {
+            font-size: 2em;
+            font-weight: 300;
+        }
+    }
+    .nav-container {
+        user-select: none;
+        position: absolute;
+        bottom: 2rem;
+        left: 12rem;
+        right: 12rem;
+        display: flex;
+        
+        .dashboard-nav-links {
+            flex: 1;
+            text-align: center;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+}

@@ -6,6 +6,22 @@ import  { ContextMenu, MenuItem } from 'react-contextmenu'
 import ProxyItem from './ProxyItem'
 import { useWhyDidYouUpdate } from '../compUtils'
 import { useOpenNote } from '../Notes/Note'
+import { motion } from 'framer-motion'
+
+
+const routeVariant = {
+    hidden: {
+        x: '100vw'
+      },
+      visible: {
+        x: 0, 
+        transition: { type: 'linear', ease: 'easeIn', duration: 1.2 }
+      },
+      exit: {
+        x: '100vw',
+        transition: { ease: 'easeOut'}
+    }
+}
 
 
 const DisplayFolders = React.createContext()
@@ -56,7 +72,12 @@ const FileFolder = () => {
     const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
 
     return (
-        <div className="folder-sidepanel">
+        <motion.div className="folder-sidepanel"
+            variants={routeVariant}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             <div className="folder-header">
                 <h1>Notes</h1>
                 <div style={{display: 'flex', justifyContent: 'center'}} className="root-folder-btns">
@@ -161,7 +182,7 @@ const FileFolder = () => {
                     </div>
                 </MenuItem>
             </ContextMenu>            
-        </div>
+        </motion.div>
     )
 }
 

@@ -2,8 +2,7 @@ import './assets/css/app.css'
 import './components/fontAwesome/index'
 import AppBar from './components/AppBar'
 
-import Viewer from './components/dashboard/viewer';
-import SidePanel from './components/dashboard/SidePanel';
+import DashRoute from './components/Routes/DashRoute';
 
 // import Notes from './components/note_taking/Notes';
 import RevNotes from './components/Notes/Note'
@@ -11,19 +10,24 @@ import RevNotes from './components/Notes/Note'
 import CalendarViewer from './components/calendar/CalendarViewer';
 import TaskPanel from './components/calendar/TaskPanel';
 import background from './assets/img/dashBackground.jpg';
-import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 
-function DashboardRoute() {
-  document.onkeydown = null
-  return(
-    <>
-      {/* tool viewer*/}
-      <Viewer />
+import { Route, Switch, Redirect, useLocation } from "react-router-dom";
+import { useReducer, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
-      {/* side panel */}
-      <SidePanel />
-    </>
-  )
+
+const routeVariant = {
+  hidden: {
+    opacity: 0
+  },
+  visible: {
+    opacity: 1, 
+    transition: { type: 'linear', duration: 2 }
+  },
+  exit: {
+    opacity: 0,
+    transition: { ease: 'easeOut', duration: 2 }
+  }
 }
 
 function CalendarRoute() {
@@ -49,26 +53,50 @@ function NotesRoute() {
   )
 }
 
+
+
 function App() {
+  const location = useLocation()
+  console.log(location)
+  const [ShowAppBar, setShowAppBar] = useState(location.pathname === '/dashboard' ? false : true)
+  console.log('appbar', ShowAppBar)
+  useEffect(() => {
+    if (location.pathname === '/dashboard') setShowAppBar(false)
+    else setTimeout(() => {
+      setShowAppBar(true)
+    }, 800);
+  }, [location])
   return (
-    <HashRouter>
+    <>
       <div className="App"
         style={{ backgroundImage: `url(${background})` }}>
         <div id="menu-bar-cont" className="menu-bar"></div>
         <div className="app-content">
-          <AppBar />
-          
-          <Switch>
-            <Route exact path="/">
-              <Redirect to="/dashboard"/>
-            </Route>
-            <Route exact path="/dashboard" component={DashboardRoute}/>
-            <Route exact path="/Notes" component={NotesRoute}/>
-            <Route exact path="/Calendar" component={CalendarRoute}/>
-          </Switch>
+          <AnimatePresence>
+            {ShowAppBar && (<AppBar />)}
+          </AnimatePresence>
+          <AnimatePresence exitBeforeEnter>
+            <Switch location={location} key={location.pathname} >
+              <Route exact path="/">
+                <Redirect to="/dashboard"/>
+              </Route>
+
+              <Route exact path="/dashboard">
+                <DashRoute />
+              </Route>
+
+              <Route exact path="/Notes">
+                <NotesRoute />
+              </Route>
+              
+              <Route exact path="/Calendar">
+                <CalendarRoute />
+              </Route>
+            </Switch>
+          </AnimatePresence>
         </div>
       </div>
-    </HashRouter>
+    </>
   );
 }
 

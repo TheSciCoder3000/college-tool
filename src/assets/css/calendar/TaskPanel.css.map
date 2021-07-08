@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,WAAW,CAAC;EACR,UAAU,EAAE,KAAK;EACjB,gBAAgB,EAAE,SAAS;EAC3B,MAAM,EAAE,kBAAkB;CAC7B",
+    "sources": [
+        "TaskPanel.scss"
+    ],
+    "names": [],
+    "file": "TaskPanel.css"
+}
