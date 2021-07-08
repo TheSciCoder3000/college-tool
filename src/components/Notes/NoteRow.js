@@ -179,7 +179,6 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
     }
     // Handle Text changes inside the Note
     const onTextChange = (newNoteText, notePath) => {
-        console.log('onTextChange from note row')
         updateRootNote({ type: NOTE_ACTION.UPDATE_NOTE, data: {
             id: note.id,
             path: [...notePath], // parents ? [...parents, note.id] : [note.id],

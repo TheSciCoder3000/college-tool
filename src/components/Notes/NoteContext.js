@@ -1,4 +1,5 @@
-import React, { useReducer, useContext, useEffect, useState } from "react";
+import React, { useReducer, useContext, useEffect, useState, useRef } from "react";
+import NoteDoc from "./NoteDoc";
 import produce, { original } from "immer";
 import { getDocNotes } from "./NoteData";
 import { useWhyDidYouUpdate } from "../compUtils";
@@ -168,6 +169,7 @@ function reducer(note, action) {
 
             })
         case NOTE_ACTION.ROOT_UPDATE:
+            console.log('NoteProvider root update')
             return action.data.note
         default:
             console.log('ERROR: something went wrong in the reducer function')
@@ -176,37 +178,34 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ noteID, notes, setUnsync, setTabs, children, updateNoteFile }) {
+export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile }) {
     // ============================================= State Initialization =============================================
     const [id, setId] = useState(noteID)
-    useEffect(() => setId(noteID), [noteID])
 
     const [note, setNote] = useReducer(reducer, notes)
+    const prevNote = useRef(notes)                              // used to keep track of the note data before changes began
+    useEffect(() => prevNote.current = notes, [notes])
 
-    // Runs everytime the note state and the notes, noteID props change
+    // Check if notes are unchanged
     useEffect(() => {
-        console.log('running effect', {
-            notes: notes,
-            note: note,
-            noteID: noteID,
-            id: id
-        })
-        // if a new tab is loaded, set
-        if (id === noteID) {
-            console.log('tab selected')
-            if (JSON.stringify(notes) !== JSON.stringify(note)) {
-                setUnsync({ state: true, data: note, id: noteID })
-                console.log('the notes have changed')
-            } else setUnsync({ state: false, data: null })
-        } else console.log('switching tab', {
-            notesState: note,
-            noteProps: notes
-        })
-    }, [notes, note, noteID])
+        // compare the note data of prev and curr note data
+        if (JSON.stringify(prevNote.current) !== JSON.stringify(note)) {
+            console.log('the notes have changed')
+            const NotesChangeEvent = new CustomEvent('NotesChangeEvent', {detail:{
+                _id: id,
+                notes: note
+            }})
+            document.dispatchEvent(NotesChangeEvent)
+            setTabs(tabsState => tabsState.map(tab => {
+                if (tab._id === id && tab.saved) return { ...tab, saved: false }
+                return tab
+            }))
+        }
+    }, [note, prevNote])
 
 
     //dev
-    useWhyDidYouUpdate('NoteProvider', {noteID, notes, setUnsync, children, updateNoteFile, id, note})
+    useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
 
     // changes the note state when a new notes prop is passed to the component
     useEffect(() => setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} }), [notes])
@@ -234,7 +233,7 @@ export function NoteProvider({ noteID, notes, setUnsync, setTabs, children, upda
     return (
         <NoteContext.Provider value={note}>
             <UpdateNoteContext.Provider value={setNote}>
-                {children}
+                <NoteDoc id={id} hidden={hidden} />
             </UpdateNoteContext.Provider>
         </NoteContext.Provider>
     )

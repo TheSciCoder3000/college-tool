@@ -78,7 +78,11 @@ export async function addItem(id, type, itemName, setFiles) {
 
     // if item is note then add additional
     if (type === 'note') {
-        itemObj.notes = []
+        itemObj.notes = [{
+            id: Math.random().toString(16).slice(-8),
+            content:"",
+            insideNote: null
+        }]
         delete itemObj.open
     }
 
@@ -170,12 +174,10 @@ async function removeFilesOfFolder(id) {
 
 // updates a property of the doc in the database
 export async function updateItem(itemData, property, newValue, setFiles) {
-    console.log('updating file in folder')
     return Notedb.get(itemData._id).catch(err => console.log('Update item: Get err', err)).then(result => {
         // if the prev value is the same with the new value
         if (property !== 'notes' && result[property] === newValue) {
             // then cancel update
-            console.log(`no need to update "${property}" from ${result[property]} to ${newValue}`)
             return
         }
 
@@ -187,23 +189,23 @@ export async function updateItem(itemData, property, newValue, setFiles) {
         return Notedb.put(doc).catch(err => console.log('update item err', err)).then(() => {
             // once db successfully updates
             // update the item in session storage if it exists
-            if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
+            // if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
 
             // if item is note and name was updated
-            if (result.type === 'note' && property === 'name') {
-                console.log('renaming the store tabs')
-                let storeTabs = store.get('openTabs')
+            // if (result.type === 'note' && property === 'name') {
+            //     console.log('renaming the store tabs')
+            //     let storeTabs = store.get('openTabs')
 
-                // if store tabs exist and the updated name is inside it
-                if (storeTabs && storeTabs.find(tab => tab.id === result._id)) 
-                    // then map through the values of store tab
-                    store.set('openTabs', storeTabs.map(tab => {
-                        // and update the noteName
-                        if (tab.id === result._id) return { id: tab.id, noteName: newValue }
-                        // else return the original element
-                        return tab
-                    }))
-            }
+            //     // if store tabs exist and the updated name is inside it
+            //     if (storeTabs && storeTabs.find(tab => tab.id === result._id)) 
+            //         // then map through the values of store tab
+            //         store.set('openTabs', storeTabs.map(tab => {
+            //             // and update the noteName
+            //             if (tab.id === result._id) return { id: tab.id, noteName: newValue }
+            //             // else return the original element
+            //             return tab
+            //         }))
+            // }
         })
     }).then(() => {
         // after finshing the procedures, update the files of the parent cont
@@ -214,7 +216,6 @@ export async function updateItem(itemData, property, newValue, setFiles) {
 
 // returns an object of openned folders as keys with values set to false
 export async function getOpenFolders(callback) {
-    let sessionTabs = sessionStorage.getItem('tabs')
     return Notedb.createIndex({
         index: {
             fields: ['type', 'open']
@@ -238,64 +239,44 @@ export async function getOpenFolders(callback) {
 }
 
 // ================================================ TAB AND NOTE FUNCTIONS ================================================
-export function getOpenTabs() {
-    return store.get('openTabs') || []
+export async function getOpenTabs() {
+    let openTabs = store.get('openTabs') || []
+    if (openTabs.length === 0) return openTabs
+
+    return Notedb.allDocs({
+        include_docs: true,
+        keys: openTabs
+    }).catch(err => console.error('ERROR: get open tabs error', err)).then(result => result.rows.map(row => { return {...row.doc, saved:true} }))
 }
+
 
 // Used when adding another tab
-export async function addOpenTab(id, noteName) {
-    store.set('openTabs', [...getOpenTabs(), {id: id, noteName: noteName}])
-    return Notedb.get(id)
+export async function addOpenTab(id, prevTabArray) {
+    // fetch the data from the db
+    return Notedb.get(id).catch(err => console.error('ERROR: Add open tab - get error', err)).then(result => {
+        // add to the ids to localStorage
+        store.set('openTabs', [...prevTabArray.map(tab => tab._id), result._id])
+
+        // add the doc to the array with an extra "saved" field
+        return [...prevTabArray, { ...result, saved: true }]
+    })
 }
 
-export function removeOpenTab(id) { 
-    let newTabArray = getOpenTabs().filter(tab => tab.id !== id)
-
-    sessionStorage.removeItem(`tab-${id}`)
-
-    store.set('openTabs', newTabArray)
-    return newTabArray
+export async function removeOpenTab(id) { 
+    // add the id to open tabs
+    store.set('openTabs', store.get('openTabs').filter(tab => tab !== id))
+    return 'success'
 }
 
 // runs on initial render to get the last active note/tab
-export async function getLastActiveTab(id) {
-    let lastActiveTabId = id ? id : store.get('activeTab')
-
-    if (!lastActiveTabId) return null
-
-    // checks if the note data is stored in session storage
-    let sessionTab = sessionStorage.getItem(`tab-${lastActiveTabId}`)
-    if (sessionTab) return JSON.parse(sessionTab)
-
-    // else retrieve data from the database
-    return Notedb.get(lastActiveTabId).then(result => {
-        // if notes is empty
-        if (result.notes.length === 0) {
-            // initialize notes with an empty row
-            let revisedResult = {
-                ...result,
-                notes: [{
-                    id: Math.random().toString(16).slice(-8),
-                    content:"",
-                    insideNote: null
-                }]
-            }
-            // return to caller
-            return revisedResult
-        }
-
-        return result
-    })
+export function getLastActiveTab() {
+    return store.get('activeTab')
 }
 
 // Used to set the active tab in the localStorage and returns the object of the id arg
-export async function setLastActiveTab(id) {
-    console.log('setting active tab', id)
-    store.set('activeTab', id)
-    if (id) return await getLastActiveTab().then(activeTabDoc => {
-        sessionStorage.setItem(`tab-${activeTabDoc._id}`, JSON.stringify(activeTabDoc))
-        return activeTabDoc
-    })
+export function setLastActiveTab(id) {
+    if (id) store.set('activeTab', id)
+    else store.delete('activeTab')
 }
 
 // ================================================ DEVELOPER HELPER FUNCTIONS ================================================
