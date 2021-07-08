@@ -91,6 +91,10 @@
   max-height: 6rem;
 }
 
+.notes-body .folder-sidepanel .loading-folders {
+  text-align: center;
+}
+
 .notes-body .folder-sidepanel .folder-tree {
   padding: 0 0.5rem;
   font-size: 0.85rem;
@@ -114,6 +118,10 @@
   min-height: 25px;
 }
 
+.notes-body .folder-sidepanel .folder-tree.no-display {
+  display: none;
+}
+
 .notes-body .folder-sidepanel .folder-tree .Folder {
   margin-bottom: 0.2rem;
 }
@@ -135,7 +143,7 @@
   cursor: pointer;
 }
 
-.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont:hover:not(.select-folder) {
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont:hover:not(.item-selected) {
   background-color: #e8e8e85b;
 }
 
@@ -151,17 +159,13 @@
           align-items: center;
 }
 
-.notes-body .folder-sidepanel .folder-tree .Folder .folder-cont .folder-name-form {
-  display: none;
-}
-
-.notes-body .folder-sidepanel .folder-tree .Folder .select-folder {
-  background-color: #ffffff9f;
-}
-
 .notes-body .folder-sidepanel .folder-tree .Folder .folder-children {
   margin-left: 0.72rem;
   border-left: solid 0.5px rgba(200, 200, 200, 0.4);
+}
+
+.notes-body .folder-sidepanel .folder-tree .Folder .folder-children.closed {
+  display: none;
 }
 
 .notes-body .folder-sidepanel .folder-tree .File {
@@ -176,7 +180,22 @@
 
 .notes-body .folder-sidepanel .folder-tree .File:hover {
   cursor: pointer;
+}
+
+.notes-body .folder-sidepanel .folder-tree .File:hover:not(.item-selected) {
   background-color: #e8e8e85b;
+}
+
+.notes-body .folder-sidepanel .folder-tree .item-selected {
+  background-color: #ffffff9f;
+}
+
+.notes-body .folder-sidepanel .folder-tree .folder-name-form {
+  display: none;
+}
+
+.notes-body .folder-sidepanel .folder-tree .proxy-folder-note {
+  margin-left: 0.8rem;
 }
 
 .notes-body .folder-sidepanel .folder-context-menu-cont {
@@ -278,11 +297,13 @@
   outline: 0px solid transparent;
 }
 
-.note-row .note-cont .note-content::-moz-selection {
+.note-row .note-cont .note-content::-moz-selection,
+.note-row .note-cont .note-content *::-moz-selection {
   background-color: #8fd2f879;
 }
 
-.note-row .note-cont .note-content::selection {
+.note-row .note-cont .note-content::selection,
+.note-row .note-cont .note-content *::selection {
   background-color: #8fd2f879;
 }
 
@@ -317,5 +338,9 @@
           flex: 1;
   height: 0.15rem;
   background-color: red;
+}
+
+.note-menu-bar .save-btn.hide {
+  display: none;
 }
 /*# sourceMappingURL=Notes.css.map */

@@ -27,7 +27,7 @@ const Viewer = () => {
                         {`${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`}
                     </div>
                 </div>
-                <Schedule sched={sampleSchedule} onSwitchSched={switchSched}/>
+                {/* <Schedule sched={sampleSchedule} onSwitchSched={switchSched}/> */}
             </div>
         </div>
     )

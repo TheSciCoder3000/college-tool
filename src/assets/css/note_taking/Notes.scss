@@ -68,6 +68,9 @@
             max-height: 6rem;
 
         }
+        .loading-folders {
+            text-align: center;
+        }
         .folder-tree {
             padding: 0 0.5rem;
             font-size: 0.85rem;
@@ -87,6 +90,9 @@
                 background-color: rgba(143, 143, 143, 0.486);
                 min-height: 25px;
             }
+            &.no-display {
+                display: none;
+            }
             
 
             .Folder {
@@ -100,7 +106,7 @@
                     &:hover {
                         cursor: pointer;
                         
-                        &:not(.select-folder) {
+                        &:not(.item-selected) {
                             background-color: #e8e8e85b;
                         }
                     }
@@ -111,16 +117,14 @@
                             align-items: center;
                         }
                     }
-                    .folder-name-form {
-                        display: none;
-                    }
-                }
-                .select-folder {
-                    background-color: #ffffff9f;
                 }
                 .folder-children {
                     margin-left: 0.72rem;
                     border-left: solid 0.5px rgba(200, 200, 200, 0.4);
+
+                    &.closed {
+                        display: none;
+                    }
                 }
             }
             .File {
@@ -131,8 +135,20 @@
 
                 &:hover {
                     cursor: pointer;
-                    background-color: #e8e8e85b;
+
+                    &:not(.item-selected) {
+                        background-color: #e8e8e85b;
+                    }
                 }
+            }
+            .item-selected {
+                background-color: #ffffff9f;
+            }
+            .folder-name-form {
+                display: none;
+            }
+            .proxy-folder-note {
+                margin-left: 0.8rem;
             }
         }
         .folder-context-menu-cont {
@@ -212,7 +228,8 @@
             &:focus {
                 outline: 0px solid transparent;
             }
-            &::selection {
+            &::selection,
+            *::selection {
                 background-color: #8fd2f879;
             }
         }
@@ -247,4 +264,14 @@
         background-color: red;
     }
     
-}  
+}
+
+
+
+.note-menu-bar {
+    .save-btn {
+        &.hide {
+            display: none;
+        }
+    }
+}

@@ -88,7 +88,7 @@ beforeEach(() => {
                   
     jest.spyOn(NoteData, 'getDocNotes').mockReturnValue(theNotes)
     NestedNoteRow = render(
-        <NoteContext.NoteProvider notes={theNotes} >
+        <NoteContext.NoteProvider notes={theNotes} noteID={'tab-test-id'} setUnsync={() => {}} updateNoteFile={() => {}} >
             <NoteDoc />
         </NoteContext.NoteProvider>
     )
@@ -129,7 +129,7 @@ describe('<NoteDoc />', () => {
 
     
     describe('on Backspace Key pressed', () => {
-        const MockSetCaret =  jest.spyOn(Editable, 'setCaret')
+        const MockSetCaret =  jest.spyOn(Editable, 'setCurrentCursorPosition')
 
         function triggerBackspaceOn(noteId, hasChildren, noteIndx) {
             let { getByTestId } = screen

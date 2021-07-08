@@ -1,6 +1,8 @@
-import React, { useReducer, useContext, useEffect } from "react";
+import React, { useReducer, useContext, useEffect, useState, useRef } from "react";
+import NoteDoc from "./NoteDoc";
 import produce, { original } from "immer";
 import { getDocNotes } from "./NoteData";
+import { useWhyDidYouUpdate } from "../compUtils";
 
 // CONTEXTS
 export const NoteContext = React.createContext()
@@ -38,7 +40,7 @@ function reducer(note, action) {
                 // insert note in the desired indx
                 draftRef.splice(action.data.indx, 0, {
                     id: Math.random().toString(16).slice(-8),
-                    content: '',
+                    content: action.data.newNoteContent ? action.data.newNoteContent : '',
                     insideNote: null
                 })
             })
@@ -167,6 +169,7 @@ function reducer(note, action) {
 
             })
         case NOTE_ACTION.ROOT_UPDATE:
+            console.log('NoteProvider root update')
             return action.data.note
         default:
             console.log('ERROR: something went wrong in the reducer function')
@@ -175,13 +178,37 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ notes,  children, updateNoteFile }) {
-    const [note, setNote] = useReducer(reducer, notes)
+export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile }) {
+    // ============================================= State Initialization =============================================
+    const [id, setId] = useState(noteID)
 
-    // Update note state when notes prop is different
+    const [note, setNote] = useReducer(reducer, notes)
+    const prevNote = useRef(notes)                              // used to keep track of the note data before changes began
+    useEffect(() => prevNote.current = notes, [notes])
+
+    // Check if notes are unchanged
     useEffect(() => {
-        setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} })
-    }, [notes])
+        // compare the note data of prev and curr note data
+        if (JSON.stringify(prevNote.current) !== JSON.stringify(note)) {
+            console.log('the notes have changed')
+            const NotesChangeEvent = new CustomEvent('NotesChangeEvent', {detail:{
+                _id: id,
+                notes: note
+            }})
+            document.dispatchEvent(NotesChangeEvent)
+            setTabs(tabsState => tabsState.map(tab => {
+                if (tab._id === id && tab.saved) return { ...tab, saved: false }
+                return tab
+            }))
+        }
+    }, [note, prevNote])
+
+
+    //dev
+    useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
+
+    // changes the note state when a new notes prop is passed to the component
+    useEffect(() => setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} }), [notes])
 
     // adding on key down event listeners for shortcuts
     document.onkeydown = (e) => {
@@ -189,29 +216,24 @@ export function NoteProvider({ notes,  children, updateNoteFile }) {
             switch(e.keyCode) {
                 case 83:
                     e.preventDefault()
-                    console.log('saving...')
-                    updateNoteFile(note)
-                    break;
-                case 113:
-                    e.preventDefault()
-                    console.log('renaming...')
-                    
+                    updateNoteFile(id, note)
                     break;
             }
         }
     }
 
+    // Unselects the folder/note when anything besides that item is clicked
     document.onclick = e => {
-        let substrings = ['folder-cont', 'folder-img', 'folder-name']
+        let substrings = ['folder-cont', 'folder-img', 'folder-name', 'filename']
         if (!substrings.some(function(v) { return e.target.classList.value.indexOf(v) >= 0; })) 
-            document.querySelectorAll('.select-folder').forEach(folder => folder.classList.remove('select-folder'))
+            document.querySelectorAll('.item-selected').forEach(folder => folder.classList.remove('item-selected'))
     }
      
 
     return (
         <NoteContext.Provider value={note}>
             <UpdateNoteContext.Provider value={setNote}>
-                {children}
+                <NoteDoc id={id} hidden={hidden} />
             </UpdateNoteContext.Provider>
         </NoteContext.Provider>
     )

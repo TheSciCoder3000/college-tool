@@ -1,13 +1,15 @@
 import { FaPlus } from 'react-icons/fa'
 import handles from '../../assets/img/handles.svg'
 import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
-import { getCaretPosition, placeCaretAtEnd, setCaret } from '../../assets/js/editable.js'
+import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCaretPosition, getCurrentCursorPosition, placeCaretAtEnd, setCaret, setCurrentCursorPosition } from '../../assets/js/editable.js'
 
-import { useEffect, memo, useRef } from 'react'
+import { useEffect, memo, useRef, createContext, useContext, useState } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'
 
 // import ContentEditable from 'react-contenteditable'
 import NoteContentEditable from './ContentEditable' 
+
+export const noteDataContext = createContext()
 
 const NoteRow = memo(({ indx, noteData, parents, path }) => {
     // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, path })
@@ -15,6 +17,9 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
     const note = noteData
     const childIndx = useRef(indx)
     const updateRootNote = useUpdateNote()
+
+    const [rowTextContent, setRowTextContent] = useState(noteData.content)
+    useEffect(() => setRowTextContent(noteData.content), [noteData.content])
 
     useEffect(() => {
         childIndx.current = indx
@@ -43,32 +48,57 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
     }
 
 
-    const keyDown = (e, noteIndx, currPath, noteContent) => {
+    const keyDown = (e, noteIndx, currPath, noteContent, keyNoteData) => {
         let NoteRow = findParentBySelector(e.target, '.note-row')
-        let contentEditableEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
+        let contentEditableEl = document.getElementById(`note-${keyNoteData.id}`).querySelector('.note-content')
 
         switch (e.keyCode) {
             // Enter key
             case 13:
                 e.preventDefault()
-                let addNoteIndx = noteData.insideNote ? 0 : noteIndx + 1
+                let currentCaretPos = getCurrentCursorPosition(`note-content-${keyNoteData.id}`)
+
+                let extractDiv
+                let reviseContent
+
+                try {
+                    extractDiv = extractHTMLContentFromCaretToEnd(contentEditableEl, currentCaretPos)
+                    console.log('extract div', extractDiv)
+                    reviseContent = extractHTMLContentFromStartToCaret(contentEditableEl, currentCaretPos)
+                } catch(err) {
+                    console.error(err)
+                    extractDiv = ''
+                    reviseContent = ''
+                }
+
+                console.log(reviseContent)
+                console.log(extractDiv)
+                onTextChange(reviseContent, currPath)
+                let addNoteIndx = keyNoteData.insideNote ? 0 : noteIndx + 1
                 updateRootNote({ type: NOTE_ACTION.ADD_NOTE, data:{
                     indx: addNoteIndx,
-                    path: noteData.insideNote ? [...currPath, 'insideNote'] : currPath.slice(0, -1)
+                    path: keyNoteData.insideNote ? [...currPath, 'insideNote'] : currPath.slice(0, -1),
+                    newNoteContent: extractDiv
                 } })
+                setTimeout(() => {
+                    let focusElement = document.getElementById(`note-${keyNoteData.id}`).nextSibling
+                    if (keyNoteData.insideNote) focusElement = document.getElementById(`note-${keyNoteData.id}`).querySelector('.child-note-cont').firstChild
+                    focusElement = focusElement.querySelector('.note-content')
+                    focusElement.focus()                    
+                }, 10);
                 break;
             // Backspace
             case 8: {
-                if (getCaretPosition(contentEditableEl) !== 0) return
+                if (getCurrentCursorPosition(`note-${keyNoteData.id}`) !== 0) return
                 e.preventDefault();
-                let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
-                let isLastChild = (document.getElementById(`note-${noteData.id}`).nextSibling ? false : true)
+                let isFirstChild = (document.getElementById(`note-${keyNoteData.id}`).previousSibling ? false : true)
+                let isLastChild = (document.getElementById(`note-${keyNoteData.id}`).nextSibling ? false : true)
 
                 if (isFirstChild && !parents) return
 
                 let noteContentEl = isFirstChild
                     ? (document.getElementById(`note-${parents[parents.length-1]}`)).querySelector('.note-content')
-                    : [].slice.call(document.getElementById(`note-${noteData.id}`).previousSibling.querySelectorAll('.note-content')).pop()
+                    : [].slice.call(document.getElementById(`note-${keyNoteData.id}`).previousSibling.querySelectorAll('.note-content')).pop()
                 
                 let NoteTextLength = noteContentEl.textContent.length
 
@@ -77,17 +107,17 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                     indx: noteIndx,
                     path: currPath.slice(0, -1),
                     noteText: noteContent,
-                    hasChildren: noteData.insideNote ? true : false,
+                    hasChildren: keyNoteData.insideNote ? true : false,
                     isLastChild: isLastChild,
                     isFirstChild: isFirstChild
                 } })
             
                 setTimeout(() => {
                     if (isLastChild && parents) {
-                        noteContentEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
+                        noteContentEl = document.getElementById(`note-${keyNoteData.id}`).querySelector('.note-content')
                         NoteTextLength = 0
                     }
-                    setCaret(noteContentEl, NoteTextLength)
+                    setCurrentCursorPosition(noteContentEl, NoteTextLength)
                     noteContentEl.focus()
                 }, 0);
                 break;
@@ -95,8 +125,8 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
             // Tab Key
             case 9: {
                 e.preventDefault();
-                let isFirstChild = (document.getElementById(`note-${noteData.id}`).previousSibling ? false : true)
-                if (getCaretPosition(contentEditableEl) !== 0 || isFirstChild) return
+                let isFirstChild = (document.getElementById(`note-${keyNoteData.id}`).previousSibling ? false : true)
+                if (getCurrentCursorPosition(`note-${keyNoteData.id}`) !== 0 || isFirstChild) return
                 updateRootNote({ type: NOTE_ACTION.MAKE_CHILD_NOTE, data:{
                     indx: noteIndx,
                     contPath: currPath.slice(0, -1)
@@ -104,8 +134,8 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 } })
 
                 setTimeout(() => {
-                    let NoteEl = document.getElementById(`note-${noteData.id}`).querySelector('.note-content')
-                    setCaret(NoteEl, 0)
+                    let NoteEl = document.getElementById(`note-${keyNoteData.id}`).querySelector('.note-content')
+                    setCurrentCursorPosition(NoteEl, 0)
                     NoteEl.focus()
                 }, 0);
                 break;
@@ -141,7 +171,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 break;
 
             case 80:
-                console.log(`${noteData.id} path`, currPath)
+                console.log(`${keyNoteData.id} path`, currPath)
                 break;
             default:
                 
@@ -194,9 +224,10 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                 </div>
 
                 <NoteContentEditable 
-                    text={note.content}
+                    text={rowTextContent}
                     noteId={note.id}
                     onTextChange={onTextChange}
+                    noteData={noteData}
                     keyDown={keyDown}
                     path={path}
                     indx={indx} />
@@ -217,46 +248,6 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
         </div>
     )
 })
-
-function useWhyDidYouUpdate(name, props) {
-    // Get a mutable ref object where we can store props ...
-    // ... for comparison next time this hook runs.
-    const previousProps = useRef();
-  
-    useEffect(() => {
-        if (previousProps.current) {
-            // Get all keys from previous and current props
-            const allKeys = Object.keys({ ...previousProps.current, ...props });
-            // Use this object to keep track of changed props
-            const changesObj = {};
-            // Iterate through keys
-            allKeys.forEach((key) => {
-                // If previous is different from current
-                if (previousProps.current[key] !== props[key]) {
-                    // Add to changesObj
-                    changesObj[key] = {
-                        from: previousProps.current[key],
-                        to: props[key],
-                    };
-                }
-            });
-  
-            // If changesObj not empty then output to console
-            if (Object.keys(changesObj).length) {
-                console.log(document.getElementById(`note-${props.noteData.id}`))
-                console.log("[why-did-you-update]", name, changesObj)
-            }
-            
-        } else {
-            console.log(`Note ${props.noteData.id} initial render`)
-        }
-  
-        // Finally update previousProps with current props for next hook call
-        previousProps.current = props;
-    });
-}
-
-
 
 
 export default NoteRow
