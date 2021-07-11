@@ -10,6 +10,7 @@ import { useNotedbListener, useWhyDidYouUpdate } from '../compUtils'
 import ReactDOM from 'react-dom'
 
 import { motion } from 'framer-motion'
+import { NotesVariants } from '../../AnimationVariants'
 
 const routeVariant = {
     hidden: {
@@ -62,9 +63,9 @@ const RevNotes = () => {
 
     // Render top menu bar component
     useEffect(() => {
-        let menuBarEl = document.getElementById('menu-bar-cont')
-        ReactDOM.render(
-            <MenuComponent activeTab={activeTab} updateNoteFile={updateNoteFile} />, 
+        setTimeout(() => {
+            ReactDOM.render(
+                <MenuComponent activeTab={activeTab} updateNoteFile={updateNoteFile} />, 
             menuBarEl
         )
         return () => ReactDOM.unmountComponentAtNode(menuBarEl)
@@ -147,7 +148,7 @@ const RevNotes = () => {
     return (
         <div className="notes-body">
             <motion.div className="doc-window"
-                variants={routeVariant}
+                variants={NotesVariants.Window}
                 initial='hidden'
                 animate='visible'
                 exit='exit'
