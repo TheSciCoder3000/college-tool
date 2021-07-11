@@ -7,6 +7,9 @@ import ProxyItem from './ProxyItem'
 import { useWhyDidYouUpdate } from '../compUtils'
 import { useOpenNote } from '../Notes/Note'
 
+import { motion } from 'framer-motion'
+import { NotesVariants } from '../../AnimationVariants'
+
 
 const DisplayFolders = React.createContext()
 export function useDisplayFolders() {
@@ -56,7 +59,12 @@ const FileFolder = () => {
     const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
 
     return (
-        <div className="folder-sidepanel">
+        <motion.div className="folder-sidepanel"
+            variants={NotesVariants.FolderTree}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             <div className="folder-header">
                 <h1>Notes</h1>
                 <div style={{display: 'flex', justifyContent: 'center'}} className="root-folder-btns">
@@ -161,7 +169,7 @@ const FileFolder = () => {
                     </div>
                 </MenuItem>
             </ContextMenu>            
-        </div>
+        </motion.div>
     )
 }
 

@@ -1,5 +1,6 @@
 .viewer {
     flex: 1;
+    height: calc(100vh - 4rem);
 }
 
 .greeting {

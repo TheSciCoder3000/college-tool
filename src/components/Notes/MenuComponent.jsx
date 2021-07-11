@@ -4,9 +4,7 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
     // ============================================= State Initialization =============================================
     const [activeTabData, setActiveData] = useState({ _id: activeTab, saved:true, notes: null })
     useEffect(() => {
-        console.log('handlers have been initiated')
         const ActiveTabChangeEventHandler = e => {
-            console.log('tab change event fired', e.detail)
             let eventData = e.detail
             setActiveData(ActiveData => { return {
                 ...ActiveData,
@@ -17,19 +15,28 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
         const NotesChangeEventHandler = e => {
             let eventDetail = e.detail
             setActiveData(activeTabState => {
-                console.log('notes change event fired', { activeTabId: activeTabState._id, eventId: eventDetail._id, notes: eventDetail.notes })
                 if (activeTabState._id === eventDetail._id) {
-                    console.log('updating notes of menucomp', { ...activeTabState, notes: eventDetail.notes })
-                    return { ...activeTabState, notes: eventDetail.notes }
+                    return { ...activeTabState, notes: eventDetail.notes, saved: false }
+                }
+                return activeTabState
+            })
+        }
+        const NotesUpdatedEventHandler = e => {
+            let eventDetail = e.detail
+            setActiveData(activeTabState => {
+                if (activeTabState._id === eventDetail._id) {
+                    return { ...activeTabState, saved: true}
                 }
                 return activeTabState
             })
         }
         document.addEventListener('NotesChangeEvent', NotesChangeEventHandler)
         document.addEventListener('ActiveTabChanged', ActiveTabChangeEventHandler)
+        document.addEventListener('NotesUpdated', NotesUpdatedEventHandler)
         return () => {
             document.removeEventListener('ActiveTabChanged', ActiveTabChangeEventHandler)
             document.removeEventListener('NotesChangeEvent', NotesChangeEventHandler)
+            document.removeEventListener('NotesUpdated', NotesUpdatedEventHandler)
         }
     }, [])
 

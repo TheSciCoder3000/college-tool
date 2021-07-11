@@ -1,35 +1,48 @@
-import '../../assets/css/viewer.css'
-import Schedule from './Schedule'
+import '../../assets/css/dashboard/home.css'
 import LiveClock from "react-live-clock";
+import { NavLink as Link, useHistory } from 'react-router-dom';
+import { useCallback } from 'react';
 
-const Viewer = () => {
+import { motion } from 'framer-motion';
+import { DashboardVariants } from '../../AnimationVariants';
+
+
+const Viewer = ({ showSidePanel }) => {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     let date = new Date()
 
-    const sampleSchedule = {
-        id: 0,
-        name: 'Physics 2',
-        time: '3:00 pm - 4:00 pm',
-    }
-
-    function switchSched() {
-        console.log('sched is being switched')
-    }
+    const history = useHistory()
+    const CalendarDbClickHandler = useCallback(() => {
+        showSidePanel(false)
+        history.push('/Calendar')
+    }, [history])
 
     return (
-        <div className="viewer">
+        <motion.div className="viewer"
+            variants={DashboardVariants.Viewer}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             <div className="greeting">
                 <div className="time-date">
                     <div className="greeting-time">
                         <LiveClock format="h:mm A" ticking />
                     </div>
-                    <div className="greeting-date">
+                    <div className="greeting-date" onClick={() => showSidePanel(state => !state)}>
                         {`${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`}
                     </div>
                 </div>
-                {/* <Schedule sched={sampleSchedule} onSwitchSched={switchSched}/> */}
             </div>
-        </div>
+
+            <div className="nav-container">
+                <Link className='dashboard-nav-links' to='/Notes'>Notes</Link>
+                <Link className='dashboard-nav-links' to='/dashboard'>Dashboard</Link>
+                <a onClick={() => showSidePanel(sidePanelState => !sidePanelState)} 
+                   className="dashboard-nav-links"
+                   onDoubleClick={CalendarDbClickHandler}>Calendar</a>
+            </div>
+        </motion.div>
     )
 }
 

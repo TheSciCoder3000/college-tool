@@ -1,4 +1,7 @@
 .task-panel {
-    flex-basis: 25rem;
-    background-color: #f5f5f596;
+  -ms-flex-preferred-size: 25rem;
+      flex-basis: 25rem;
+  background-color: #f5f5f596;
+  height: calc(100vh - 4rem);
 }
+/*# sourceMappingURL=TaskPanel.css.map */

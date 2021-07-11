@@ -169,7 +169,6 @@ function reducer(note, action) {
 
             })
         case NOTE_ACTION.ROOT_UPDATE:
-            console.log('NoteProvider root update')
             return action.data.note
         default:
             console.log('ERROR: something went wrong in the reducer function')

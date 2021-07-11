@@ -118,7 +118,7 @@ function noteChildAnalysis(parentNote, x) {
     }, {element: parentNote, childPos: 0, offset: Number.POSITIVE_INFINITY})
 }
 
-function useDraggableHook(id, arrangementHandler) {
+function useDraggableHook(id, arrangementHandler, docContext) {
     var pos = {
         pos1: 0,
         pos2: 0,
@@ -147,7 +147,7 @@ function useDraggableHook(id, arrangementHandler) {
         }
 
         // Detect which component it's closest to
-        const taskContainer = document.querySelector('.doc-page')
+        const taskContainer = document.getElementById(docContext)
         var [afterElement, indicatorStyle] = getDragAfterElement(taskContainer, e.clientX, e.clientY)
 
         // Display insert indicator

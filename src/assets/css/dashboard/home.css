@@ -1,0 +1,55 @@
+.viewer {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  height: calc(100vh - 4rem);
+  padding: 2rem;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: relative;
+}
+
+.viewer .greeting {
+  text-align: center;
+  color: white;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.viewer .greeting .greeting-time {
+  font-size: 6.5em;
+  font-weight: 400;
+}
+
+.viewer .greeting .greeting-date {
+  font-size: 2em;
+  font-weight: 300;
+}
+
+.viewer .nav-container {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  position: absolute;
+  bottom: 2rem;
+  left: 12rem;
+  right: 12rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.viewer .nav-container .dashboard-nav-links {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  text-align: center;
+}
+
+.viewer .nav-container .dashboard-nav-links:hover {
+  cursor: pointer;
+}
+/*# sourceMappingURL=home.css.map */

@@ -16,6 +16,7 @@ const NoteDoc = ({ id, hidden }) => {
                     <NoteRow key={note.id}
                             indx={indx}
                             noteData={note}
+                            docContext={`doc-page-${id}`}
                             path={[indx]} />
                 ))
             )}

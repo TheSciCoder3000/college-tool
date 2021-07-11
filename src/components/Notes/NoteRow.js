@@ -11,7 +11,7 @@ import NoteContentEditable from './ContentEditable'
 
 export const noteDataContext = createContext()
 
-const NoteRow = memo(({ indx, noteData, parents, path }) => {
+const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
     // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, path })
 
     const note = noteData
@@ -198,7 +198,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
         } })
     }
     
-    const mouseDown = useDraggableHook(noteData.id, onArrangementChange)
+    const mouseDown = useDraggableHook(noteData.id, onArrangementChange, docContext)
 
     return (
         <div id={`note-${note.id}`}
@@ -238,6 +238,7 @@ const NoteRow = memo(({ indx, noteData, parents, path }) => {
                             <NoteRow key={childNote.id}
                                     indx={childNoteIndx}
                                     noteData={childNote}
+                                    docContext={docContext}
                                     parents={parents ? [...parents, note.id] : [note.id]}
                                     path={[...path, 'insideNote', childNoteIndx]} />
                         ))}

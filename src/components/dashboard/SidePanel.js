@@ -2,6 +2,10 @@ import '../../assets/css/dashboard/SidePanel.css'
 import Calendar from './calendar'
 import Tasks from './Tasks'
 
+import { motion } from 'framer-motion'
+import { DashboardVariants } from '../../AnimationVariants'
+
+
 const SidePanel = () => {
     const sampleTask = [
         {
@@ -35,10 +39,15 @@ const SidePanel = () => {
     ]
 
     return (
-        <div className="side-panel">
+        <motion.div className="side-panel"
+            variants={DashboardVariants.SidePanel}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             <Calendar />
             <Tasks tasks={sampleTask}/>
-        </div>
+        </motion.div>
     )
 }
 

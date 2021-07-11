@@ -2,8 +2,7 @@ import './assets/css/app.css'
 import './components/fontAwesome/index'
 import AppBar from './components/AppBar'
 
-import Viewer from './components/dashboard/viewer';
-import SidePanel from './components/dashboard/SidePanel';
+import DashRoute from './components/Routes/DashRoute';
 
 // import Notes from './components/note_taking/Notes';
 import RevNotes from './components/Notes/Note'
@@ -11,20 +10,13 @@ import RevNotes from './components/Notes/Note'
 import CalendarViewer from './components/calendar/CalendarViewer';
 import TaskPanel from './components/calendar/TaskPanel';
 import background from './assets/img/dashBackground.jpg';
-import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
 
-function DashboardRoute() {
-  document.onkeydown = null
-  return(
-    <>
-      {/* tool viewer*/}
-      <Viewer />
+import { Route, Switch, Redirect, useLocation } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AppBarVariants } from './AnimationVariants';
 
-      {/* side panel */}
-      <SidePanel />
-    </>
-  )
-}
+
 
 function CalendarRoute() {
   document.onkeydown = null
@@ -49,26 +41,68 @@ function NotesRoute() {
   )
 }
 
+
+// =================================================== App Component ===================================================
 function App() {
+  const location = useLocation()
+  console.log(location)
+  const [ShowAppBar, setShowAppBar] = useState(location.pathname === '/dashboard' ? false : true)
+  useEffect(() => {
+    if (location.pathname === '/dashboard') setShowAppBar(false)
+  }, [location.pathname])
+  
+
+  const SetShowAppBarHandler = () => {
+    console.log('setting app bar')
+    let pathStrings = ['/', '/dashboard']
+    if (!pathStrings.includes(location.pathname)) setShowAppBar(true)
+  }
+
   return (
-    <HashRouter>
+    <>
       <div className="App"
         style={{ backgroundImage: `url(${background})` }}>
-        <div id="menu-bar-cont" className="menu-bar"></div>
+        <AnimatePresence>
+          {ShowAppBar && (
+            <motion.div id="menu-bar-cont" className="menu-bar" 
+              variants={AppBarVariants.MenuBar}
+              initial='hidden'
+              animate='visible'
+              exit='exit'
+            />
+          )}
+        </AnimatePresence>
+
         <div className="app-content">
-          <AppBar />
-          
-          <Switch>
-            <Route exact path="/">
-              <Redirect to="/dashboard"/>
-            </Route>
-            <Route exact path="/dashboard" component={DashboardRoute}/>
-            <Route exact path="/Notes" component={NotesRoute}/>
-            <Route exact path="/Calendar" component={CalendarRoute}/>
-          </Switch>
+          <AnimatePresence>
+            {ShowAppBar && (<AppBar />)}
+          </AnimatePresence>
+
+          <AnimatePresence
+            exitBeforeEnter
+            onExitComplete={SetShowAppBarHandler}
+          >
+            <Switch location={location} key={location.pathname} >
+              <Route exact path="/">
+                <Redirect to="/dashboard"/>
+              </Route>
+
+              <Route exact path="/dashboard">
+                <DashRoute />
+              </Route>
+
+              <Route exact path="/Notes">
+                <NotesRoute />
+              </Route>
+              
+              <Route exact path="/Calendar">
+                <CalendarRoute />
+              </Route>
+            </Switch>
+          </AnimatePresence>
         </div>
       </div>
-    </HashRouter>
+    </>
   );
 }
 
