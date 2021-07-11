@@ -42,6 +42,11 @@ const reactDevToolsPath = path.join(
   'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'
 )
 
+const reduxDevToolsPath = path.join(
+  os.homedir(),
+  'AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_0'
+)
+
 async function loadExtension(){
   await session.defaultSession.loadExtension(reactDevToolsPath)
 }
@@ -60,6 +65,7 @@ app.whenReady().then(() => {
   // loadExtension()
 }).then(async () => {
   await session.defaultSession.loadExtension(reactDevToolsPath)
+  if (reduxDevToolsPath) await session.defaultSession.loadExtension(reduxDevToolsPath)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

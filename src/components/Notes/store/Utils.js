@@ -186,27 +186,7 @@ export async function updateItem(itemData, property, newValue, setFiles) {
         doc[property] = newValue
 
         // send the updated doc to the db
-        return Notedb.put(doc).catch(err => console.log('update item err', err)).then(() => {
-            // once db successfully updates
-            // update the item in session storage if it exists
-            // if (sessionStorage.getItem(`tab-${doc._id}`)) sessionStorage.setItem(`tab-${doc._id}`, JSON.stringify(doc))
-
-            // if item is note and name was updated
-            // if (result.type === 'note' && property === 'name') {
-            //     console.log('renaming the store tabs')
-            //     let storeTabs = store.get('openTabs')
-
-            //     // if store tabs exist and the updated name is inside it
-            //     if (storeTabs && storeTabs.find(tab => tab.id === result._id)) 
-            //         // then map through the values of store tab
-            //         store.set('openTabs', storeTabs.map(tab => {
-            //             // and update the noteName
-            //             if (tab.id === result._id) return { id: tab.id, noteName: newValue }
-            //             // else return the original element
-            //             return tab
-            //         }))
-            // }
-        })
+        return Notedb.put(doc).catch(err => console.log('update item err', err))
     }).then(() => {
         // after finshing the procedures, update the files of the parent cont
         if (setFiles) findFolderFiles(itemData.parentFolder, setFiles)
@@ -251,11 +231,14 @@ export async function getOpenTabs() {
 
 
 // Used when adding another tab
-export async function addOpenTab(id, prevTabArray) {
+export async function addOpenTab(id, prevTabArray, redux=false) {
     // fetch the data from the db
     return Notedb.get(id).catch(err => console.error('ERROR: Add open tab - get error', err)).then(result => {
         // add to the ids to localStorage
-        store.set('openTabs', [...prevTabArray.map(tab => tab._id), result._id])
+        // store.set('openTabs', [...store.get('openTabs'), result._id])
+
+        // if used for redux then return the result only
+        if (redux) return { ...result, saved: true }
 
         // add the doc to the array with an extra "saved" field
         return [...prevTabArray, { ...result, saved: true }]
@@ -298,3 +281,23 @@ export function getNotedbListenner() {
         }
     })
 }
+
+
+
+
+// ================================================ REDUX SYNC FUNCTIONS ================================================
+export function syncStateToDb(state) {
+    for (const [stateItem, stateValue] of Object.entries(state)) {
+        switch (stateItem) {
+            case 'Tabs':
+                store.set('openTabs', stateValue.map(tabObj => tabObj._id))
+                break;
+            case 'ActiveTab':
+                store.set('activeTab', stateValue)
+                break;
+        }
+    }
+}
+
+
+

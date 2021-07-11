@@ -12,20 +12,10 @@ import ReactDOM from 'react-dom'
 import { motion } from 'framer-motion'
 import { NotesVariants } from '../../AnimationVariants'
 
-const routeVariant = {
-    hidden: {
-      x: '100vw'
-    },
-    visible: {
-      x: 0, 
-      transition: { type: 'linear', duration: 2, when: 'afterChildren' }
-    },
-    exit: {
-      x: '100vw',
-      transition: { ease: 'easeOut'}
-    }
-}
-  
+import { useDispatch, useSelector } from 'react-redux'
+import { addOpenTabs, RemoveTab } from '../../redux/Tabs'
+import { setActiveTab as reduxSetActiveTab } from '../../redux/ActiveTab'
+
 
 // Context Initialization
 const OpenNote = createContext()
@@ -34,14 +24,20 @@ export function useOpenNote() {
 }
 
 const RevNotes = () => {
+    const dispatch = useDispatch()
     // ============================================= State Initialization =============================================
     const initialRender = useRef(true)
 
-    const [tabs, setTabs] = useState([])
+    const tabs = useSelector(state => state.Tabs)
+    console.log('tabs', tabs)
+    function setTabs () {
+        console.log('setting tabs')
+    }
     useEffect(() => { if (!tabs || tabs.length === 0) getOpenTabs().then(setTabs) }, [])        // fetch open tabs on initial render
     
-    const [activeTab, setActiveTab] = useState(getLastActiveTab())
-    useEffect(() => setLastActiveTab(activeTab), [activeTab])                                   // update db when active tab changes
+    const activeTab = useSelector(state => state.ActiveTab)
+    const setActiveTab = noteId => { dispatch(reduxSetActiveTab(noteId)) }
+    // useEffect(() => setLastActiveTab(activeTab), [activeTab])                                   // update db when active tab changes
 
     // dispathc custom event when active tab or tabs change
     useEffect(() => {
@@ -66,30 +62,39 @@ const RevNotes = () => {
         setTimeout(() => {
             ReactDOM.render(
                 <MenuComponent activeTab={activeTab} updateNoteFile={updateNoteFile} />, 
-            menuBarEl
-        )
-        return () => ReactDOM.unmountComponentAtNode(menuBarEl)
+                document.getElementById('menu-bar-cont')
+            )
+        }, 500);
+        return () => ReactDOM.unmountComponentAtNode(document.getElementById('menu-bar-cont'))
     }, [])
     
     // useWhyDidYouUpdate('revnotes', { tabs, activeTab })
 
     
     // ============================================= SHARED FUNCTIONS =============================================
-    // Handles Note openning requests from File component
+    /**
+     * * Handles Note openning requests from File component
+     * @param {string} noteId 
+     * @param {string} filename 
+     */
     const openNoteHandler = (noteId, filename) => {
         
         if (tabs.find(tab => tab._id === noteId)) {                                 // check if note is already openned
             // set as active tab
             setActiveTab(noteId)
         } else {                                                                    // else
-            addOpenTab(noteId, tabs).then(note => {                                     // add to open tabs, then
-                setTabs(note)                                                               // set tabs state
-                setActiveTab(noteId)                                                        // set as active tab
-            })
+            console.log('running dispatch')
+            dispatch(addOpenTabs(noteId))
+            setActiveTab(noteId)
         }
     }
 
-    // Handler Save events
+    /**
+     * Updates the states and db of notes
+     * * Handler Save events
+     * @param {string} id
+     * @param {list} updatedNote 
+     */
     const updateNoteFile = useCallback((id, updatedNote) => {
         updateItem({ _id: id }, 'notes', updatedNote).then(() => {                  // update the database, then
             setTabs(tabState => tabState.map(tab => {                                   // update the notes property of the tab
@@ -99,6 +104,10 @@ const RevNotes = () => {
                 }
                 return tab
             }))
+            const NotesUpdatedEvent = new CustomEvent('NotesUpdated', {detail: {
+                _id: id
+            }})
+            document.dispatchEvent(NotesUpdatedEvent)
         })
     }, [])
 
@@ -113,7 +122,7 @@ const RevNotes = () => {
         } else setActiveTab(null)
 
         // remove tabs in the database and set the tabs state
-        removeOpenTab(id).then(() => setTabs(tabsState => tabsState.filter(tab => tab._id !== id)))
+        dispatch(RemoveTab(id))
     }
     
 
