@@ -12,23 +12,11 @@ import TaskPanel from './components/calendar/TaskPanel';
 import background from './assets/img/dashBackground.jpg';
 
 import { Route, Switch, Redirect, useLocation } from "react-router-dom";
-import { useReducer, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AppBarVariants } from './AnimationVariants';
 
 
-const routeVariant = {
-  hidden: {
-    opacity: 0
-  },
-  visible: {
-    opacity: 1, 
-    transition: { type: 'linear', duration: 2 }
-  },
-  exit: {
-    opacity: 0,
-    transition: { ease: 'easeOut', duration: 2 }
-  }
-}
 
 function CalendarRoute() {
   document.onkeydown = null
@@ -54,28 +42,46 @@ function NotesRoute() {
 }
 
 
-
+// =================================================== App Component ===================================================
 function App() {
   const location = useLocation()
   console.log(location)
   const [ShowAppBar, setShowAppBar] = useState(location.pathname === '/dashboard' ? false : true)
-  console.log('appbar', ShowAppBar)
   useEffect(() => {
     if (location.pathname === '/dashboard') setShowAppBar(false)
-    else setTimeout(() => {
-      setShowAppBar(true)
-    }, 800);
-  }, [location])
+  }, [location.pathname])
+  
+
+  const SetShowAppBarHandler = () => {
+    console.log('setting app bar')
+    let pathStrings = ['/', '/dashboard']
+    if (!pathStrings.includes(location.pathname)) setShowAppBar(true)
+  }
+
   return (
     <>
       <div className="App"
         style={{ backgroundImage: `url(${background})` }}>
-        <div id="menu-bar-cont" className="menu-bar"></div>
+        <AnimatePresence>
+          {ShowAppBar && (
+            <motion.div id="menu-bar-cont" className="menu-bar" 
+              variants={AppBarVariants.MenuBar}
+              initial='hidden'
+              animate='visible'
+              exit='exit'
+            />
+          )}
+        </AnimatePresence>
+
         <div className="app-content">
           <AnimatePresence>
             {ShowAppBar && (<AppBar />)}
           </AnimatePresence>
-          <AnimatePresence exitBeforeEnter>
+
+          <AnimatePresence
+            exitBeforeEnter
+            onExitComplete={SetShowAppBarHandler}
+          >
             <Switch location={location} key={location.pathname} >
               <Route exact path="/">
                 <Redirect to="/dashboard"/>
