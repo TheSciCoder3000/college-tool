@@ -6,22 +6,9 @@ import  { ContextMenu, MenuItem } from 'react-contextmenu'
 import ProxyItem from './ProxyItem'
 import { useWhyDidYouUpdate } from '../compUtils'
 import { useOpenNote } from '../Notes/Note'
+
 import { motion } from 'framer-motion'
-
-
-const routeVariant = {
-    hidden: {
-        x: '100vw'
-      },
-      visible: {
-        x: 0, 
-        transition: { type: 'linear', ease: 'easeIn', duration: 1.2 }
-      },
-      exit: {
-        x: '100vw',
-        transition: { ease: 'easeOut'}
-    }
-}
+import { NotesVariants } from '../../AnimationVariants'
 
 
 const DisplayFolders = React.createContext()
@@ -73,7 +60,7 @@ const FileFolder = () => {
 
     return (
         <motion.div className="folder-sidepanel"
-            variants={routeVariant}
+            variants={NotesVariants.FolderTree}
             initial='hidden'
             animate='visible'
             exit='exit'
