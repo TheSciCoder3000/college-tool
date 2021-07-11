@@ -1,28 +1,10 @@
 import '../../assets/css/dashboard/SidePanel.css'
 import Calendar from './calendar'
 import Tasks from './Tasks'
-import { motion } from 'framer-motion'
 
-const SidePanelVariant = {
-    hidden: {
-        x: '20rem'
-    },
-    visible: {
-        x: 0,
-        transition: {
-            type: 'linear',
-            duration: 0.5,
-            delay: 0.5
-        }
-    },
-    exit: {
-        x: '20rem',
-        transition: {
-            ease: 'easeIn', 
-            duration: 0.8
-        }
-    }
-}
+import { motion } from 'framer-motion'
+import { DashboardVariants } from '../../AnimationVariants'
+
 
 const SidePanel = () => {
     const sampleTask = [
@@ -58,7 +40,7 @@ const SidePanel = () => {
 
     return (
         <motion.div className="side-panel"
-            variants={SidePanelVariant}
+            variants={DashboardVariants.SidePanel}
             initial='hidden'
             animate='visible'
             exit='exit'
