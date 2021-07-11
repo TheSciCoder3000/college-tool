@@ -2,31 +2,12 @@ import Links from './NavLinks'
 import '../assets/css/navbar.css'
 import { NavLink as Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-
-const NavBarVariant = {
-    hidden: {
-        x: '-5rem'
-    },
-    visible: {
-        x: 0,
-        transition: {
-            type: 'linear',
-            duration: 0.5
-        }
-    },
-    exit: {
-        x: '-5rem',
-        transition: {
-            ease: 'easeOut'
-        }
-    }
-}
-
+import { AppBarVariants } from '../AnimationVariants'
 
 const AppBar = () => {
     return (
         <motion.div className="Nav-bar"
-            variants={NavBarVariant}
+            variants={AppBarVariants.NavBar}
             initial='hidden'
             animate='visible'
             exit='exit'
