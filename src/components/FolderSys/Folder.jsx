@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react'
+import React, { useState, useEffect, useRef, memo } from 'react'
 import File from './File'
 import { ContextMenuTrigger } from 'react-contextmenu'
 import { useHotKeys } from '../compUtils'
@@ -80,6 +80,8 @@ const Folder = ({ folderData, setParentFiles }) => {
             case 'view-db':
                 viewDB()
                 break;
+            default:
+                console.error(`ERROR: ${action} is not a registered context menu action`)
         }
     }
 
@@ -177,7 +179,7 @@ const Folder = ({ folderData, setParentFiles }) => {
                 {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(false)} />)}
                 {files && (
                     files.map((file) => {
-                        if (file.type == 'folder') return (
+                        if (file.type === 'folder') return (
                             <Folder key={`folder-${file._id}`} folderData={file} setParentFiles={setFiles} />
                         )
                         return (

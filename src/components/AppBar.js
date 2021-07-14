@@ -1,6 +1,6 @@
 import Links from './NavLinks'
 import '../assets/css/navbar.css'
-import { NavLink as Link, useLocation } from 'react-router-dom'
+import { NavLink as Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AppBarVariants } from '../AnimationVariants'
 

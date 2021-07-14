@@ -1,7 +1,7 @@
 import { FaPlus } from 'react-icons/fa'
 import handles from '../../assets/img/handles.svg'
 import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
-import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCaretPosition, getCurrentCursorPosition, placeCaretAtEnd, setCaret, setCurrentCursorPosition } from '../../assets/js/editable.js'
+import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCurrentCursorPosition, setCurrentCursorPosition } from '../../assets/js/editable.js'
 
 import { useEffect, memo, useRef, createContext, useContext, useState } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'

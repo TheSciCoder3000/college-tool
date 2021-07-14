@@ -5,6 +5,7 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
     const [activeTabData, setActiveData] = useState({ _id: activeTab, saved:true, notes: null })
     useEffect(() => {
         const ActiveTabChangeEventHandler = e => {
+            console.log('active tab changed = fired from menu component', e.detail)
             let eventData = e.detail
             setActiveData(ActiveData => { return {
                 ...ActiveData,
@@ -13,6 +14,7 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
             } })
         }
         const NotesChangeEventHandler = e => {
+            console.log('notes have changed - fired from menu component')
             let eventDetail = e.detail
             setActiveData(activeTabState => {
                 if (activeTabState._id === eventDetail._id) {
@@ -30,8 +32,8 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
                 return activeTabState
             })
         }
-        document.addEventListener('NotesChangeEvent', NotesChangeEventHandler)
         document.addEventListener('ActiveTabChanged', ActiveTabChangeEventHandler)
+        document.addEventListener('NotesChangeEvent', NotesChangeEventHandler)
         document.addEventListener('NotesUpdated', NotesUpdatedEventHandler)
         return () => {
             document.removeEventListener('ActiveTabChanged', ActiveTabChangeEventHandler)

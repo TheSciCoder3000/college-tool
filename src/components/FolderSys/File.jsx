@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import React from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useOpenNote } from '../Notes/Note'
 import { ContextMenuTrigger } from 'react-contextmenu'
 import { removeItem, updateItem } from '../Notes/store/Utils'
@@ -47,6 +47,8 @@ const File = ({ fileData, setParentFiles }) => {
                 NoteRenameInput.current.querySelector('input').value = fileName
                 NoteRenameInput.current.querySelector('input').focus()
                 break;
+            default:
+                console.error(`ERROR: ${action} is not a registred context menu handler action`)
         }
     }
 

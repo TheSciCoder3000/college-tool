@@ -204,7 +204,7 @@ export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile })
 
 
     //dev
-    useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
+    // useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
 
     // changes the note state when a new notes prop is passed to the component
     useEffect(() => setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} }), [notes])
