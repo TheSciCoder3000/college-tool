@@ -59,44 +59,46 @@ const FileFolder = () => {
     const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
 
     return (
-        <motion.div className="folder-sidepanel"
-            variants={NotesVariants.FolderTree}
-            initial='hidden'
-            animate='visible'
-            exit='exit'
-        >
-            <div className="folder-header">
-                <h1>Notes</h1>
-                <div style={{display: 'flex', justifyContent: 'center'}} className="root-folder-btns">
-                    <button className="add-file" onClick={() => setProxyInput({ item: 'note' })}>File</button>
-                    <button className="add-folder" onClick={() => setProxyInput({ item: 'folder' })}>Folder</button>
+        <>
+            <motion.div className="folder-sidepanel"
+                variants={NotesVariants.FolderTree}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+            >
+                <div className="folder-header">
+                    <h1>Notes</h1>
+                    <div style={{display: 'flex', justifyContent: 'center'}} className="root-folder-btns">
+                        <button className="add-file" onClick={() => setProxyInput({ item: 'note' })}>File</button>
+                        <button className="add-folder" onClick={() => setProxyInput({ item: 'folder' })}>Folder</button>
+                    </div>
                 </div>
-            </div>
 
-            {!showFolders && (
-                <div className="loading-folders">
-                    <h5>Loading...</h5>
-                </div>
-            )}
-
-            <div className={showFolders ? "folder-tree" : "folder-tree no-display"}>
-                {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(null)} />)}
-                {files && (
-                    files.map((file) => {
-                        if (file.type == 'folder') {
-                            return (
-                                <DisplayFolders.Provider key={`folder-${file._id}`} value={setOpenFolders}>
-                                    <Folder folderData={file} setParentFiles={setFiles} />
-                                </DisplayFolders.Provider>
-                            )
-                        }
-                        return (
-                            <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
-                        )
-                    })
+                {!showFolders && (
+                    <div className="loading-folders">
+                        <h5>Loading...</h5>
+                    </div>
                 )}
-            </div>
 
+                <div className={showFolders ? "folder-tree" : "folder-tree no-display"}>
+                    {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(null)} />)}
+                    {files && (
+                        files.map((file) => {
+                            if (file.type == 'folder') {
+                                return (
+                                    <DisplayFolders.Provider key={`folder-${file._id}`} value={setOpenFolders}>
+                                        <Folder folderData={file} setParentFiles={setFiles} />
+                                    </DisplayFolders.Provider>
+                                )
+                            }
+                            return (
+                                <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
+                            )
+                        })
+                    )}
+                </div>
+
+            </motion.div>
             {/* Context menu for folders */}
             <ContextMenu id="folder-context-menu" className="folder-context-menu-cont">
                 <MenuItem className="folder-cotext-menu-item" data={{ action: CONTEXT_MENU_ACTIONS.ADD_FILE }} onClick={handleContextMenu} >
@@ -169,7 +171,7 @@ const FileFolder = () => {
                     </div>
                 </MenuItem>
             </ContextMenu>            
-        </motion.div>
+        </>
     )
 }
 
