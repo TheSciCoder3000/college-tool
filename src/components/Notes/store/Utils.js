@@ -186,11 +186,11 @@ export async function updateItem(itemData, property, newValue, setFiles) {
         doc[property] = newValue
 
         // send the updated doc to the db
-        return Notedb.put(doc).catch(err => console.log('update item err', err))
-    }).then(() => {
+        return Notedb.put(doc).catch(err => console.log('update item err', err)).then(() => doc)
+    }).then(newDoc => {
         // after finshing the procedures, update the files of the parent cont
         if (setFiles) findFolderFiles(itemData.parentFolder, setFiles)
-        else return 
+        else return newDoc
     }).catch(err => console.log(err))
 }
 
@@ -221,6 +221,7 @@ export async function getOpenFolders(callback) {
 // ================================================ TAB AND NOTE FUNCTIONS ================================================
 export async function getOpenTabs() {
     let openTabs = store.get('openTabs') || []
+    return openTabs
     if (openTabs.length === 0) return openTabs
 
     return Notedb.allDocs({
@@ -287,16 +288,40 @@ export function getNotedbListenner() {
 
 // ================================================ REDUX SYNC FUNCTIONS ================================================
 export function syncStateToDb(state) {
+    console.log('syncing db')
     for (const [stateItem, stateValue] of Object.entries(state)) {
         switch (stateItem) {
             case 'Tabs':
-                store.set('openTabs', stateValue.map(tabObj => tabObj._id))
+                store.set('openTabs', stateValue)
                 break;
             case 'ActiveTab':
                 store.set('activeTab', stateValue)
                 break;
         }
     }
+}
+
+
+export async function getFoldersAndNotes() {
+    return Notedb.createIndex({
+        index: {fields: ['type']},
+        ddoc: 'db-types'
+    }).then(() => {
+        return Notedb.find({
+            selector: {
+                'type': { $exists: true }
+            }
+        }).catch(err => console.error(`ERROR: cannot find folders and files`, err))
+    }).then(result => {
+        let opennedTabs = store.get('openTabs')
+        let FolderNotesObj = {}
+        result.docs.forEach(doc => {
+            FolderNotesObj[doc._id] = doc.type === 'note'
+                ? { ...doc, open: opennedTabs.includes(doc._id) }
+                : doc
+        })
+        return FolderNotesObj
+    })
 }
 
 

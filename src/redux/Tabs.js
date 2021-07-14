@@ -12,7 +12,8 @@ export const fetchOpenTabs = createAsyncThunk(
 export const addOpenTabs = createAsyncThunk(
     'Tabs/addOpenTabsStatus',
     async (tabId, thunkAPI) => {
-        return await addOpenTab(tabId, thunkAPI.getState(), true)
+        // addOpenTab(tabId, thunkAPI.getState(), true)
+        return tabId
     }
 )
 
@@ -22,8 +23,18 @@ export const TabSlice = createSlice({
     reducers: {
         RemoveTab: (state, action) => {
             console.log('remove state', state)
-            return state.filter(tabId => tabId._id !== action.payload)           // return a filtered state
+            return state.filter(tabId => tabId !== action.payload)           // return a filtered state
         },
+        UpdateTab: (state, action) => {
+            let updatedId = action.payload._id
+            let updatedName = action.payload.name
+            let updatedNotes = action.payload.notes
+            console.log(`updating tab ${updatedName}`)
+            return state.map(tab => {
+                if (tab._id === updatedId) return {...tab, notes: updatedNotes}
+                return tab
+            })
+        }
     },
     extraReducers: builder => {
         builder
@@ -33,5 +44,5 @@ export const TabSlice = createSlice({
 })
 
 
-export const { RemoveTab } = TabSlice.actions
+export const { RemoveTab, UpdateTab } = TabSlice.actions
 export default TabSlice.reducer
