@@ -16,9 +16,8 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AppBarVariants } from './AnimationVariants';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOpenTabs } from './redux/Tabs';
-import { store, subscribeToStore } from './redux/store';
+import { useDispatch } from 'react-redux';
+import { InitializeReduxStoreStates } from './redux';
 
 
 function CalendarRoute() {
@@ -49,16 +48,9 @@ function NotesRoute() {
 function App() {
   const dispatch = useDispatch()
   // initalize redux on render
-  useEffect(() => {
-    // initialize tabs data
-    dispatch(fetchOpenTabs())
-
-    // subscribe to store and listen to changes
-    subscribeToStore()
-  }, [])
+  useEffect(() => InitializeReduxStoreStates(dispatch), [])
 
   const location = useLocation()
-  console.log(location)
   const [ShowAppBar, setShowAppBar] = useState(location.pathname === '/dashboard' ? false : true)
   useEffect(() => {
     if (location.pathname === '/dashboard') setShowAppBar(false)
