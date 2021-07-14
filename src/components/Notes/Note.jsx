@@ -15,6 +15,8 @@ import { NotesVariants } from '../../AnimationVariants'
 import { useDispatch, useSelector } from 'react-redux'
 import { addOpenTabs, RemoveTab } from '../../redux/Tabs'
 import { setActiveTab as reduxSetActiveTab } from '../../redux/ActiveTab'
+import { selectTabs } from '../../redux/ReduxSelectors'
+import { UpdateNoteItem } from '../../redux/ReduxActions'
 
 
 // Context Initialization
@@ -24,14 +26,12 @@ export function useOpenNote() {
 }
 
 const RevNotes = () => {
-    const dispatch = useDispatch()
     // ============================================= State Initialization =============================================
+    const dispatch = useDispatch()
     const initialRender = useRef(true)
 
-    const tabs = useSelector(state => state.Tabs)
-    console.log('tabs', tabs)
+    const tabs = useSelector(selectTabs)
     function setTabs () {
-        console.log('setting tabs')
     }
     useEffect(() => { if (!tabs || tabs.length === 0) getOpenTabs().then(setTabs) }, [])        // fetch open tabs on initial render
     
@@ -39,11 +39,13 @@ const RevNotes = () => {
     const setActiveTab = noteId => { dispatch(reduxSetActiveTab(noteId)) }
     // useEffect(() => setLastActiveTab(activeTab), [activeTab])                                   // update db when active tab changes
 
+
+    // useWhyDidYouUpdate('RevNotes', { dispatch, initialRender, tabs, activeTab })
+
     // dispathc custom event when active tab or tabs change
     useEffect(() => {
         const activeTabData = tabs.find(tab => tab._id === activeTab)
         const initalRenderState = initialRender.current
-        console.log('actiee tab', activeTab)
         if (activeTabData || initalRenderState) {
             const tabChangeEvent = new CustomEvent('ActiveTabChanged', {
                 detail: {
@@ -68,8 +70,6 @@ const RevNotes = () => {
         return () => ReactDOM.unmountComponentAtNode(document.getElementById('menu-bar-cont'))
     }, [])
     
-    // useWhyDidYouUpdate('revnotes', { tabs, activeTab })
-
     
     // ============================================= SHARED FUNCTIONS =============================================
     /**
@@ -93,22 +93,19 @@ const RevNotes = () => {
      * Updates the states and db of notes
      * * Handler Save events
      * @param {string} id
-     * @param {list} updatedNote 
+     * @param {Array} updatedNote 
      */
     const updateNoteFile = useCallback((id, updatedNote) => {
-        updateItem({ _id: id }, 'notes', updatedNote).then(() => {                  // update the database, then
-            setTabs(tabState => tabState.map(tab => {                                   // update the notes property of the tab
-                if (tab._id === id) {
-                    console.log('NoteProvider updating note', { ...tab, notes: updatedNote, saved: true })
-                    return { ...tab, notes: updatedNote, saved: true }
-                }
-                return tab
-            }))
-            const NotesUpdatedEvent = new CustomEvent('NotesUpdated', {detail: {
-                _id: id
-            }})
-            document.dispatchEvent(NotesUpdatedEvent)
+        UpdateNoteItem(dispatch, {
+            id: id,
+            property: 'notes',
+            newValue: updatedNote
         })
+        
+        const NotesUpdatedEvent = new CustomEvent('NotesUpdated', {detail: {
+            _id: id
+        }})
+        document.dispatchEvent(NotesUpdatedEvent)
     }, [])
 
     // ============================================= COMPONENT BASED FUNCTIONS =============================================
@@ -133,7 +130,7 @@ const RevNotes = () => {
         console.log('removing file', files)
         if (files) files.forEach(noteFile => {
             if (tabs.find(noteTab => noteTab.id === noteFile)) 
-                removeOpenTab(noteFile).then(() => setTabs(tabsState => tabsState.filter(tab => tab._id !== noteFile)))
+                dispatch(RemoveTab(noteFile))
             if (noteFile === activeTab) {
                 setActiveTab(null)
             }
