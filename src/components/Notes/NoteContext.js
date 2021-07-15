@@ -177,7 +177,7 @@ function reducer(note, action) {
 }
 
 // Note Provider Component
-export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile }) {
+export const  NoteProvider = ({ noteID, notes, setTabs, hidden, updateNoteFile }) => {
     // ============================================= State Initialization =============================================
     const [id, setId] = useState(noteID)
 

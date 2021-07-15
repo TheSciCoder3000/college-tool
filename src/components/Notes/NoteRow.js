@@ -12,7 +12,7 @@ import NoteContentEditable from './ContentEditable'
 export const noteDataContext = createContext()
 
 const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
-    // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, path })
+    // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, docContext, path })
 
     const note = noteData
     const childIndx = useRef(indx)
@@ -248,7 +248,32 @@ const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
 
         </div>
     )
+}, (prevProps, nextProps) => {
+    const propkeys = Object.keys(prevProps)
+    for (let i = 0; i < propkeys.length; i++) {
+        const propKey = propkeys[i]
+
+        if (prevProps[propKey] !== nextProps[propKey] && propKey !== 'path') return false
+        if (propKey === 'path')
+            if (!comparePathProps(propKey, prevProps[propKey], nextProps[propKey])) return false
+    }
+    return true
 })
+
+
+const comparePathProps = (property, prevPath, nextPath) => {
+    if (property !== 'path') return true
+    let pathProp = {
+        prev: prevPath,
+        next: nextPath
+    }
+    if (pathProp.prev.length !== pathProp.next.length) return false
+    for (let indx = 0; indx < pathProp.prev.length; indx++) {
+        const pathItem = pathProp.prev[indx];
+        if (pathItem !== pathProp.next[indx]) return false
+    }
+    return true
+}
 
 
 export default NoteRow
