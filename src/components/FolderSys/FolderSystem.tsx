@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { addItem, findFolderFiles, getOpenFolders } from '../Notes/store/Utils'
+import { getOpenFolders } from '../Notes/store/Utils'
 import File, { NOTE_CONTEXT_ACTION } from './File'
 import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
 import  { ContextMenu, MenuItem } from 'react-contextmenu'
@@ -9,24 +9,44 @@ import { useOpenNote } from '../Notes/Note'
 
 import { motion } from 'framer-motion'
 import { NotesVariants } from '../../AnimationVariants'
+import { AddItem } from '../../redux/ReduxActions'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectFolderTree } from '../../redux/ReduxSelectors'
+import { NotesAndFolderItem } from '../../redux/Reducers/NotesAndFolders'
 
 
-const DisplayFolders = React.createContext()
+export interface OpenFoldersObj {
+    [key: string]: boolean
+}
+interface ProxyInputObj {
+    item: string | null
+}
+interface ContextMenuData {
+    action: any
+    noteid: string
+    onClickHandler: (action: any, noteid: string) => void
+}
+
+type displayFolderType = React.Dispatch<React.SetStateAction<OpenFoldersObj>>
+const DisplayFolders = React.createContext<displayFolderType|null>(null)
 export function useDisplayFolders() {
     return useContext(DisplayFolders)
 }
 
 
 const FileFolder = () => {
+    console.log('rendering files folder')
     // ============================================= State Initialization =============================================
-    const [files, setFiles] = useState()
-    useEffect(() => { if (!files) findFolderFiles('root-folder', setFiles) }, [])       // fetch files data from the database
+    const dispatch = useDispatch()
+    const files = useSelector(selectFolderTree)
+    // const [files, setFiles] = useState<NotesAndFolderItem[]>()
+    // useEffect(() => { if (!files) findFolderFiles('root-folder', setFiles) }, [])       // fetch files data from the database
 
-    const [proxyInput, setProxyInput] = useState(null)
+    const [proxyInput, setProxyInput] = useState<ProxyInputObj>({item: null})
     const openNote = useOpenNote()
 
-    const [showFolders, setShowFolders] = useState(false)
-    const [openFolders, setOpenFolders] = useState()
+    const [showFolders, setShowFolders] = useState(true)
+    const [openFolders, setOpenFolders] = useState<OpenFoldersObj>({})
     // Used to only display the folder tree once all folders are openned
     useEffect(() => {
         if (!openFolders) getOpenFolders(setOpenFolders)                                // On render, get an object of open folders w/ values set to false
@@ -37,26 +57,29 @@ const FileFolder = () => {
     
 
     // DEV DEBUGGING LOG
-    // useWhyDidYouUpdate('FileFolder', { files, showFolders, openFolders })
+    useWhyDidYouUpdate('FileFolder', { files, proxyInput, openNote, showFolders, openFolders })
 
 
 
-    const onSubmitCreation = (e) => {
+    const onSubmitCreation = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        let itemName = document.getElementById('proxy-folder-creation').querySelector('input').value
+        let itemId = `${new Date().toISOString()}-${Math.random().toString(16).slice(-4)}`
+        let itemName: string|null|undefined = document.getElementById('proxy-folder-creation')?.querySelector('input')?.value
         let itemType = {...proxyInput}
         if (itemName === '' || !itemName) return
         
-        setProxyInput(null)
+        setProxyInput({item: null})
 
-        addItem('root-folder', itemType.item, itemName, setFiles).then(result => { if (result.type == 'note') openNote(result._id, result.name) })
+        // console.log(`creating item ${itemName} as ${itemType.item}`)
+        if (!itemType.item) return console.error('ERROR: item type is null')
+        AddItem(dispatch, { itemId, itemName, parentId: 'root-folder', type: itemType.item })
     }
 
 
     // ============================================= SHARED FUNCTIONS =============================================
     // link the clickHandler to the contextMenuHandler
-    const handleContextMenu = (e, { action, noteid, onClickHandler }) => onClickHandler(action, noteid)
+    const handleContextMenu = (e: React.MouseEvent, { action, noteid, onClickHandler }: ContextMenuData) => onClickHandler(action, noteid)
 
     return (
         <>
@@ -81,18 +104,18 @@ const FileFolder = () => {
                 )}
 
                 <div className={showFolders ? "folder-tree" : "folder-tree no-display"}>
-                    {proxyInput && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput(null)} />)}
+                    {proxyInput.item && (<ProxyItem onSubmitCreation={onSubmitCreation} removeProxy={() => setProxyInput({ item: null })} />)}
                     {files && (
                         files.map((file) => {
                             if (file.type == 'folder') {
                                 return (
                                     <DisplayFolders.Provider key={`folder-${file._id}`} value={setOpenFolders}>
-                                        <Folder folderData={file} setParentFiles={setFiles} />
+                                        <Folder folderData={file} />
                                     </DisplayFolders.Provider>
                                 )
                             }
                             return (
-                                <File key={`file-${file._id}`} fileData={file} setParentFiles={setFiles} />
+                                <File key={`file-${file._id}`} fileData={file} />
                             )
                         })
                     )}
@@ -175,4 +198,4 @@ const FileFolder = () => {
     )
 }
 
-export default FileFolder
+export default React.memo(FileFolder)

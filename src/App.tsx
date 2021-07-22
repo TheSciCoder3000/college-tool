@@ -47,7 +47,7 @@ function NotesRoute() {
 // =================================================== App Component ===================================================
 function App() {
   const dispatch = useDispatch()
-  // initalize redux on render
+  // initalize redux state on render
   useEffect(() => InitializeReduxStoreStates(dispatch), [])
 
   const location = useLocation()
@@ -58,7 +58,6 @@ function App() {
   
 
   const SetShowAppBarHandler = () => {
-    console.log('setting app bar')
     let pathStrings = ['/', '/dashboard']
     if (!pathStrings.includes(location.pathname)) setShowAppBar(true)
   }

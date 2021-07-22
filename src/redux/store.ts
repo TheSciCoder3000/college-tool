@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
-import TabReducer from './Tabs'
-import ActiveTabReducer from './ActiveTab'
-import NotesAndFoldersReducer from './NotesAndFolders'
+import TabReducer from './Reducers/Tabs'
+import ActiveTabReducer from './Reducers/ActiveTab'
+import NotesAndFoldersReducer from './Reducers/NotesAndFolders'
 import { syncStateToDb } from '../components/Notes/store/Utils'
 
 export const store = configureStore({
@@ -11,6 +11,9 @@ export const store = configureStore({
         ActiveTab: ActiveTabReducer
     }
 })
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 
 
 export const subscribeToStore = () => {

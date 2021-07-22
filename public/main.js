@@ -39,7 +39,7 @@ function createWindow () {
 
 const reactDevToolsPath = path.join(
   os.homedir(),
-  'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'
+  'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0'
 )
 
 const reduxDevToolsPath = path.join(

@@ -1,26 +1,33 @@
 import '../../assets/css/note_taking/Notes.css'
 import FileFolder from '../FolderSys/FolderSystem'
 import MenuComponent from './MenuComponent'
-import { NoteProvider } from './NoteContext'
-import { useState, createContext, useContext, useEffect, useCallback, useRef } from 'react'
+import { NoteProvider as UnmemoizedNoteProvider } from './NoteContext'
+import React, { useState, createContext, useContext, useEffect, useCallback, useRef } from 'react'
 
 import closeTabIcon from '../../assets/img/close-tab.svg'
-import { addOpenTab, getLastActiveTab, getOpenTabs, removeOpenTab, setLastActiveTab, updateItem } from './store/Utils'
-import { useNotedbListener, useWhyDidYouUpdate } from '../compUtils'
+import { useWhyDidYouUpdate } from '../compUtils'
 import ReactDOM from 'react-dom'
 
 import { motion } from 'framer-motion'
 import { NotesVariants } from '../../AnimationVariants'
 
+
+import { setActiveTab as reduxSetActiveTab } from '../../redux/Reducers/ActiveTab'
+
 import { useDispatch, useSelector } from 'react-redux'
-import { addOpenTabs, RemoveTab } from '../../redux/Tabs'
-import { setActiveTab as reduxSetActiveTab } from '../../redux/ActiveTab'
-import { selectTabs } from '../../redux/ReduxSelectors'
-import { UpdateNoteItem } from '../../redux/ReduxActions'
+import { selectTabs, selectRawActiveTab } from '../../redux/ReduxSelectors'
+import { AddTab, OpenTab, UpdateFolderNoteItem, RemoveTab } from '../../redux/ReduxActions'
+
+const NoteProvider = React.memo(UnmemoizedNoteProvider)
+
+interface ActiveTabChangeType {
+    _id: string | null | undefined
+    saved: boolean | null | undefined
+}
 
 
 // Context Initialization
-const OpenNote = createContext()
+const OpenNote = createContext((noteId: string, filename: string) => {})
 export function useOpenNote() {
     return useContext(OpenNote)
 }
@@ -31,12 +38,12 @@ const RevNotes = () => {
     const initialRender = useRef(true)
 
     const tabs = useSelector(selectTabs)
-    function setTabs () {
-    }
-    useEffect(() => { if (!tabs || tabs.length === 0) getOpenTabs().then(setTabs) }, [])        // fetch open tabs on initial render
+    console.log('tabs', tabs)
+    const setTabs = useCallback(() => {
+    },[])
     
-    const activeTab = useSelector(state => state.ActiveTab)
-    const setActiveTab = noteId => { dispatch(reduxSetActiveTab(noteId)) }
+    const activeTab = useSelector(selectRawActiveTab)
+    const setActiveTab = (noteId: string|null) => { dispatch(reduxSetActiveTab(noteId)) }
     // useEffect(() => setLastActiveTab(activeTab), [activeTab])                                   // update db when active tab changes
 
 
@@ -47,10 +54,10 @@ const RevNotes = () => {
         const activeTabData = tabs.find(tab => tab._id === activeTab)
         const initalRenderState = initialRender.current
         if (activeTabData || initalRenderState) {
-            const tabChangeEvent = new CustomEvent('ActiveTabChanged', {
+            const tabChangeEvent = new CustomEvent<ActiveTabChangeType>('ActiveTabChanged', {
                 detail: {
-                    _id: initalRenderState ? activeTab : activeTabData._id,
-                    saved: initalRenderState ? true : activeTabData.saved,
+                    _id: initalRenderState ? activeTab : activeTabData ? activeTabData._id : null,
+                    saved: initalRenderState ? true : activeTabData ? activeTabData.saved : null,
                 }
             }) 
             document.dispatchEvent(tabChangeEvent)
@@ -67,7 +74,10 @@ const RevNotes = () => {
                 document.getElementById('menu-bar-cont')
             )
         }, 500);
-        return () => ReactDOM.unmountComponentAtNode(document.getElementById('menu-bar-cont'))
+        return () => {
+            const menuEl = document.getElementById('menu-bar-cont')
+            if (menuEl) ReactDOM.unmountComponentAtNode(menuEl)
+        }
     }, [])
     
     
@@ -77,17 +87,10 @@ const RevNotes = () => {
      * @param {string} noteId 
      * @param {string} filename 
      */
-    const openNoteHandler = (noteId, filename) => {
-        
-        if (tabs.find(tab => tab._id === noteId)) {                                 // check if note is already openned
-            // set as active tab
-            setActiveTab(noteId)
-        } else {                                                                    // else
-            console.log('running dispatch')
-            dispatch(addOpenTabs(noteId))
-            setActiveTab(noteId)
-        }
-    }
+    const openNoteHandler = useCallback((noteId: string, filename: string) => {
+        if (tabs.find(tab => tab._id === noteId))  OpenTab(dispatch, noteId)
+        else AddTab(dispatch, noteId)
+    }, [tabs])
 
     /**
      * Updates the states and db of notes
@@ -96,7 +99,7 @@ const RevNotes = () => {
      * @param {Array} updatedNote 
      */
     const updateNoteFile = useCallback((id, updatedNote) => {
-        UpdateNoteItem(dispatch, {
+        UpdateFolderNoteItem(dispatch, {
             id: id,
             property: 'notes',
             newValue: updatedNote
@@ -110,7 +113,7 @@ const RevNotes = () => {
 
     // ============================================= COMPONENT BASED FUNCTIONS =============================================
     // Handles Note closing when the tab is closed
-    const closeTab = (id, tabIndx) => {
+    const closeTab = (id: string, tabIndx: number) => {
         // update the activetab state
         if (tabs.length > 1 && tabIndx) {
             if (activeTab !== id) return
@@ -119,37 +122,9 @@ const RevNotes = () => {
         } else setActiveTab(null)
 
         // remove tabs in the database and set the tabs state
-        dispatch(RemoveTab(id))
+        RemoveTab(dispatch, id)
     }
     
-
-
-    // ============================================= FUNCTIONS TO SYNC CHANGES FROM FOLDERS COMPONENT TO TABS =============================================
-    // removing tabs whose files are removed
-    const checkTabsForRemovedFiles = useCallback((files) => {
-        console.log('removing file', files)
-        if (files) files.forEach(noteFile => {
-            if (tabs.find(noteTab => noteTab.id === noteFile)) 
-                dispatch(RemoveTab(noteFile))
-            if (noteFile === activeTab) {
-                setActiveTab(null)
-            }
-        })
-    }, [tabs, activeTab])
-
-    // renaming tabs whose files are renamed
-    const checkTabsForRenamedFile = useCallback((file) => {
-        console.log('checking renamed file', file)
-        if (file && tabs.find(tab => tab._id === file.id)) {
-            setTabs(tabState => tabState.map(tab => {
-                if (tab._id === file.id) return { ...tab, name: file.name }
-                return tab
-            }))
-        }
-    }, [tabs])
-
-    useNotedbListener(checkTabsForRenamedFile, checkTabsForRemovedFiles)
-
 
     return (
         <div className="notes-body">
@@ -164,7 +139,7 @@ const RevNotes = () => {
                         tabs.map((tab, tabIndx) => 
                             <div className={`tab ${activeTab && activeTab === tab._id ? 'active' : ''} ${!tab.saved ? 'tab-unsaved' : ''}`} 
                                  key={`tab-${tab._id}`}
-                                 onClick={!activeTab || activeTab !== tab._id ? () => setActiveTab(tab._id) : null} >
+                                 onClick={!activeTab || activeTab !== tab._id ? () => setActiveTab(tab._id) : undefined} >
                                 <div className="tab-name">{tab.name}</div>
                                 <div className="tab-exit"
                                      onClick={() => closeTab(tab._id, tabIndx)} >

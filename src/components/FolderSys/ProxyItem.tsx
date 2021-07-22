@@ -1,10 +1,15 @@
-import React from 'react'
+import React, { FormEvent } from 'react'
 import { useRef, useLayoutEffect } from 'react'
 
-const ProxyItem = ({ onSubmitCreation, removeProxy }) => {
-    const proxyInput = useRef()
+interface ProxyItemProps {
+    onSubmitCreation: (e: FormEvent<HTMLFormElement>) => void
+    removeProxy: () => void
+}
+
+const ProxyItem: React.FC<ProxyItemProps> = ({ onSubmitCreation, removeProxy }) => {
+    const proxyInput = useRef<HTMLInputElement>(null)
     useLayoutEffect(() => {
-        setTimeout(() => proxyInput.current.focus(), 10)
+        setTimeout(() => proxyInput.current?.focus(), 10)
     }, [])
     return (
         <div className="Folder proxy-folder-note" id="proxy-folder-creation">

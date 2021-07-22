@@ -1,3 +1,5 @@
+import { RootState } from "../../../redux/store"
+
 const Pouchdb = window.require('pouchdb-browser')
 const PouchdbFind = window.require('pouchdb-find')
 Pouchdb.plugin(PouchdbFind)
@@ -8,33 +10,79 @@ const { app, dialog } = window.require('@electron/remote')
 const Store = window.require('electron-store')
 
 
+export interface NoteDoc {
+    _id: string
+    _rev?: string
+    name: string
+    type: string
+    parentFolder: string
+    notes: Array<any>
+}
+export interface FolderDoc {
+    _id: string
+    _rev?: string
+    name: string
+    type: string
+    parentFolder: string
+    open: boolean
+}
+
+type DocType = NoteDoc|FolderDoc
+type $FixMe = any
+
+
 // ================================================ VARIABLE INITIALIZATIONS ================================================
 const store = new Store()
 export var UserSettingsdb = new Pouchdb(path.join(app.getPath('userData'), 'userSettings'))
 export var Notedb = new Pouchdb(path.join(app.getPath('userData'), 'noteDb'))
+Notedb.allDocs({ include_docs: true }).then(console.log)
 
 
 // ================================================ FOLDER FUNCTIONS FUNCTIONS ================================================
 // Initializing root folders if the db is empty
-async function initializeRootFiles(setSync) {
+async function initializeRootFiles() {
     // add to database
     Notedb.bulkDocs([
         {
             _id: 'root-folder',
-            name: 'root-folder'
+            name: 'root-folder',
+            type: 'folder',
+            open: true
         }
-    ]).then(result => {
-        console.log('bulk put completed', result)
-        setSync()                                       // get root files if success
-    }).catch(error => {
+    ]).then((confirmation: any) => {
+        console.log('bulk put completed', confirmation)
+    }).catch((error: any) => {
         console.log('unexpected error occured', error)
     })
 }
 
+export async function findFilesOf(folderId: string) {
+    let FolderData = await Notedb.createIndex({
+        index: { fields: ['parentFolder'] },
+        ddoc: 'parentFolder-indexes'
+    }).then(() => Notedb.find({
+        selector: {
+            'parentFolder': folderId
+        }
+    }))
+    .then((selectorResult: {docs: any}) => selectorResult.docs)
+    .catch((err: any) => console.error(`ERROR: cannot find files of ${folderId}`, err))
+
+    // sort the folderData
+    if (FolderData.length > 0) FolderData = FolderData.sort((doc1: DocType, doc2: DocType) => {
+        if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
+        return doc1.type === 'folder' ? -1 : 1
+    }).map((doc: DocType) => doc._id)
+    // FolderData = FolderData.map(doc => {return { _id: doc._id, type: doc.type, name: doc.name }})
+    // else if empty db and is root folder then initialize starting files
+    // else if (folderId === 'root-folder' && FolderData.length < 1) return initializeRootFiles()
+    return await FolderData
+}
+
 // find the files of the folder id
-export async function findFolderFiles(id, setFiles) {
+export async function findFolderFiles(id: string) {
     // create and index and find the children of folder id
-    let FolderData = id ? await Notedb.createIndex({
+    let RawFolderData: {docs: DocType[]} = id ? await Notedb.createIndex({
         index: {fields: ['parentFolder']},
         ddoc: 'parentFolder-indexes'
     }).then(() => {
@@ -42,34 +90,32 @@ export async function findFolderFiles(id, setFiles) {
             selector: {
                 'parentFolder': id
             }
-        }).catch(err => console.error(`ERROR: cannot find files of ${id}`, err))
+        }).catch((err: any) => console.error(`ERROR: cannot find files of ${id}`, err))
     }) : []         // set to empty array if there is no id
-    FolderData = FolderData.docs
+    let FolderData = RawFolderData.docs
 
     // sort the folder data if items are > 1
     if (FolderData.length > 1) FolderData = FolderData.sort((doc1, doc2) => {           // sort the files, folders first alphabetically
             if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
             return doc1.type === 'folder' ? -1 : 1
-        }).map(doc => {                                                                 // remove the notes data for optimization
+        }).map((doc: $FixMe) => {                                                                 // remove the notes data for optimization
             if (doc.type === 'note') {
                 delete doc.notes
                 return doc
             } else return doc
         })
-    // else if empty db, the initialize starting files of db
-    else if (id === 'root-folder' && FolderData.length < 1) initializeRootFiles(() => findFolderFiles(id, setFiles))
 
     // update the react folder component
-    if (setFiles) setFiles(FolderData)
     else return await FolderData
 }
 
 
 // add a folder/note to the db
-export async function addItem(id, type, itemName, setFiles) {
+export async function addItem(id: string, type: string, itemId: string, itemName: string) {
+    let newItemId = itemId // `${new Date().toISOString()}-${Math.random().toString(16).slice(-4)}`
     // pre initialize item Obj
-    let itemObj = {
-        _id: `${new Date().toISOString()}-${Math.random().toString(16).slice(-4)}`,
+    let itemObj: $FixMe = {
+        _id: newItemId,
         name: itemName,
         parentFolder: id,
         open: false,
@@ -90,33 +136,34 @@ export async function addItem(id, type, itemName, setFiles) {
 
     // adding item to db
     return Notedb.put(itemObj).then(() => {
-        findFolderFiles(id, setFiles)
-        return itemObj
-    }).catch(err => console.error('ERROR: adding item error', err))
+        return Notedb.get(newItemId)
+    }).catch((err: any) => console.error('ERROR: adding item error', err))
+}
+
+export function dialogConfirmation(deleteMsg: string) {
+    return dialog.showMessageBoxSync({
+        message: deleteMsg,
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        defaultId: 1,
+        cancelId: 1
+    })
 }
 
 // remove a folder or note
-export async function removeItem(id, type, parentFolderID, setFiles) {
+export async function removeItem(id: string, type: string) {
     if (type === 'note') {                                                                      // if the item is a note type
-        return Notedb.get(id).then(doc => {
+        return Notedb.get(id).then((doc: $FixMe) => {
             // Initialize the dialog for confirmation
             let deleteMsg = `Are you sure you want to delete the Note ${doc.name}`
-            let deleteRes = dialog.showMessageBoxSync({
-                message: deleteMsg,
-                type: 'question',
-                buttons: ['Yes', 'No'],
-                defaultId: 1,
-                cancelId: 1,
-            })
+            let deleteRes = dialogConfirmation(deleteMsg)
 
             // if user agrees, delete the item
-            if (deleteRes === 0) return Notedb.remove(doc).then(() => {
-                findFolderFiles(parentFolderID, setFiles)
-                return [id]
-            }).catch(err => console.error('ERROR: deleting note error', err))
+            if (deleteRes === 0) return Notedb.remove(doc).then((result: $FixMe) => [result])
+            .catch((err: any) => console.error('ERROR: deleting note error', err))
         })
     } else {                                                                                   // else, its a folder type
-        return Notedb.get(id).then(doc => {
+        return Notedb.get(id).then((doc: $FixMe) => {
             // collect all children files
             return removeFilesOfFolder(id).then(result => {
                 // add the item to be deleted with the children files
@@ -125,24 +172,15 @@ export async function removeItem(id, type, parentFolderID, setFiles) {
                 // Initialize the dialog for confirmation
                 let batchNames = batchDelete.map(doc => doc.name)
                 let deleteMsg = `Are you sure you want to delete these files and folders \n${batchNames.join('\n')}`
-                let deleteBatch = dialog.showMessageBoxSync({
-                    message: deleteMsg,
-                    type: 'question',
-                    buttons: ['Yes', 'No'],
-                    defaultId: 1,
-                    cancelId: 1,
-                })
+                let deleteRes = dialogConfirmation(deleteMsg)
                 
                 // if user agrees, batch delete
-                if (deleteBatch === 0) {
+                if (deleteRes === 0) {
                     batchDelete = batchDelete.map(doc => { return {...doc, _deleted: true} })
-                    return Notedb.bulkDocs(batchDelete).then(() => {
-                        findFolderFiles(parentFolderID, setFiles)
-                        return batchDelete.filter(doc => doc.type !== 'folder').map(doc => doc._id)
-                    })
+                    return Notedb.bulkDocs(batchDelete)
                 }
             })
-        }).then(result => {
+        }).then((result: $FixMe) => {
             Notedb.allDocs({include_docs: true}).then(console.log)
             return result
         })
@@ -150,16 +188,16 @@ export async function removeItem(id, type, parentFolderID, setFiles) {
 }
 
 // used in conjuction with removeItem() to remove sub folders
-async function removeFilesOfFolder(id) {
+async function removeFilesOfFolder(id: string) {
     return Notedb.find({
         selector: {
             parentFolder: id
         },
         use_index: 'parentFolder-indexes'
-    }).then(async result => {
-        let docs = await result.docs.map(async doc => {
+    }).then(async (result: $FixMe) => {
+        let docs = await result.docs.map(async (doc: $FixMe) => {
             if (doc.type === 'folder') {
-                let PromiseDocs = await findFolderFiles(doc._id)
+                let PromiseDocs = await findFolderFiles(doc._id) || []
                 if (PromiseDocs.length > 0) return removeFilesOfFolder(doc._id).then(files => { return [...files, doc] })
                 return [doc]
             }
@@ -173,12 +211,12 @@ async function removeFilesOfFolder(id) {
 
 
 // updates a property of the doc in the database
-export async function updateItem(itemData, property, newValue, setFiles) {
-    return Notedb.get(itemData._id).catch(err => console.log('Update item: Get err', err)).then(result => {
+export async function updateItem(itemData: $FixMe, property: string, newValue: $FixMe) {
+    return Notedb.get(itemData._id).catch((err: any) => console.log('Update item: Get err', err)).then((result: $FixMe) => {
         // if the prev value is the same with the new value
         if (property !== 'notes' && result[property] === newValue) {
             // then cancel update
-            return
+            return console.log('cancel update')
         }
 
         // update the doc
@@ -186,16 +224,12 @@ export async function updateItem(itemData, property, newValue, setFiles) {
         doc[property] = newValue
 
         // send the updated doc to the db
-        return Notedb.put(doc).catch(err => console.log('update item err', err)).then(() => doc)
-    }).then(newDoc => {
-        // after finshing the procedures, update the files of the parent cont
-        if (setFiles) findFolderFiles(itemData.parentFolder, setFiles)
-        else return newDoc
-    }).catch(err => console.log(err))
+        return Notedb.put(doc).catch((err: any) => console.log('update item err', err)).then(() => doc)
+    }).catch((err: any) => console.log(err))
 }
 
 // returns an object of openned folders as keys with values set to false
-export async function getOpenFolders(callback) {
+export async function getOpenFolders(callback: $FixMe) {
     return Notedb.createIndex({
         index: {
             fields: ['type', 'open']
@@ -208,57 +242,31 @@ export async function getOpenFolders(callback) {
                 open: true
             }
         })
-    }).then(result => {
-        let parsedResult = {}
-        result.docs.forEach(doc => {
+    }).then((result: $FixMe) => {
+        let parsedResult: {[key: string]: any} = {}
+        result.docs.forEach((doc: $FixMe) => {
             parsedResult[doc._id] = false
         });
         if (callback) callback(parsedResult)
         else return parsedResult
-    }).catch(err => console.error(`ERROR: failed in getting openned folders`, err))
+    }).catch((err: $FixMe) => console.error(`ERROR: failed in getting openned folders`, err))
 }
 
 // ================================================ TAB AND NOTE FUNCTIONS ================================================
+// Used for fetching
 export async function getOpenTabs() {
     let openTabs = store.get('openTabs') || []
     return openTabs
-    if (openTabs.length === 0) return openTabs
-
-    return Notedb.allDocs({
-        include_docs: true,
-        keys: openTabs
-    }).catch(err => console.error('ERROR: get open tabs error', err)).then(result => result.rows.map(row => { return {...row.doc, saved:true} }))
 }
 
-
-// Used when adding another tab
-export async function addOpenTab(id, prevTabArray, redux=false) {
-    // fetch the data from the db
-    return Notedb.get(id).catch(err => console.error('ERROR: Add open tab - get error', err)).then(result => {
-        // add to the ids to localStorage
-        // store.set('openTabs', [...store.get('openTabs'), result._id])
-
-        // if used for redux then return the result only
-        if (redux) return { ...result, saved: true }
-
-        // add the doc to the array with an extra "saved" field
-        return [...prevTabArray, { ...result, saved: true }]
-    })
-}
-
-export async function removeOpenTab(id) { 
-    // add the id to open tabs
-    store.set('openTabs', store.get('openTabs').filter(tab => tab !== id))
-    return 'success'
-}
 
 // runs on initial render to get the last active note/tab
 export function getLastActiveTab() {
-    return store.get('activeTab')
+    return store.get('activeTab') || null
 }
 
 // Used to set the active tab in the localStorage and returns the object of the id arg
-export function setLastActiveTab(id) {
+export function setLastActiveTab(id: string) {
     if (id) store.set('activeTab', id)
     else store.delete('activeTab')
 }
@@ -271,23 +279,9 @@ export function viewDB() {
     })
 }
 
-// Used for listenning db changes
-export function getNotedbListenner() {
-    return Notedb.changes({
-        since: 'now',
-        live: true,
-        include_docs: true,
-        filter: function (doc) {
-            return doc.type === 'note' || doc._deleted === true
-        }
-    })
-}
-
-
-
 
 // ================================================ REDUX SYNC FUNCTIONS ================================================
-export function syncStateToDb(state) {
+export function syncStateToDb(state: RootState) {
     console.log('syncing db')
     for (const [stateItem, stateValue] of Object.entries(state)) {
         switch (stateItem) {
@@ -295,7 +289,7 @@ export function syncStateToDb(state) {
                 store.set('openTabs', stateValue)
                 break;
             case 'ActiveTab':
-                store.set('activeTab', stateValue)
+                setLastActiveTab(stateValue)
                 break;
         }
     }
@@ -303,6 +297,8 @@ export function syncStateToDb(state) {
 
 
 export async function getFoldersAndNotes() {
+    let rootFolderData = await Notedb.get('root-folder').catch((result: $FixMe) => result)
+    if (rootFolderData.error && rootFolderData.reason === 'missing') await initializeRootFiles()
     return Notedb.createIndex({
         index: {fields: ['type']},
         ddoc: 'db-types'
@@ -311,15 +307,18 @@ export async function getFoldersAndNotes() {
             selector: {
                 'type': { $exists: true }
             }
-        }).catch(err => console.error(`ERROR: cannot find folders and files`, err))
-    }).then(result => {
+        }).catch((err: any) => console.error(`ERROR: cannot find folders and files`, err))
+    }).then(async (result: $FixMe) => {
         let opennedTabs = store.get('openTabs')
-        let FolderNotesObj = {}
-        result.docs.forEach(doc => {
+        let FolderNotesObj: {[key: string]: any} = {}
+        for (let i = 0; i < result.docs.length; i++) {
+            const doc = result.docs[i];
+            let FolderChildren = await findFilesOf(doc._id)
             FolderNotesObj[doc._id] = doc.type === 'note'
                 ? { ...doc, open: opennedTabs.includes(doc._id) }
-                : doc
-        })
+                : { ...doc, children: FolderChildren }
+            if (FolderNotesObj[doc._id].notes) delete FolderNotesObj[doc._id].notes
+        }
         return FolderNotesObj
     })
 }
