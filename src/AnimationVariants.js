@@ -59,3 +59,15 @@ export const NotesVariants = {
         exit: { x: '100vw', transition: { ease: 'easeIn' } }
     }
 }
+
+// ===================== Todo Variant =====================
+export const TodoVariants = {
+    viewer: {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: {
+            type: 'linear',
+            duration: 0.9
+        } },
+        exit: { opacity: 0 }
+    }
+}

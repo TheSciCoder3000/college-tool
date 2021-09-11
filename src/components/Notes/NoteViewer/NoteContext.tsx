@@ -1,12 +1,21 @@
 import React, { useReducer, useContext, useEffect, useState, useRef } from "react";
 import NoteDoc from "./NoteDoc";
 import produce, { original } from "immer";
-import { getDocNotes } from "./NoteData";
-import { useWhyDidYouUpdate } from "../compUtils";
+
+export type $fixMe = any
+export interface notesType {
+    id: string
+    content: string
+    insideNote: notesType | null
+}
+interface actionType {
+    type: string
+    data: any
+}
 
 // CONTEXTS
-export const NoteContext = React.createContext()
-const UpdateNoteContext = React.createContext()
+export const NoteContext = React.createContext([])
+const UpdateNoteContext = React.createContext((action: any): void => {})
 
 // HOOKS
 export function useNote() {
@@ -26,10 +35,11 @@ export const NOTE_ACTION = {
     ARRANGE_NOTE: 'arrange-note',
     ROOT_UPDATE: 'root-update'
 }
-function reducer(note, action) {
+function reducer(note: notesType, action: actionType) {
+    console.log('notes', action)
     switch (action.type) {
         case NOTE_ACTION.ADD_NOTE:
-            const noteCopy = produce(note, draft => {
+            const noteCopy = produce(note, (draft: $fixMe) => {
                 // Initialize variables
                 let path = action.data.path
                 let draftRef = draft
@@ -46,7 +56,7 @@ function reducer(note, action) {
             })
             return noteCopy     // return the edited copy
         case NOTE_ACTION.REMOVE_NOTE:
-            let noteCopy2 = produce(note, draft => {
+            let noteCopy2 = produce(note, (draft: $fixMe) => {
                 // Initialize Root variables
                 let path = action.data.path
                 let draftRef = draft
@@ -112,7 +122,7 @@ function reducer(note, action) {
             })
             return noteCopy2
         case NOTE_ACTION.UPDATE_NOTE:
-            return produce(note, draft => {
+            return produce(note, (draft: $fixMe) => {
                 // Initialize variables
                 let path = action.data.path
                 let draftRef = draft
@@ -127,7 +137,7 @@ function reducer(note, action) {
                 draftRef.content = action.data.newValue
             })
         case NOTE_ACTION.MAKE_CHILD_NOTE: 
-            return produce(note, draft => {
+            return produce(note, (draft: $fixMe) => {
                 // let pathToNote, pathToPrevNote
                 let contPath = action.data.contPath
                 let noteIndx = action.data.indx
@@ -150,7 +160,7 @@ function reducer(note, action) {
                 noteCont.splice(noteIndx, 1)
             })
         case NOTE_ACTION.ARRANGE_NOTE:
-            return produce(note, draft => {
+            return produce(note, (draft: $fixMe) => {
                 // Initialize variables
                 let contPath = action.data.contPath
                 let noteContPath = action.data.notePath.slice(0, -1)
@@ -161,8 +171,8 @@ function reducer(note, action) {
                 let noteRef = draft
                 let contRef = draft
 
-                noteContPath.forEach(location => {noteRef = noteRef[location]})
-                contPath.forEach(location => {contRef = contRef[location]})
+                noteContPath.forEach((location: $fixMe) => {noteRef = noteRef[location]})
+                contPath.forEach((location: $fixMe) => {contRef = contRef[location]})
 
                 noteRef.splice(noteIndx, 1)
                 contRef.splice(insertIndx, 0, noteData)
@@ -176,8 +186,15 @@ function reducer(note, action) {
     }
 }
 
+interface PropTypes {
+    noteID: string
+    notes: $fixMe
+    hidden: boolean
+    updateNoteFile: $fixMe
+}
+
 // Note Provider Component
-export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile }) {
+export const  NoteProvider: React.FC<PropTypes> = ({ noteID, notes, hidden, updateNoteFile }) => {
     // ============================================= State Initialization =============================================
     const [id, setId] = useState(noteID)
 
@@ -195,16 +212,16 @@ export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile })
                 notes: note
             }})
             document.dispatchEvent(NotesChangeEvent)
-            setTabs(tabsState => tabsState.map(tab => {
-                if (tab._id === id && tab.saved) return { ...tab, saved: false }
-                return tab
-            }))
+            // setTabs(tabsState => tabsState.map(tab => {
+            //     if (tab._id === id && tab.saved) return { ...tab, saved: false }
+            //     return tab
+            // }))
         }
     }, [note, prevNote])
 
 
     //dev
-    useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
+    // useWhyDidYouUpdate(`NoteProvider-${id}`, {noteID, notes, hidden, updateNoteFile, id, note})
 
     // changes the note state when a new notes prop is passed to the component
     useEffect(() => setNote({ type: NOTE_ACTION.ROOT_UPDATE, data: {note: notes} }), [notes])
@@ -224,6 +241,7 @@ export function NoteProvider({ noteID, notes, setTabs, hidden, updateNoteFile })
     // Unselects the folder/note when anything besides that item is clicked
     document.onclick = e => {
         let substrings = ['folder-cont', 'folder-img', 'folder-name', 'filename']
+        // @ts-ignore
         if (!substrings.some(function(v) { return e.target.classList.value.indexOf(v) >= 0; })) 
             document.querySelectorAll('.item-selected').forEach(folder => folder.classList.remove('item-selected'))
     }

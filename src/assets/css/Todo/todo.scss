@@ -1,0 +1,20 @@
+.todo-cont {
+    flex: 1;
+}
+
+.todo-main {
+    display: flex;
+    height: calc(100vh - 4rem);
+
+    .todo-tree {
+        flex: 0.6;
+        background-color: rgba(255, 255, 255, 0.90);
+    }
+    .todo-viewer {
+        flex: 1.618;
+    }
+    .todo-panel {
+        flex: 1;
+        background-color: rgba(255, 255, 255, 0.90)
+    }
+}

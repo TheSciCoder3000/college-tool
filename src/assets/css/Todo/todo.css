@@ -1,0 +1,33 @@
+.todo-cont {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.todo-main {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: calc(100vh - 4rem);
+}
+
+.todo-main .todo-tree {
+  -webkit-box-flex: 0.6;
+      -ms-flex: 0.6;
+          flex: 0.6;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.todo-main .todo-viewer {
+  -webkit-box-flex: 1.618;
+      -ms-flex: 1.618;
+          flex: 1.618;
+}
+
+.todo-main .todo-panel {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+/*# sourceMappingURL=todo.css.map */

@@ -9,6 +9,8 @@ Object {
         class="doc-page"
         data-cont-path="parent"
         data-testid="note-doc"
+        id="doc-page-tab-test-id"
+        style="display: block;"
       >
         <div
           class="note-row"
@@ -614,6 +616,8 @@ Object {
       class="doc-page"
       data-cont-path="parent"
       data-testid="note-doc"
+      id="doc-page-tab-test-id"
+      style="display: block;"
     >
       <div
         class="note-row"

@@ -3,7 +3,7 @@ import { render, fireEvent, createEvent, act } from '@testing-library/react'
 import { getAllByTestId, prettyDOM, screen } from '@testing-library/dom'
 import NoteDoc from '../NoteDoc'
 import * as Editable from '../../../assets/js/editable'
-import * as NoteContext from '../NoteContext'
+import * as NoteContext from '../NoteViewer/NoteContext'
 import * as NoteData from '../NoteData'
 
 var NoteIdList 

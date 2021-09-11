@@ -1,7 +1,7 @@
 import { FaPlus } from 'react-icons/fa'
-import handles from '../../assets/img/handles.svg'
-import { findParentBySelector, useDraggableHook } from '../../assets/js/draggable.js'
-import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCaretPosition, getCurrentCursorPosition, placeCaretAtEnd, setCaret, setCurrentCursorPosition } from '../../assets/js/editable.js'
+import handles from '../../../assets/img/handles.svg'
+import { findParentBySelector, useDraggableHook } from '../../../assets/js/draggable.js'
+import { extractHTMLContentFromCaretToEnd, extractHTMLContentFromStartToCaret, getCurrentCursorPosition, setCurrentCursorPosition } from '../../../assets/js/editable.js'
 
 import { useEffect, memo, useRef, createContext, useContext, useState } from 'react'
 import { NOTE_ACTION, useUpdateNote } from './NoteContext'
@@ -12,7 +12,7 @@ import NoteContentEditable from './ContentEditable'
 export const noteDataContext = createContext()
 
 const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
-    // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, path })
+    // useWhyDidYouUpdate(`NoteRow ${noteData.id}`, { indx, noteData, parents, docContext, path })
 
     const note = noteData
     const childIndx = useRef(indx)
@@ -71,8 +71,8 @@ const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
                     reviseContent = ''
                 }
 
-                console.log(reviseContent)
-                console.log(extractDiv)
+                console.log('extract div - revised cont', reviseContent)
+                console.log('extract div - extracted cont', extractDiv)
                 onTextChange(reviseContent, currPath)
                 let addNoteIndx = keyNoteData.insideNote ? 0 : noteIndx + 1
                 updateRootNote({ type: NOTE_ACTION.ADD_NOTE, data:{
@@ -248,7 +248,32 @@ const NoteRow = memo(({ indx, noteData, parents, docContext, path }) => {
 
         </div>
     )
+}, (prevProps, nextProps) => {
+    const propkeys = Object.keys(prevProps)
+    for (let i = 0; i < propkeys.length; i++) {
+        const propKey = propkeys[i]
+
+        if (prevProps[propKey] !== nextProps[propKey] && propKey !== 'path') return false
+        if (propKey === 'path')
+            if (!comparePathProps(propKey, prevProps[propKey], nextProps[propKey])) return false
+    }
+    return true
 })
+
+
+const comparePathProps = (property, prevPath, nextPath) => {
+    if (property !== 'path') return true
+    let pathProp = {
+        prev: prevPath,
+        next: nextPath
+    }
+    if (pathProp.prev.length !== pathProp.next.length) return false
+    for (let indx = 0; indx < pathProp.prev.length; indx++) {
+        const pathItem = pathProp.prev[indx];
+        if (pathItem !== pathProp.next[indx]) return false
+    }
+    return true
+}
 
 
 export default NoteRow

@@ -1,8 +1,7 @@
 import { useRef, useEffect } from 'react'
-import { getNotedbListenner } from './Notes/store/Utils';
-
 
 export function useWhyDidYouUpdate(name, props) {
+    console.log('running why did you update')
     // Get a mutable ref object where we can store props ...
     // ... for comparison next time this hook runs.
     const previousProps = useRef();
@@ -74,18 +73,4 @@ export function useHotKeys(keyMaps, handlers) {
         document.addEventListener('keydown', hotKeyHandler)
         return () => document.removeEventListener('keydown', hotKeyHandler)
     })
-}
-
-
-export function useNotedbListener(renamedFileCb, removedFilesCb) {
-    useEffect(() => {
-        let changes = getNotedbListenner().on('change', change => {
-            console.log(change)
-            if (change.doc._deleted) removedFilesCb([change.doc._id])
-            else renamedFileCb({ id: change.doc._id, name: change.doc.name })
-        }).on('complete', change => {
-            console.log('on complete', change)
-        })
-        return () => changes.cancel()
-    }, [renamedFileCb, removedFilesCb])
 }

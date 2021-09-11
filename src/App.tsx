@@ -5,7 +5,9 @@ import AppBar from './components/AppBar'
 import DashRoute from './components/Routes/DashRoute';
 
 // import Notes from './components/note_taking/Notes';
-import RevNotes from './components/Notes/Note'
+import RevNotes from './components/Notes/'
+
+import Todo from './components/Todo'
 
 import CalendarViewer from './components/calendar/CalendarViewer';
 import TaskPanel from './components/calendar/TaskPanel';
@@ -16,6 +18,8 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AppBarVariants } from './AnimationVariants';
 
+import { useDispatch } from 'react-redux';
+import { InitializeReduxStoreStates } from './redux';
 
 
 function CalendarRoute() {
@@ -44,8 +48,11 @@ function NotesRoute() {
 
 // =================================================== App Component ===================================================
 function App() {
+  const dispatch = useDispatch()
+  // initalize redux state on render
+  useEffect(() => InitializeReduxStoreStates(dispatch), [])
+
   const location = useLocation()
-  console.log(location)
   const [ShowAppBar, setShowAppBar] = useState(location.pathname === '/dashboard' ? false : true)
   useEffect(() => {
     if (location.pathname === '/dashboard') setShowAppBar(false)
@@ -53,7 +60,6 @@ function App() {
   
 
   const SetShowAppBarHandler = () => {
-    console.log('setting app bar')
     let pathStrings = ['/', '/dashboard']
     if (!pathStrings.includes(location.pathname)) setShowAppBar(true)
   }
@@ -93,6 +99,10 @@ function App() {
 
               <Route exact path="/Notes">
                 <NotesRoute />
+              </Route>
+
+              <Route exact path="/Todo">
+                <Todo />
               </Route>
               
               <Route exact path="/Calendar">
