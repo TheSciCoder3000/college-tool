@@ -1,10 +1,16 @@
-import React from 'react'
+import { motion } from 'framer-motion'
+import { TodoVariants } from '../../../../AnimationVariants'
 
 const ActivityPanel = () => {
     return (
-        <div className="todo-panel">
+        <motion.div className="todo-panel"
+            variants={TodoVariants.activity}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+        >
             todo panel
-        </div>
+        </motion.div>
     )
 }
 
