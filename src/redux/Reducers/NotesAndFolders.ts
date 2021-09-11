@@ -5,22 +5,26 @@ import { RemoveTab } from "./Tabs";
 import { RootState } from "../store";
 
 
+// Notes and Folder Type
 export interface NotesAndFolderItem {
     _id: string
     name: string
-    _rev: string|null
-    type: string
-    open?: boolean
-    notes?: Array<any>
+    type: ItemTypes
     parentFolder: string
     children: Array<string>
-
+    open?: boolean
 }
+
 export type NotesAndFolderState =  {
     [key: string]: NotesAndFolderItem
 }
+export type ItemTypes = 'note' | 'folder' | null | undefined
 
 
+/**
+ * Used when first initializing the NotesAndFolders State
+ * * Used only upon initialization
+ */
 export const fetchNotesAndFolders = createAsyncThunk(
     'NotesAndFolders/fetchData',
     async () => {
@@ -29,27 +33,41 @@ export const fetchNotesAndFolders = createAsyncThunk(
     }
 )
 
+// Argument types when updating the NotesAndFolder state
 export interface UpdateDataArg {
     id: string,
     property: string,
     newValue: any
 }
-
+/**
+ * Used when updating the state of either a note or folder
+ * @param {string} id
+ * @param {string} property
+ * @param {any} newValue
+ */
 export const  UpdateStateItem = createAsyncThunk(
     'NotesAndFolders/UpdateItem',
     async (updateData: UpdateDataArg) => {
         let { id, property, newValue } = updateData
         console.log('update state', updateData)
-        return await updateItem({_id: id}, property, newValue)
+        return await updateItem(id, property, newValue)
     }
 )
 
+// Argument types when adding either a note or folder state
 export interface AddDataArg {
     itemId: string
     itemName: string
     parentId: string,
-    type: string,
+    type: ItemTypes,
 }
+/**
+ * Used when adding another note or folder in the state
+ * @param {string} itemId
+ * @param {string} itemName
+ * @param {string} parentId
+ * @param {string} type
+ */
 export const AddStateItem = createAsyncThunk(
     'NotesAndFolders/AddItem',
     async (AddData: AddDataArg) => {
@@ -58,11 +76,18 @@ export const AddStateItem = createAsyncThunk(
     }
 )
 
+// Argument types used when removing a note or folder state
 export interface RemoveDataArg {
     itemId: string
-    type: string
+    type: ItemTypes
     parentId: string
 }
+/**
+ * Used when removing another note or folder in the state
+ * @param {string} itemId
+ * @param {string} type
+ * @param {string} parentId
+ */
 export const RemoveStateItem = createAsyncThunk(
     'NotesAndFolders/RemoveItem',
     async (RemoveData: RemoveDataArg, thunkApi) => {
@@ -73,7 +98,7 @@ export const RemoveStateItem = createAsyncThunk(
             thunkApi.dispatch(removeChildren({ parentId, itemId }))
             if (type === 'note') thunkApi.dispatch(RemoveTab(itemId))
             const currState = thunkApi.getState() as RootState
-            result.forEach((doc: any) => {
+            result.forEach(doc => {
                 if (currState.Tabs.includes(doc.id)) thunkApi.dispatch(RemoveTab(doc.id))
             });
             return result
@@ -81,6 +106,7 @@ export const RemoveStateItem = createAsyncThunk(
     }
 )
 
+// ======================================= Notes and Folders Reducer Initialization =======================================
 const initialState: NotesAndFolderState = {}
 export const NotesAndFolderSlice = createSlice({
     name: 'NotesAndFolders',
@@ -101,7 +127,10 @@ export const NotesAndFolderSlice = createSlice({
     },
     extraReducers: builder => {
         builder
+            // fetching db data
             .addCase(fetchNotesAndFolders.fulfilled, (_, action) => action.payload)
+
+            // update item
             .addCase(UpdateStateItem.fulfilled, (state, action) => {
                 let newDoc = action.payload
                 if (!newDoc) return state
@@ -109,6 +138,7 @@ export const NotesAndFolderSlice = createSlice({
                 return state
             })
 
+            // add item 
             .addCase(AddStateItem.pending, (state, action) => {
                 const arg = action.meta.arg
                 state[arg.itemId] = {
@@ -116,7 +146,6 @@ export const NotesAndFolderSlice = createSlice({
                     name: arg.itemName,
                     type: arg.type,
                     parentFolder: arg.parentId,
-                    _rev: null,
                     children: []
                 }
             })
@@ -130,6 +159,7 @@ export const NotesAndFolderSlice = createSlice({
                 delete state[arg.itemId]
             })
 
+            // remove item
             .addCase(RemoveStateItem.fulfilled, (state, action) => {
                 const deletedFile = action.payload
                 if (!deletedFile) return state

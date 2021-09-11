@@ -1,5 +1,5 @@
 import { addChildren, AddDataArg, AddStateItem, removeChildren, RemoveDataArg, RemoveStateItem, UpdateDataArg, UpdateStateItem } from "./Reducers/NotesAndFolders";
-import { RemoveTab as ReduxRemoveTab, addOpenTabs } from './Reducers/Tabs'
+import { RemoveTab as ReduxRemoveTab, addOpenTabs, updateNotesData } from './Reducers/Tabs'
 import { setActiveTab } from "./Reducers/ActiveTab";
 
 import { AppDispatch } from "./store";
@@ -14,16 +14,23 @@ export function AddTab(dispatch: AppDispatch, id: string) {
     dispatch(addOpenTabs(id))
     OpenTab(dispatch, id)
 }
+export type AddTabType = typeof AddTab
 
-export function OpenTab(dispatch: AppDispatch, id: string) {
+// sets the tab as active
+export function OpenTab(dispatch: AppDispatch, id: string | null) {
     dispatch(setActiveTab(id))
 }
-
-
+export type OpenTabType = typeof OpenTab
 
 // Update a Note Item
 export function UpdateFolderNoteItem(dispatch: AppDispatch, NoteData: UpdateDataArg) {
-    dispatch(UpdateStateItem(NoteData))
+    if (NoteData.property === 'notes') dispatch(updateNotesData({noteId: NoteData.id, notesData: NoteData.newValue}))
+    else dispatch(UpdateStateItem(NoteData))
+}
+
+// Update Tab Item
+export function UpdateTabItem(dispatch: AppDispatch, noteId: string, notesData: any[]) {
+    dispatch(updateNotesData({noteId, notesData}))
 }
 
 // add item

@@ -4,15 +4,15 @@ import { RootState } from "./store"
 
 export const selectRawFoldersNotes = (state: RootState): NotesAndFolderState => state.NotesAndFolders
 const selectRootFolderChildren = (state: RootState): NotesAndFolderItem => state.NotesAndFolders['root-folder']
-export const selectRawTabs = (state: RootState): string[] => state.Tabs
-export const selectRawActiveTab = (state: RootState): string => state.ActiveTab
+export const selectRawTabs = (state: RootState): any[] => state.Tabs
+export const selectRawActiveTab = (state: RootState): string|null => state.ActiveTab
 
 
 export const selectTabs = createSelector(
     selectRawFoldersNotes,
     selectRawTabs,
     (FoldersAndNotes, TabsIds) => {
-        console.log('folders and notes', FoldersAndNotes)
+        console.log('rev notes changing', FoldersAndNotes, TabsIds)
         if (Object.keys(FoldersAndNotes).length > 0) return TabsIds.map(tabId => {return {...FoldersAndNotes[tabId], saved: true}})   // loads the note data using the tab ids
         return []
     }
@@ -40,6 +40,9 @@ export const selectFilesOf = createSelector(
         const childrenIds = FoldersAndNotes[folderId].children || []
         const childrenItems: NotesAndFolderItem[] = []
         childrenIds.forEach(itemId => childrenItems.push(FoldersAndNotes[itemId]))
-        return childrenItems
+        return childrenItems.sort((doc1, doc2) => {
+            if (doc1.type === doc2.type) return doc1.name.localeCompare(doc2.name)
+            return doc1.type === 'folder' ? -1 : 1
+        })
     }
 )

@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getLastActiveTab } from "../../components/Notes/store/Utils";
+import { ItemTypes } from "./NotesAndFolders";
 
 export const ActiveTabSlice = createSlice({
     name: 'ActiveTab',
