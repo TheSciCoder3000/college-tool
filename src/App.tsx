@@ -5,7 +5,7 @@ import AppBar from './components/AppBar'
 import DashRoute from './components/Routes/DashRoute';
 
 // import Notes from './components/note_taking/Notes';
-import RevNotes from './components/Notes/Note'
+import RevNotes from './components/Notes'
 
 import CalendarViewer from './components/calendar/CalendarViewer';
 import TaskPanel from './components/calendar/TaskPanel';
