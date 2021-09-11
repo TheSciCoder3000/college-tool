@@ -38,6 +38,7 @@ const Viewer = ({ showSidePanel }) => {
             <div className="nav-container">
                 <Link className='dashboard-nav-links' to='/Notes'>Notes</Link>
                 <Link className='dashboard-nav-links' to='/dashboard'>Dashboard</Link>
+                <Link className='dashboard-nav-links' to='/Todo'>Todo</Link>
                 <a onClick={() => showSidePanel(sidePanelState => !sidePanelState)} 
                    className="dashboard-nav-links"
                    onDoubleClick={CalendarDbClickHandler}>Calendar</a>

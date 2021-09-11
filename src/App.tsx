@@ -5,7 +5,9 @@ import AppBar from './components/AppBar'
 import DashRoute from './components/Routes/DashRoute';
 
 // import Notes from './components/note_taking/Notes';
-import RevNotes from './components/Notes'
+import RevNotes from './components/Notes/'
+
+import Todo from './components/Todo'
 
 import CalendarViewer from './components/calendar/CalendarViewer';
 import TaskPanel from './components/calendar/TaskPanel';
@@ -97,6 +99,10 @@ function App() {
 
               <Route exact path="/Notes">
                 <NotesRoute />
+              </Route>
+
+              <Route exact path="/Todo">
+                <Todo />
               </Route>
               
               <Route exact path="/Calendar">
