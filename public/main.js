@@ -39,17 +39,13 @@ function createWindow () {
 
 const reactDevToolsPath = path.join(
   os.homedir(),
-  'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0'
+  'AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.16.0_0'
 )
 
 const reduxDevToolsPath = path.join(
   os.homedir(),
   'AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_0'
 )
-
-async function loadExtension(){
-  await session.defaultSession.loadExtension(reactDevToolsPath)
-}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
