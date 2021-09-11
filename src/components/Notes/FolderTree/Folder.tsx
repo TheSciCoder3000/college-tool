@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef, memo, FormEvent } from 'react'
 import File from './File'
 import { ContextMenuTrigger } from 'react-contextmenu'
-import { useHotKeys } from '../compUtils'
+import { useHotKeys } from '../../compUtils'
 
-import ChevronRight from '../../assets/img/folder-right.svg'
-import ChevronDown from '../../assets/img/folder-down.svg'
-import { viewDB, removeItem } from '../Notes/store/Utils'
+import ChevronRight from '../../../assets/img/folder-right.svg'
+import ChevronDown from '../../../assets/img/folder-down.svg'
+import { viewDB } from '../store/Utils'
 import ProxyItem from './ProxyItem';
 import { OpenFoldersObj, useDisplayFolders } from './FolderSystem'
-import { useOpenNote } from '../Notes/Note'
+import { useOpenNote } from '..'
 import { useDispatch, useSelector } from 'react-redux'
-import { AddItem, RemoveItem, UpdateFolderNoteItem } from '../../redux/ReduxActions'
-import { NotesAndFolderItem } from '../../redux/Reducers/NotesAndFolders'
-import { selectFilesOf } from '../../redux/ReduxSelectors'
-import { RootState } from '../../redux/store'
+import { AddItem, RemoveItem, UpdateFolderNoteItem } from '../../../redux/ReduxActions'
+import { ItemTypes, NotesAndFolderItem } from '../../../redux/Reducers/NotesAndFolders'
+import { selectFilesOf } from '../../../redux/ReduxSelectors'
+import { RootState } from '../../../redux/store'
 
 interface FolderProps {
     folderData: NotesAndFolderItem
@@ -61,7 +61,7 @@ const Folder: React.FC<FolderProps> = ({ folderData }) => {
     const folderRenameInput = useRef<HTMLFormElement>(null)                 // Ref to the input field used in renaming a folder
     const folderNameEl = useRef<HTMLDivElement>(null)                       // Ref to the element that contains the name of the folder
     const folderChildrenEl = useRef<HTMLDivElement>(null)                   // Ref to the element that contains the child folders/notes
-    const createItem = useRef<string|null|undefined>(null)                  // Holds ref to type of item being created
+    const createItem = useRef<ItemTypes|null|undefined>(null)                  // Holds ref to type of item being created
 
     const contextMenuHandler = (action: string, noteid: string) => {
         switch (action) {

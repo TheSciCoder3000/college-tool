@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { getOpenFolders } from '../Notes/store/Utils'
+import { getOpenFolders } from '../store/Utils'
 import File, { NOTE_CONTEXT_ACTION } from './File'
 import Folder, { CONTEXT_MENU_ACTIONS } from './Folder'
 import  { ContextMenu, MenuItem } from 'react-contextmenu'
 import ProxyItem from './ProxyItem'
-import { useWhyDidYouUpdate } from '../compUtils'
-import { useOpenNote } from '../Notes/Note'
+import { useWhyDidYouUpdate } from '../../compUtils'
+import { useOpenNote } from '..'
 
 import { motion } from 'framer-motion'
-import { NotesVariants } from '../../AnimationVariants'
-import { AddItem } from '../../redux/ReduxActions'
+import { NotesVariants } from '../../../AnimationVariants'
+import { AddItem } from '../../../redux/ReduxActions'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectFolderTree } from '../../redux/ReduxSelectors'
-import { NotesAndFolderItem } from '../../redux/Reducers/NotesAndFolders'
+import { selectFolderTree } from '../../../redux/ReduxSelectors'
+import { ItemTypes, NotesAndFolderItem } from '../../../redux/Reducers/NotesAndFolders'
 
 
 export interface OpenFoldersObj {
     [key: string]: boolean
 }
 interface ProxyInputObj {
-    item: string | null
+    item: ItemTypes | null
 }
 interface ContextMenuData {
     action: any

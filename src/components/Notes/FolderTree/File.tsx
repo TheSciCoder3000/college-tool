@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react'
 import { ContextMenuTrigger } from 'react-contextmenu'
-import { removeItem } from '../Notes/store/Utils'
-import { useHotKeys } from '../compUtils'
+import { useHotKeys } from '../../compUtils'
 import { useDispatch } from 'react-redux'
-import { AddTab, RemoveItem, UpdateFolderNoteItem } from '../../redux/ReduxActions'
+import { AddTab, RemoveItem, UpdateFolderNoteItem } from '../../../redux/ReduxActions'
+import { ItemTypes } from '../../../redux/Reducers/NotesAndFolders'
 
 interface FileProps {
     fileData: {
         _id: string
         name: string
-        type: string
+        type: ItemTypes
         parentFolder: string
     }
 }
