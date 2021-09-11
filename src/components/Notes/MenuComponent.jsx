@@ -24,6 +24,7 @@ const MenuComponent = ({ activeTab, updateNoteFile }) => {
             })
         }
         const NotesUpdatedEventHandler = e => {
+            console.log('notes have been updated - fired from menu component')
             let eventDetail = e.detail
             setActiveData(activeTabState => {
                 if (activeTabState._id === eventDetail._id) {
