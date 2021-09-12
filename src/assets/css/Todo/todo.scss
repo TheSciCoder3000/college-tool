@@ -8,8 +8,35 @@
     height: calc(100vh - 4rem);
 
     .todo-tree {
-        flex: 0.6;
+        flex: 0.53;
         background-color: rgba(255, 255, 255, 0.90);
+        padding: 1rem;
+        font-size: 0.95vw;
+
+        .shortcut-cont {
+            margin-bottom: 1rem;
+
+            .shortcut-links {
+                text-decoration: none;
+                color: #949494;
+            }
+            .shortcut-links:hover {
+                color: #3a3a3a;
+                cursor: pointer;
+            }
+            .active {
+                color: #000000;
+            }
+        }
+
+        .projects-cont {
+            margin-top: 1.7rem;
+
+            h4 {
+                margin: 0;
+                color: #a0a0a0;
+            }
+        }
     }
     .todo-viewer {
         flex: 1.618;

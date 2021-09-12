@@ -13,10 +13,39 @@
 }
 
 .todo-main .todo-tree {
-  -webkit-box-flex: 0.6;
-      -ms-flex: 0.6;
-          flex: 0.6;
+  -webkit-box-flex: 0.53;
+      -ms-flex: 0.53;
+          flex: 0.53;
   background-color: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  font-size: 0.95vw;
+}
+
+.todo-main .todo-tree .shortcut-cont {
+  margin-bottom: 1rem;
+}
+
+.todo-main .todo-tree .shortcut-cont .shortcut-links {
+  text-decoration: none;
+  color: #949494;
+}
+
+.todo-main .todo-tree .shortcut-cont .shortcut-links:hover {
+  color: #3a3a3a;
+  cursor: pointer;
+}
+
+.todo-main .todo-tree .shortcut-cont .active {
+  color: #000000;
+}
+
+.todo-main .todo-tree .projects-cont {
+  margin-top: 1.7rem;
+}
+
+.todo-main .todo-tree .projects-cont h4 {
+  margin: 0;
+  color: #a0a0a0;
 }
 
 .todo-main .todo-viewer {
