@@ -88,7 +88,7 @@ function App() {
             exitBeforeEnter
             onExitComplete={SetShowAppBarHandler}
           >
-            <Switch location={location} key={location.pathname} >
+            <Switch location={location} key={location.pathname.split('/')[1]} >
               <Route exact path="/">
                 <Redirect to="/dashboard"/>
               </Route>
@@ -101,7 +101,10 @@ function App() {
                 <NotesRoute />
               </Route>
 
-              <Route exact path="/Todo">
+              {/* <Route exact path="/Todo">
+                <Redirect to="/Todo/inbox" />
+              </Route> */}
+              <Route path="/Todo">
                 <Todo />
               </Route>
               

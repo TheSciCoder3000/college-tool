@@ -9,7 +9,7 @@ const ActivityPanel = () => {
             animate='visible'
             exit='exit'
         >
-            todo panel
+            todo activity
         </motion.div>
     )
 }
